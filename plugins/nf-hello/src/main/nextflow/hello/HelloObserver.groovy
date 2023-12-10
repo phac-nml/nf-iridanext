@@ -47,11 +47,22 @@ class HelloObserver implements TraceObserver {
     private List<TaskRun> tasks = []
     private List traces = []
     private IridaNextOutput iridaNextOutput = new IridaNextOutput()
+    private Map<String,List<PathMatcher>> pathMatchers
     private List<PathMatcher> samplesMatchers
     private List<PathMatcher> globalMatchers
 
     public HelloObserver() {
-        samplesMatchers = [FileSystems.getDefault().getPathMatcher("glob:**/*.assembly.fa.gz")]
+        pathMatchers = [:]
+        addPathMatchers("global", [FileSystems.getDefault().getPathMatcher("glob:**/summary.txt.gz")])
+        addPathMatchers("samples", [FileSystems.getDefault().getPathMatcher("glob:**/*.assembly.fa.gz")])
+    }
+
+    public addPathMatchers(String scope, List<PathMatcher> matchers) {
+        if (pathMatchers.containsKey(scope)) {
+            pathMatchers[scope].addAll(matchers)
+        } else {
+            pathMatchers[scope] = matchers
+        }
     }
 
     private String outputSectionName(FileOutParam outParam) {
@@ -121,8 +132,9 @@ class HelloObserver implements TraceObserver {
 
                 if (object instanceof Path) {
                     Path path = (Path)object
-                    if (samplesMatchers.any {it.matches(path)}) {
-                        iridaNextOutput.addFile(currIndexInfo["scope"], currIndexInfo["subscope"], path)
+                    currScope = currIndexInfo["scope"]
+                    if (pathMatchers[currScope].any {it.matches(path)}) {
+                        iridaNextOutput.addFile(currScope, currIndexInfo["subscope"], path)
                     }
                 }
             }
