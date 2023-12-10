@@ -53,8 +53,8 @@ class HelloObserver implements TraceObserver {
 
     public HelloObserver() {
         pathMatchers = [:]
-        addPathMatchers("global", [FileSystems.getDefault().getPathMatcher("glob:**/summary/summary.txt.gz")])
-        addPathMatchers("samples", [FileSystems.getDefault().getPathMatcher("glob:**/assembly/*.assembly.fa.gz")])
+        addPathMatchers("global", [])
+        addPathMatchers("samples", [])
     }
 
     public addPathMatchers(String scope, List<PathMatcher> matchers) {
@@ -74,8 +74,26 @@ class HelloObserver implements TraceObserver {
 
     @Override
     void onFlowCreate(Session session) {
-        log.info "Pipeline is starting!"
-        log.info "params: ${session.getParams()}"
+        def iridaNextFiles = session.config.navigate('iridanext.files')
+        if (iridaNextFiles != null) {
+            if (!iridaNextFiles instanceof Map<String,Object>) {
+                throw new Exception("Expected a map in config for iridanext.files=${iridaNextFiles}")
+            }
+
+            iridaNextFiles = (Map<String,Object>)iridaNextFiles
+            iridaNextFiles.each {scope, matchers ->
+                if (matchers instanceof String) {
+                    matchers = [matchers]
+                }
+
+                if (!(matchers instanceof List)) {
+                    throw new Exception("Invalid configuration for iridanext.files=${iridaNextFiles}")
+                }
+
+                List<PathMatcher> matchersGlob = matchers.collect {FileSystems.getDefault().getPathMatcher("glob:${it}")}
+                addPathMatchers(scope, matchersGlob)
+            }
+        }
     }
 
     @Override
@@ -93,13 +111,7 @@ class HelloObserver implements TraceObserver {
         tasks.each { task ->
             Map<Short,Map<String,String>> outParamInfo = [:]
             def currSubscope = null
-            log.info "\n****\ntask: ${task.getName()}"
-            log.info "task.outputs (${task.outputs.getClass()}): ${task.outputs}"
             task.outputs.each { outParam, object -> 
-                log.info "outParam (${outParam.getClass()}): ${outParam}"
-                log.info "outParm info: name=${outParam.getName()}, index=${outParam.getIndex()}, emitName=${outParam.getChannelEmitName()}"
-                log.info "object class: ${object.getClass()}, instanceof map ${object instanceof Map}"
-                log.info "object ${object}"
                 Short paramIndex = outParam.getIndex()
                 if (!outParamInfo.containsKey(paramIndex)) {
                     Map<String,String> currIndexInfo = [:]
@@ -137,6 +149,6 @@ class HelloObserver implements TraceObserver {
             }
         }
 
-        log.info "JSON: ${JsonOutput.prettyPrint(iridaNextOutput.toJson())}"
+        log.info "${JsonOutput.prettyPrint(iridaNextOutput.toJson())}"
     }
 }

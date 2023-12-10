@@ -36,7 +36,6 @@ class IridaNextOutput {
             if (!files_scope_map.containsKey(subscope)) {
                 files_scope_map[subscope] = []
             }
-            log.info "before"
             ((List)files_scope_map[subscope]).push(["path": path.toString()])
         } else if (scope == "global") {
             def files_scope_list = (List)files_scope
