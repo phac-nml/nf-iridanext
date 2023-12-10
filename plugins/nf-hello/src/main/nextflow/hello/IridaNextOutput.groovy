@@ -23,7 +23,11 @@ class IridaNextOutput {
             throw new Exception("scope=${scope} not in valid set of scopes: ${files.keySet()}")
         }
 
-        log.info "Calling addFile(${scope}, ${subscope}, ${path})"
+        // Treat empty string and null as same
+        if (subscope == "") {
+            subscope = null
+        }
+
         def files_scope = files[scope]
         if (scope == "samples" && subscope == null) {
             throw new Exception("scope=${scope} but subscope is null")
