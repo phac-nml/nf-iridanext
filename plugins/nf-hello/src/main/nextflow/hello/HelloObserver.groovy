@@ -43,7 +43,7 @@ import nextflow.hello.IridaNextOutput
 @CompileStatic
 class HelloObserver implements TraceObserver {
 
-    private List publishedFiles = []
+    private Map<Path,Path> publishedFiles = [:]
     private List<TaskRun> tasks = []
     private List traces = []
     private IridaNextOutput iridaNextOutput = new IridaNextOutput()
@@ -53,8 +53,8 @@ class HelloObserver implements TraceObserver {
 
     public HelloObserver() {
         pathMatchers = [:]
-        addPathMatchers("global", [FileSystems.getDefault().getPathMatcher("glob:**/summary.txt.gz")])
-        addPathMatchers("samples", [FileSystems.getDefault().getPathMatcher("glob:**/*.assembly.fa.gz")])
+        addPathMatchers("global", [FileSystems.getDefault().getPathMatcher("glob:**/summary/summary.txt.gz")])
+        addPathMatchers("samples", [FileSystems.getDefault().getPathMatcher("glob:**/assembly/*.assembly.fa.gz")])
     }
 
     public addPathMatchers(String scope, List<PathMatcher> matchers) {
@@ -62,14 +62,6 @@ class HelloObserver implements TraceObserver {
             pathMatchers[scope].addAll(matchers)
         } else {
             pathMatchers[scope] = matchers
-        }
-    }
-
-    private String outputSectionName(FileOutParam outParam) {
-        if (outParam.getName() == "meta") {
-            return "samples"
-        } else {
-            return "global"
         }
     }
 
@@ -82,25 +74,25 @@ class HelloObserver implements TraceObserver {
 
     @Override
     void onFlowCreate(Session session) {
-        log.info "Pipeline is starting! 🚀"
-        log.info "session: ${session}"
+        log.info "Pipeline is starting!"
         log.info "params: ${session.getParams()}"
     }
 
     @Override
     void onFilePublish(Path destination, Path source) {
-        publishedFiles.push(["destination": destination, "source": source])
+        if (publishedFiles.containsKey(source)) {
+            throw new Exception("Error: file with source=${source} was already published")
+        }
+
+        publishedFiles[source] = destination
     }
 
     @Override
     void onFlowComplete() {
-        log.info "Pipeline complete!"
-
         // Some of this code derived from https://github.com/nextflow-io/nf-prov/blob/master/plugins/nf-prov
         tasks.each { task ->
             Map<Short,Map<String,String>> outParamInfo = [:]
             def currSubscope = null
-            def currScope = "global"
             log.info "\n****\ntask: ${task.getName()}"
             log.info "task.outputs (${task.outputs.getClass()}): ${task.outputs}"
             task.outputs.each { outParam, object -> 
@@ -131,10 +123,15 @@ class HelloObserver implements TraceObserver {
                 Map<String,String> currIndexInfo = outParamInfo[paramIndex]
 
                 if (object instanceof Path) {
-                    Path path = (Path)object
-                    currScope = currIndexInfo["scope"]
-                    if (pathMatchers[currScope].any {it.matches(path)}) {
-                        iridaNextOutput.addFile(currScope, currIndexInfo["subscope"], path)
+                    Path processPath = (Path)object
+
+                    if (publishedFiles.containsKey(processPath)) {
+                        Path publishedPath = publishedFiles[processPath]
+                        def currScope = currIndexInfo["scope"]
+                        
+                        if (pathMatchers[currScope].any {it.matches(publishedPath)}) {
+                            iridaNextOutput.addFile(currScope, currIndexInfo["subscope"], publishedPath)
+                        }
                     }
                 }
             }
