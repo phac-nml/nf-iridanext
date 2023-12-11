@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Plugin-Id: nf-hello
-Plugin-Version: 0.4.0
-Plugin-Class: nextflow.hello.HelloPlugin
-Plugin-Provider: nextflow
-Plugin-Requires: >=22.10.0

@@ -1,5 +1,6 @@
 /*
- * Copyright 2021, Seqera Labs
+ * Original file Copyright 2021, Seqera Labs (from nf-hello plugin template)
+ * Modifications Copyright 2023, Government of Canada
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +15,25 @@
  * limitations under the License.
  */
 
-package nextflow.hello
+package nextflow.iridanext
 
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
 import nextflow.Session
 import nextflow.trace.TraceObserver
-
+import nextflow.trace.TraceObserverFactory
 /**
- * Example workflow events observer
+ * Factory for building the IridaNextObserver
  *
+ * @author Aaron Petkau <aaron.petkau@phac-aspc.gc.ca>
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
-@Slf4j
 @CompileStatic
-class HelloObserver implements TraceObserver {
+class IridaNextFactory implements TraceObserverFactory {
 
     @Override
-    void onFlowCreate(Session session) {
-        log.info "Pipeline is starting! 🚀"
-    }
-
-    @Override
-    void onFlowComplete() {
-        log.info "Pipeline complete! 👋"
+    Collection<TraceObserver> create(Session session) {
+        final result = new ArrayList()
+        result.add( new IridaNextObserver() )
+        return result
     }
 }

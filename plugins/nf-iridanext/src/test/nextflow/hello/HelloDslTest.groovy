@@ -35,7 +35,6 @@ class HelloDslTest extends Dsl2Spec{
             @Override
             protected PluginDescriptorFinder createPluginDescriptorFinder() {
                 return new TestPluginDescriptorFinder(){
-                    @Override
                     protected Path getManifestPath(Path pluginPath) {
                         return pluginPath.resolve('build/resources/main/META-INF/MANIFEST.MF')
                     }
