@@ -1,112 +1,26 @@
-# nf-hello plugin 
+# nf-iridanext plugin 
  
-This project contains a simple Nextflow plugin called `nf-hello` which provides examples of different plugin extensions:
+This project contains a plugin for integrating Nextflow pipelines with [IRIDA Next][irida-next]. In particular, it will enable a pipeline to produce output consistent with the IRIDA Next [pipeline standards][].
 
-- A custom trace observer that prints a message when the workflow starts and when the workflow completes
-- A custom channel factory called `reverse`
-- A custom operator called `goodbye`
-- A custom function called `randomString`
+# Credits
 
-NOTE: If you want to use this project as a starting point for a custom plugin, you must rename the `plugins/nf-hello` folder and update `settings.gradle` with your plugin name.
+This plugin was developed based on the `nf-hello` Nextflow plugin template <https://github.com/nextflow-io/nf-hello>.
 
-## Plugin structure
-                    
-- `settings.gradle`
-    
-    Gradle project settings. 
+# Legal
 
-- `plugins/nf-hello`
-    
-    The plugin implementation base directory.
+Copyright 2023 Government of Canada
+Original nf-hello project Copyright to respective authors
 
-- `plugins/nf-hello/build.gradle` 
-    
-    Plugin Gradle build file. Project dependencies should be added here.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this work except in compliance with the License. You may obtain a copy of the
+License at:
 
-- `plugins/nf-hello/src/resources/META-INF/MANIFEST.MF` 
-    
-    Manifest file defining the plugin attributes e.g. name, version, etc. The attribute `Plugin-Class` declares the plugin main class. This class should extend the base class `nextflow.plugin.BasePlugin` e.g. `nextflow.hello.HelloPlugin`.
+http://www.apache.org/licenses/LICENSE-2.0
 
-- `plugins/nf-hello/src/resources/META-INF/extensions.idx`
-    
-    This file declares one or more extension classes provided by the plugin. Each line should contain the fully qualified name of a Java class that implements the `org.pf4j.ExtensionPoint` interface (or a sub-interface).
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
 
-- `plugins/nf-hello/src/main` 
-
-    The plugin implementation sources.
-
-- `plugins/nf-hello/src/test` 
-
-    The plugin unit tests. 
-
-## Plugin classes
-
-- `HelloConfig`: shows how to handle options from the Nextflow configuration
-
-- `HelloExtension`: shows how to create custom channel factories, operators, and fuctions that can be included into pipeline scripts
-
-- `HelloFactory` and `HelloObserver`: shows how to react to workflow events with custom behavior
-
-- `HelloPlugin`: the plugin entry point
-
-## Unit testing 
-
-To run your unit tests, run the following command in the project root directory (ie. where the file `settings.gradle` is located):
-
-```bash
-./gradlew check
-```
-
-## Testing and debugging
-
-To build and test the plugin during development, configure a local Nextflow build with the following steps:
-
-1. Clone the Nextflow repository in your computer into a sibling directory:
-    ```bash
-    git clone --depth 1 https://github.com/nextflow-io/nextflow ../nextflow
-    ```
-  
-2. Configure the plugin build to use the local Nextflow code:
-    ```bash
-    echo "includeBuild('../nextflow')" >> settings.gradle
-    ```
-  
-   (Make sure to not add it more than once!)
-
-3. Compile the plugin alongside the Nextflow code:
-    ```bash
-    make compile
-    ```
-
-4. Run Nextflow with the plugin, using `./launch.sh` as a drop-in replacement for the `nextflow` command, and adding the option `-plugins nf-hello` to load the plugin:
-    ```bash
-    ./launch.sh run nextflow-io/hello -plugins nf-hello
-    ```
-
-## Testing without Nextflow build
-
-The plugin can be tested without using a local Nextflow build using the following steps:
-
-1. Build the plugin: `make buildPlugins`
-2. Copy `build/plugins/<your-plugin>` to `$HOME/.nextflow/plugins`
-3. Create a pipeline that uses your plugin and run it: `nextflow run ./my-pipeline-script.nf`
-
-## Package, upload, and publish
-
-The project should be hosted in a GitHub repository whose name matches the name of the plugin, that is the name of the directory in the `plugins` folder (e.g. `nf-hello`).
-
-Follow these steps to package, upload and publish the plugin:
-
-1. Create a file named `gradle.properties` in the project root containing the following attributes (this file should not be committed to Git):
-
-   * `github_organization`: the GitHub organisation where the plugin repository is hosted.
-   * `github_username`: The GitHub username granting access to the plugin repository.
-   * `github_access_token`: The GitHub access token required to upload and commit changes to the plugin repository.
-   * `github_commit_email`: The email address associated with your GitHub account.
-
-2. Use the following command to package and create a release for your plugin on GitHub:
-    ```bash
-    ./gradlew :plugins:nf-hello:upload
-    ```
-
-3. Create a pull request against [nextflow-io/plugins](https://github.com/nextflow-io/plugins/blob/main/plugins.json) to make the plugin accessible to Nextflow.
+[irida-next]: https://github.com/phac-nml/irida-next
+[pipeline standards]: https://github.com/phac-nml/pipeline-standards

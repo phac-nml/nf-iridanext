@@ -1,2 +1,1 @@
-nextflow.hello.HelloFactory
-nextflow.hello.HelloExtension
+nextflow.iridanext.IridaNextFactory
