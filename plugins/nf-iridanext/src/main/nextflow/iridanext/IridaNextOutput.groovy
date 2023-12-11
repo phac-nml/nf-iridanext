@@ -34,6 +34,10 @@ class IridaNextOutput {
     // private final Map<String, List<Map<Object, Object>>> files = ["global": [], "samples": []]
     // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
 
+    public void setMetadata(String key, Map value) {
+        metadata[key] = value
+    }
+
     public void addFile(String scope, String subscope, Path path) {
         if (!(scope in files.keySet())) {
             throw new Exception("scope=${scope} not in valid set of scopes: ${files.keySet()}")

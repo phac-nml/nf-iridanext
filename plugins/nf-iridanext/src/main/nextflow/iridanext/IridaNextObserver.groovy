@@ -173,11 +173,21 @@ class IridaNextObserver implements TraceObserver {
             List matchedFiles = new ArrayList(publishedFiles.values().findAll {samplesMetadataMatcher.matches(it)})
 
             if (!matchedFiles.isEmpty()) {
-                log.info "Matched metadata: ${matchedFiles}"
+                log.trace "Matched metadata: ${matchedFiles}"
                 Path fileSamplesheet = Nextflow.file(matchedFiles[0]) as Path
-                def samplesheetList = fileSamplesheet.splitCsv(header:true, strip:true, sep:',', quote:'\"')
+                List samplesheetList = fileSamplesheet.splitCsv(header:true, strip:true, sep:',', quote:'\"')
+                Map samplesheetMap = samplesheetList.collectEntries { row ->
+                    if (samplesMetadataId !in row) {
+                        throw new Exception("Error: column with id=${samplesMetadataId} not in CSV ${fileSamplesheet}")
+                    } else {
+                        return [(row[samplesMetadataId]): ((Map)row).findAll { it.key != samplesMetadataId }]
+                    }
+                }
+                iridaNextOutput.setMetadata("samples", samplesheetMap)
+
                 log.info "fileSamplesheet: ${fileSamplesheet}"
                 log.info "samplesheetList: ${samplesheetList}"
+                log.info "samplesheetMap: ${samplesheetMap}"
             }
         }
 
