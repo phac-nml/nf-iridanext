@@ -33,7 +33,7 @@ import nextflow.processor.TaskRun
 import nextflow.script.params.FileOutParam
 import nextflow.script.params.ValueOutParam
 
-import nextflow.hello.IridaNextOutput
+import nextflow.iridanext.IridaNextOutput
 
 /**
  * IridaNext workflow observer
@@ -53,7 +53,7 @@ class IridaNextObserver implements TraceObserver {
     private List<PathMatcher> samplesMatchers
     private List<PathMatcher> globalMatchers
 
-    public HelloObserver() {
+    public IridaNextObserver() {
         pathMatchers = [:]
         addPathMatchers("global", [])
         addPathMatchers("samples", [])
