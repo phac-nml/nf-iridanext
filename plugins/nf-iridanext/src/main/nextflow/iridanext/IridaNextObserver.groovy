@@ -32,6 +32,7 @@ import nextflow.trace.TraceRecord
 import nextflow.processor.TaskRun
 import nextflow.script.params.FileOutParam
 import nextflow.script.params.ValueOutParam
+import nextflow.Nextflow
 
 import nextflow.iridanext.IridaNextOutput
 
@@ -52,6 +53,8 @@ class IridaNextObserver implements TraceObserver {
     private Map<String,List<PathMatcher>> pathMatchers
     private List<PathMatcher> samplesMatchers
     private List<PathMatcher> globalMatchers
+    private PathMatcher samplesMetadataMatcher
+    private String samplesMetadataId
 
     public IridaNextObserver() {
         pathMatchers = [:]
@@ -96,6 +99,17 @@ class IridaNextObserver implements TraceObserver {
                 addPathMatchers(scope, matchersGlob)
             }
         }
+
+        def iridaNextMetadata = session.config.navigate('iridanext.metadata')
+        if (iridaNextMetadata != null) {
+            if (!iridaNextMetadata instanceof Map<String,Object>) {
+                throw new Exception("Expected a map in config for iridanext.metadata=${iridaNextMetadata}")
+            }
+
+            Map<String, String> samplesMetadata = iridaNextMetadata["samples"] as Map<String,String>
+            samplesMetadataMatcher = FileSystems.getDefault().getPathMatcher(samplesMetadata["path"])
+            samplesMetadataId = samplesMetadata["id"]
+        }
     }
 
     @Override
@@ -109,6 +123,7 @@ class IridaNextObserver implements TraceObserver {
 
     @Override
     void onFlowComplete() {
+        // Generate files section
         // Some of this code derived from https://github.com/nextflow-io/nf-prov/blob/master/plugins/nf-prov
         tasks.each { task ->
             Map<Short,Map<String,String>> outParamInfo = [:]
@@ -148,6 +163,21 @@ class IridaNextObserver implements TraceObserver {
                         }
                     }
                 }
+            }
+        }
+
+        // Generate metadata section
+        // some code derived from https://github.com/nextflow-io/nf-validation
+        if (samplesMetadataMatcher != null && samplesMetadataId != null) {
+            log.info "Starting metadata"
+            List matchedFiles = new ArrayList(publishedFiles.values().findAll {samplesMetadataMatcher.matches(it)})
+
+            if (!matchedFiles.isEmpty()) {
+                log.info "Matched metadata: ${matchedFiles}"
+                Path fileSamplesheet = Nextflow.file(matchedFiles[0]) as Path
+                def samplesheetList = fileSamplesheet.splitCsv(header:true, strip:true, sep:',', quote:'\"')
+                log.info "fileSamplesheet: ${fileSamplesheet}"
+                log.info "samplesheetList: ${samplesheetList}"
             }
         }
 
