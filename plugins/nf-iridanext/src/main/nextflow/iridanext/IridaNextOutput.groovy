@@ -34,8 +34,8 @@ class IridaNextOutput {
     // private final Map<String, List<Map<Object, Object>>> files = ["global": [], "samples": []]
     // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
 
-    public void setMetadata(String key, Map value) {
-        metadata[key] = value
+    public void appendMetadata(String key, Map value) {
+        metadata[key] = ((Map)metadata[key]) +  value
     }
 
     public void addFile(String scope, String subscope, Path path) {

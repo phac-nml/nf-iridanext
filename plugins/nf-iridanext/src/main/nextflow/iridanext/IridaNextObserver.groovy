@@ -183,11 +183,7 @@ class IridaNextObserver implements TraceObserver {
                         return [(row[samplesMetadataId]): ((Map)row).findAll { it.key != samplesMetadataId }]
                     }
                 }
-                iridaNextOutput.setMetadata("samples", samplesheetMap)
-
-                log.info "fileSamplesheet: ${fileSamplesheet}"
-                log.info "samplesheetList: ${samplesheetList}"
-                log.info "samplesheetMap: ${samplesheetMap}"
+                iridaNextOutput.appendMetadata("samples", samplesheetMap)
             }
         }
 
