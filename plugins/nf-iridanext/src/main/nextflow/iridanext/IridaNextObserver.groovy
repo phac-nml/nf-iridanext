@@ -1,5 +1,6 @@
 /*
- * Copyright 2021, Seqera Labs
+ * Original file Copyright 2021, Seqera Labs (from nf-hello plugin template)
+ * Modifications Copyright 2023, Government of Canada
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package nextflow.hello
+package nextflow.iridanext
 
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -35,13 +36,14 @@ import nextflow.script.params.ValueOutParam
 import nextflow.hello.IridaNextOutput
 
 /**
- * Example workflow events observer
+ * IridaNext workflow observer
  *
+ * @author Aaron Petkau <aaron.petkau@phac-aspc.gc.ca>
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @Slf4j
 @CompileStatic
-class HelloObserver implements TraceObserver {
+class IridaNextObserver implements TraceObserver {
 
     private Map<Path,Path> publishedFiles = [:]
     private List<TaskRun> tasks = []

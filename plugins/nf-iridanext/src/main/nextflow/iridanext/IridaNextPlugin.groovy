@@ -1,5 +1,6 @@
 /*
- * Copyright 2021, Seqera Labs
+ * Original file Copyright 2021, Seqera Labs (from nf-hello plugin template)
+ * Modifications Copyright 2023, Government of Canada
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +15,20 @@
  * limitations under the License.
  */
 
-package nextflow.hello
+package nextflow.iridanext
 
 import groovy.transform.CompileStatic
-import nextflow.Session
-import nextflow.trace.TraceObserver
-import nextflow.trace.TraceObserverFactory
+import nextflow.plugin.BasePlugin
+import nextflow.plugin.Scoped
+import org.pf4j.PluginWrapper
+
 /**
- * Implements the validation observer factory
- *
- * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
+ * Implements the IRIDA Next plugins entry point
  */
 @CompileStatic
-class HelloFactory implements TraceObserverFactory {
+class IridaNextPlugin extends BasePlugin {
 
-    @Override
-    Collection<TraceObserver> create(Session session) {
-        final result = new ArrayList()
-        result.add( new HelloObserver() )
-        return result
+    IridaNextPlugin(PluginWrapper wrapper) {
+        super(wrapper)
     }
 }
