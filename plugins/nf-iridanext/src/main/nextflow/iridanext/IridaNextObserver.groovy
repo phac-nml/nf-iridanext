@@ -55,6 +55,7 @@ class IridaNextObserver implements TraceObserver {
     private List<PathMatcher> globalMatchers
     private PathMatcher samplesMetadataMatcher
     private String samplesMetadataId
+    private Path iridaNextOutputPath
 
     public IridaNextObserver() {
         pathMatchers = [:]
@@ -79,7 +80,12 @@ class IridaNextObserver implements TraceObserver {
 
     @Override
     void onFlowCreate(Session session) {
-        def iridaNextFiles = session.config.navigate('iridanext.files')
+        def outputPath = session.config.navigate('iridanext.output.path')
+        if (outputPath != null) {
+            iridaNextOutputPath = Nextflow.file(outputPath) as Path
+        }
+
+        def iridaNextFiles = session.config.navigate('iridanext.output.files')
         if (iridaNextFiles != null) {
             if (!iridaNextFiles instanceof Map<String,Object>) {
                 throw new Exception("Expected a map in config for iridanext.files=${iridaNextFiles}")
@@ -100,7 +106,7 @@ class IridaNextObserver implements TraceObserver {
             }
         }
 
-        def iridaNextMetadata = session.config.navigate('iridanext.metadata')
+        def iridaNextMetadata = session.config.navigate('iridanext.output.metadata')
         if (iridaNextMetadata != null) {
             if (!iridaNextMetadata instanceof Map<String,Object>) {
                 throw new Exception("Expected a map in config for iridanext.metadata=${iridaNextMetadata}")
