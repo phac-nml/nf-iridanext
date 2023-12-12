@@ -28,14 +28,14 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 @CompileStatic
-class IridaNextOutput {
+class IridaNextJSONOutput {
     private Map files = ["global": [], "samples": [:]]
     private Map metadata = ["samples": [:]]
     // private final Map<String, List<Map<Object, Object>>> files = ["global": [], "samples": []]
     // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
 
     public void appendMetadata(String key, Map value) {
-        metadata[key] = ((Map)metadata[key]) +  value
+        metadata[key] = ((Map)metadata[key]) + value
     }
 
     public void addFile(String scope, String subscope, Path path) {

@@ -34,7 +34,7 @@ import nextflow.script.params.FileOutParam
 import nextflow.script.params.ValueOutParam
 import nextflow.Nextflow
 
-import nextflow.iridanext.IridaNextOutput
+import nextflow.iridanext.IridaNextJSONOutput
 
 /**
  * IridaNext workflow observer
@@ -49,7 +49,7 @@ class IridaNextObserver implements TraceObserver {
     private Map<Path,Path> publishedFiles = [:]
     private List<TaskRun> tasks = []
     private List traces = []
-    private IridaNextOutput iridaNextOutput = new IridaNextOutput()
+    private IridaNextJSONOutput iridaNextJSONOutput = new IridaNextJSONOutput()
     private Map<String,List<PathMatcher>> pathMatchers
     private List<PathMatcher> samplesMatchers
     private List<PathMatcher> globalMatchers
@@ -180,7 +180,7 @@ class IridaNextObserver implements TraceObserver {
                         def currScope = currIndexInfo["scope"]
                         
                         if (pathMatchers[currScope].any {it.matches(publishedPath)}) {
-                            iridaNextOutput.addFile(currScope, currIndexInfo["subscope"], publishedPath)
+                            iridaNextJSONOutput.addFile(currScope, currIndexInfo["subscope"], publishedPath)
                         }
                     }
                 }
@@ -196,10 +196,10 @@ class IridaNextObserver implements TraceObserver {
             if (!matchedFiles.isEmpty()) {
                 log.trace "Matched metadata: ${matchedFiles}"
                 Map metadataSamplesMap = csvToJsonById(matchedFiles[0] as Path, samplesMetadataId)
-                iridaNextOutput.appendMetadata("samples", metadataSamplesMap)
+                iridaNextJSONOutput.appendMetadata("samples", metadataSamplesMap)
             }
         }
 
-        log.info "${JsonOutput.prettyPrint(iridaNextOutput.toJson())}"
+        log.info "${JsonOutput.prettyPrint(iridaNextJSONOutput.toJson())}"
     }
 }
