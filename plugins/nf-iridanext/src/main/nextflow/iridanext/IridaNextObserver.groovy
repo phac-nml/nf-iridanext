@@ -200,6 +200,10 @@ class IridaNextObserver implements TraceObserver {
             }
         }
 
+        if (iridaNextOutputPath != null) {
+            iridaNextOutputPath.text = JsonOutput.prettyPrint(iridaNextJSONOutput.toJson())
+            log.info "Setting text for path=${iridaNextOutputPath}"
+        }
         log.info "${JsonOutput.prettyPrint(iridaNextJSONOutput.toJson())}"
     }
 }
