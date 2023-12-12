@@ -121,6 +121,21 @@ class IridaNextObserver implements TraceObserver {
         publishedFiles[source] = destination
     }
 
+    private Map<String, Object> csvToJsonById(Path path, String id) {
+        path = Nextflow.file(path) as Path
+        List rowsList = path.splitCsv(header:true, strip:true, sep:',', quote:'\"')
+
+        Map<String, Object> rowsMap = rowsList.collectEntries { row ->
+            if (id !in row) {
+                throw new Exception("Error: column with id=${id} not in CSV ${path}")
+            } else {
+                return [(row[id] as String): (row as Map).findAll { it.key != id }]
+            }
+        }
+
+        return rowsMap
+    }
+
     @Override
     void onFlowComplete() {
         // Generate files section
@@ -174,16 +189,8 @@ class IridaNextObserver implements TraceObserver {
 
             if (!matchedFiles.isEmpty()) {
                 log.trace "Matched metadata: ${matchedFiles}"
-                Path fileSamplesheet = Nextflow.file(matchedFiles[0]) as Path
-                List samplesheetList = fileSamplesheet.splitCsv(header:true, strip:true, sep:',', quote:'\"')
-                Map samplesheetMap = samplesheetList.collectEntries { row ->
-                    if (samplesMetadataId !in row) {
-                        throw new Exception("Error: column with id=${samplesMetadataId} not in CSV ${fileSamplesheet}")
-                    } else {
-                        return [(row[samplesMetadataId]): ((Map)row).findAll { it.key != samplesMetadataId }]
-                    }
-                }
-                iridaNextOutput.appendMetadata("samples", samplesheetMap)
+                Map metadataSamplesMap = csvToJsonById(matchedFiles[0] as Path, samplesMetadataId)
+                iridaNextOutput.appendMetadata("samples", metadataSamplesMap)
             }
         }
 
