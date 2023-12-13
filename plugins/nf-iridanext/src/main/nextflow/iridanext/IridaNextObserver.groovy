@@ -58,6 +58,7 @@ class IridaNextObserver implements TraceObserver {
     private PathMatcher samplesMetadataMatcher
     private String samplesMetadataId
     private Path iridaNextOutputPath
+    private Boolean outputFileOverwrite
 
     public IridaNextObserver() {
         pathMatchers = [:]
@@ -82,10 +83,11 @@ class IridaNextObserver implements TraceObserver {
 
     @Override
     void onFlowCreate(Session session) {
-        def outputPath = session.config.navigate('iridanext.output.path')
-        if (outputPath != null) {
-            iridaNextOutputPath = Nextflow.file(outputPath) as Path
+        iridaNextOutputPath = session.config.navigate('iridanext.output.path') as Path
+        if (iridaNextOutputPath != null) {
+            iridaNextOutputPath = Nextflow.file(iridaNextOutputPath) as Path
         }
+        outputFileOverwrite = session.config.navigate('iridanext.output.overwrite', false)
 
         def iridaNextFiles = session.config.navigate('iridanext.output.files')
         if (iridaNextFiles != null) {
@@ -115,7 +117,7 @@ class IridaNextObserver implements TraceObserver {
             }
 
             Map<String, String> samplesMetadata = iridaNextMetadata["samples"] as Map<String,String>
-            samplesMetadataMatcher = FileSystems.getDefault().getPathMatcher(samplesMetadata["path"])
+            samplesMetadataMatcher = FileSystems.getDefault().getPathMatcher("glob:${samplesMetadata['path']}")
             samplesMetadataId = samplesMetadata["id"]
         }
     }
@@ -202,16 +204,21 @@ class IridaNextObserver implements TraceObserver {
         }
 
         if (iridaNextOutputPath != null) {
-            // Documentation for reading/writing to Nextflow files using this method is available at
-            // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
-            iridaNextOutputPath.withOutputStream {
-                OutputStream outputStream = it as OutputStream
-                if (iridaNextOutputPath.extension == 'gz') {
-                    outputStream = new GZIPOutputStream(outputStream)
-                }
+            if (iridaNextOutputPath.exists() && !outputFileOverwrite) {
+                throw new Exception("Error: iridanext.output.path=${iridaNextOutputPath} exists and iridanext.output.overwrite=${outputFileOverwrite}")
+            } else {
+                // Documentation for reading/writing to Nextflow files using this method is available at
+                // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
+                iridaNextOutputPath.withOutputStream {
+                    OutputStream outputStream = it as OutputStream
+                    if (iridaNextOutputPath.extension == 'gz') {
+                        outputStream = new GZIPOutputStream(outputStream)
+                    }
 
-                outputStream.write(JsonOutput.prettyPrint(iridaNextJSONOutput.toJson()).getBytes("utf-8"))
-                outputStream.close()
+                    outputStream.write(JsonOutput.prettyPrint(iridaNextJSONOutput.toJson()).getBytes("utf-8"))
+                    outputStream.close()
+                }
+                log.debug "Wrote IRIDA Next output to ${iridaNextOutputPath}"
             }
         }
     }
