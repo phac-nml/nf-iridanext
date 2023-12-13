@@ -146,14 +146,29 @@ class IridaNextObserver implements TraceObserver {
         return rowsMap
     }
 
+    private void processOutputPath(Path outputPath, Map<String,String> indexInfo) {
+        if (publishedFiles.containsKey(outputPath)) {
+            Path publishedPath = publishedFiles[outputPath]
+            def currScope = indexInfo["scope"]
+            
+            if (pathMatchers[currScope].any {it.matches(publishedPath)}) {
+                iridaNextJSONOutput.addFile(currScope, indexInfo["subscope"], publishedPath)
+            }
+        } else {
+            log.trace "Not match outputPath: ${outputPath}"
+        }
+    }
+
     @Override
     void onFlowComplete() {
+        log.info "All publishedPaths: " + publishedFiles.values().collect{it.toString()}.join("\n")
         // Generate files section
         // Some of this code derived from https://github.com/nextflow-io/nf-prov/blob/master/plugins/nf-prov
         tasks.each { task ->
             Map<Short,Map<String,String>> outParamInfo = [:]
             def currSubscope = null
             task.outputs.each { outParam, object -> 
+                log.debug "task ${task}, outParam ${outParam}, object ${object}"
                 Short paramIndex = outParam.getIndex()
                 if (!outParamInfo.containsKey(paramIndex)) {
                     Map<String,String> currIndexInfo = [:]
@@ -166,25 +181,24 @@ class IridaNextObserver implements TraceObserver {
                             currIndexInfo["scope"] = "samples"
                             currIndexInfo["subscope"] = objectMap["id"].toString()
                         } else {
-                            throw new Exception("Found value channel output that doesn't have meta.id: ${objectMap}")
+                            throw new Exception("Found value channel output in task [${task.getName()}] that doesn't have meta.id: ${objectMap}")
                         }
                     } else {
                         currIndexInfo["scope"] = "global"
                         currIndexInfo["subscope"] = ""
                     }
+
+                    log.debug "Setup info task [${task.getName()}], outParamInfo[${paramIndex}]: ${outParamInfo[paramIndex]}"
                 }
 
-                Map<String,String> currIndexInfo = outParamInfo[paramIndex]
-
                 if (object instanceof Path) {
-                    Path processPath = (Path)object
-
-                    if (publishedFiles.containsKey(processPath)) {
-                        Path publishedPath = publishedFiles[processPath]
-                        def currScope = currIndexInfo["scope"]
-                        
-                        if (pathMatchers[currScope].any {it.matches(publishedPath)}) {
-                            iridaNextJSONOutput.addFile(currScope, currIndexInfo["subscope"], publishedPath)
+                    log.debug "outParamInfo[${paramIndex}]: ${outParamInfo[paramIndex]}, object as Path: ${object as Path}"
+                    processOutputPath(object as Path, outParamInfo[paramIndex])
+                } else if (object instanceof List) {
+                    log.debug "outParamInfo[${paramIndex}]: ${outParamInfo[paramIndex]}, object as List: ${object as List}"
+                    (object as List).each {
+                        if (it instanceof Path) {
+                            processOutputPath(it as Path, outParamInfo[paramIndex])
                         }
                     }
                 }
