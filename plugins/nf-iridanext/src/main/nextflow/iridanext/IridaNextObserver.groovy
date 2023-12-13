@@ -21,6 +21,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.FileSystems
 import java.nio.file.PathMatcher
+import java.io.OutputStream
+import java.util.zip.GZIPOutputStream
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -190,7 +192,6 @@ class IridaNextObserver implements TraceObserver {
         // Generate metadata section
         // some code derived from https://github.com/nextflow-io/nf-validation
         if (samplesMetadataMatcher != null && samplesMetadataId != null) {
-            log.info "Starting metadata"
             List matchedFiles = new ArrayList(publishedFiles.values().findAll {samplesMetadataMatcher.matches(it)})
 
             if (!matchedFiles.isEmpty()) {
@@ -201,9 +202,17 @@ class IridaNextObserver implements TraceObserver {
         }
 
         if (iridaNextOutputPath != null) {
-            iridaNextOutputPath.text = JsonOutput.prettyPrint(iridaNextJSONOutput.toJson())
-            log.info "Setting text for path=${iridaNextOutputPath}"
+            // Documentation for reading/writing to Nextflow files using this method is available at
+            // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
+            iridaNextOutputPath.withOutputStream {
+                OutputStream outputStream = it as OutputStream
+                if (iridaNextOutputPath.extension == 'gz') {
+                    outputStream = new GZIPOutputStream(outputStream)
+                }
+
+                outputStream.write(JsonOutput.prettyPrint(iridaNextJSONOutput.toJson()).getBytes("utf-8"))
+                outputStream.close()
+            }
         }
-        log.info "${JsonOutput.prettyPrint(iridaNextJSONOutput.toJson())}"
     }
 }
