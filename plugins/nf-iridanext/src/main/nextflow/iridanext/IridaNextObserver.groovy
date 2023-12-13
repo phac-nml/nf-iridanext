@@ -131,15 +131,15 @@ class IridaNextObserver implements TraceObserver {
         publishedFiles[source] = destination
     }
 
-    private Map<String, Object> csvToJsonById(Path path, String id) {
+    private Map<String, Object> csvToJsonById(Path path, String idColumn) {
         path = Nextflow.file(path) as Path
         List rowsList = path.splitCsv(header:true, strip:true, sep:',', quote:'\"')
 
         Map<String, Object> rowsMap = rowsList.collectEntries { row ->
-            if (id !in row) {
-                throw new Exception("Error: column with id=${id} not in CSV ${path}")
+            if (idColumn !in row) {
+                throw new Exception("Error: column with idColumn=${idColumn} not in CSV ${path}")
             } else {
-                return [(row[id] as String): (row as Map).findAll { it.key != id }]
+                return [(row[idColumn] as String): (row as Map).findAll { it.key != idColumn }]
             }
         }
 
@@ -161,7 +161,6 @@ class IridaNextObserver implements TraceObserver {
 
     @Override
     void onFlowComplete() {
-        log.info "All publishedPaths: " + publishedFiles.values().collect{it.toString()}.join("\n")
         // Generate files section
         // Some of this code derived from https://github.com/nextflow-io/nf-prov/blob/master/plugins/nf-prov
         tasks.each { task ->
@@ -180,6 +179,7 @@ class IridaNextObserver implements TraceObserver {
                         if (outParam.getName() == "meta" && "id" in objectMap) {
                             currIndexInfo["scope"] = "samples"
                             currIndexInfo["subscope"] = objectMap["id"].toString()
+                            iridaNextJSONOutput.addId(currIndexInfo["scope"], currIndexInfo["subscope"])
                         } else {
                             throw new Exception("Found value channel output in task [${task.getName()}] that doesn't have meta.id: ${objectMap}")
                         }

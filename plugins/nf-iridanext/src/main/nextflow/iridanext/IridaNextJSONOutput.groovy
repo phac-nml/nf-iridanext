@@ -31,11 +31,20 @@ import groovy.util.logging.Slf4j
 class IridaNextJSONOutput {
     private Map files = ["global": [], "samples": [:]]
     private Map metadata = ["samples": [:]]
+    private Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
     // private final Map<String, List<Map<Object, Object>>> files = ["global": [], "samples": []]
     // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
 
     public void appendMetadata(String key, Map value) {
         metadata[key] = ((Map)metadata[key]) + value
+    }
+
+    public void addId(String scope, String id) {
+        scopeIds[scope].add(id)
+    }
+
+    public Boolean isValidId(String scope, String id) {
+        return id in scopeIds[scope]
     }
 
     public void addFile(String scope, String subscope, Path path) {
@@ -52,6 +61,8 @@ class IridaNextJSONOutput {
         if (scope == "samples" && subscope == null) {
             throw new Exception("scope=${scope} but subscope is null")
         } else if (scope == "samples" && subscope != null) {
+            assert isValidId(scope, subscope)
+
             def files_scope_map = (Map)files_scope
             if (!files_scope_map.containsKey(subscope)) {
                 files_scope_map[subscope] = []
