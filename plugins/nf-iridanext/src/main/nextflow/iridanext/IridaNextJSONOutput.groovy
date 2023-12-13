@@ -35,8 +35,17 @@ class IridaNextJSONOutput {
     // private final Map<String, List<Map<Object, Object>>> files = ["global": [], "samples": []]
     // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
 
-    public void appendMetadata(String key, Map value) {
-        metadata[key] = ((Map)metadata[key]) + value
+    public void appendMetadata(String scope, Map data) {
+        if (scope in metadata.keySet()) {
+            Map validMetadata = data.collectEntries { k, v ->
+                if (k in scopeIds[scope]) {
+                    return [(k): v]
+                } else {
+                    log.trace "scope=${scope}, id=${k} is not a valid identifier. Removing from metadata."
+                }
+            }
+            metadata[scope] = (metadata[scope] as Map) + validMetadata
+        }
     }
 
     public void addId(String scope, String id) {
