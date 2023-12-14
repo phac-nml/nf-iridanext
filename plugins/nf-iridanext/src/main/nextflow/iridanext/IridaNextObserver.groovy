@@ -60,6 +60,7 @@ class IridaNextObserver implements TraceObserver {
     private String samplesMetadataId
     private Path iridaNextOutputPath
     private Boolean outputFileOverwrite
+    private Session session
 
     public IridaNextObserver() {
         pathMatchers = [:]
@@ -84,6 +85,8 @@ class IridaNextObserver implements TraceObserver {
 
     @Override
     void onFlowCreate(Session session) {
+        this.session = session
+
         iridaNextOutputPath = session.config.navigate('iridanext.output.path') as Path
         if (iridaNextOutputPath != null) {
             iridaNextOutputPath = Nextflow.file(iridaNextOutputPath) as Path
@@ -164,6 +167,9 @@ class IridaNextObserver implements TraceObserver {
 
     @Override
     void onFlowComplete() {
+        if (!session.isSuccess())
+            return
+
         // Generate files section
         // Some of this code derived from https://github.com/nextflow-io/nf-prov/blob/master/plugins/nf-prov
         tasks.each { task ->
