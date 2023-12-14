@@ -1,4 +1,4 @@
-package nextflow.hello
+package nextflow.iridanext
 
 import groovy.util.logging.Slf4j
 import groovyx.gpars.dataflow.DataflowBroadcast

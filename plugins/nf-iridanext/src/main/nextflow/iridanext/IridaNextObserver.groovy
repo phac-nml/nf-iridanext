@@ -32,8 +32,9 @@ import nextflow.trace.TraceRecord
 import nextflow.processor.TaskRun
 import nextflow.script.params.FileOutParam
 import nextflow.script.params.ValueOutParam
+import nextflow.Nextflow
 
-import nextflow.iridanext.IridaNextOutput
+import nextflow.iridanext.IridaNextJSONOutput
 
 /**
  * IridaNext workflow observer
@@ -48,10 +49,17 @@ class IridaNextObserver implements TraceObserver {
     private Map<Path,Path> publishedFiles = [:]
     private List<TaskRun> tasks = []
     private List traces = []
-    private IridaNextOutput iridaNextOutput = new IridaNextOutput()
+    private IridaNextJSONOutput iridaNextJSONOutput
     private Map<String,List<PathMatcher>> pathMatchers
     private List<PathMatcher> samplesMatchers
     private List<PathMatcher> globalMatchers
+    private PathMatcher samplesMetadataMatcher
+    private String filesMetaId
+    private String samplesMetadataId
+    private Path iridaNextOutputPath
+    private Path outputFilesRootDir
+    private Boolean outputFileOverwrite
+    private Session session
 
     public IridaNextObserver() {
         pathMatchers = [:]
@@ -76,26 +84,56 @@ class IridaNextObserver implements TraceObserver {
 
     @Override
     void onFlowCreate(Session session) {
-        def iridaNextFiles = session.config.navigate('iridanext.files')
-        if (iridaNextFiles != null) {
-            if (!iridaNextFiles instanceof Map<String,Object>) {
-                throw new Exception("Expected a map in config for iridanext.files=${iridaNextFiles}")
-            }
+        this.session = session
+        Path relativizePath = null
 
-            iridaNextFiles = (Map<String,Object>)iridaNextFiles
-            iridaNextFiles.each {scope, matchers ->
-                if (matchers instanceof String) {
-                    matchers = [matchers]
-                }
+        Boolean relativizeOutputPaths = session.config.navigate('iridanext.output.relativize', true)
 
-                if (!(matchers instanceof List)) {
-                    throw new Exception("Invalid configuration for iridanext.files=${iridaNextFiles}")
-                }
-
-                List<PathMatcher> matchersGlob = matchers.collect {FileSystems.getDefault().getPathMatcher("glob:${it}")}
-                addPathMatchers(scope, matchersGlob)
+        iridaNextOutputPath = session.config.navigate('iridanext.output.path') as Path
+        if (iridaNextOutputPath != null) {
+            iridaNextOutputPath = Nextflow.file(iridaNextOutputPath) as Path
+            if (relativizeOutputPaths) {
+                relativizePath = iridaNextOutputPath.getParent()
             }
         }
+
+        outputFileOverwrite = session.config.navigate('iridanext.output.overwrite', false)
+
+        Map<String,Object> iridaNextFiles = session.config.navigate('iridanext.output.files') as Map<String,Object>
+        if (iridaNextFiles != null) {
+            // Used for overriding the "meta.id" key used to define identifiers for a scope
+            // (e.g., by default meta.id is used for a sample identifier in a pipeline)
+            this.filesMetaId = iridaNextFiles?.idkey ?: "id"
+
+            iridaNextFiles.each {scope, matchers ->
+                // "id" is a special keyword and isn't used for file matchers
+                if (scope != "idkey") {
+                    if (matchers instanceof String) {
+                        matchers = [matchers]
+                    }
+
+                    if (!(matchers instanceof List)) {
+                        throw new Exception("Invalid configuration for iridanext.files=${iridaNextFiles}")
+                    }
+
+                    List<PathMatcher> matchersGlob = matchers.collect {FileSystems.getDefault().getPathMatcher("glob:${it}")}
+                    addPathMatchers(scope, matchersGlob)
+                }
+            }
+        }
+
+        def iridaNextMetadata = session.config.navigate('iridanext.output.metadata')
+        if (iridaNextMetadata != null) {
+            if (!iridaNextMetadata instanceof Map<String,Object>) {
+                throw new Exception("Expected a map in config for iridanext.metadata=${iridaNextMetadata}")
+            }
+
+            Map<String, String> samplesMetadata = iridaNextMetadata["samples"] as Map<String,String>
+            samplesMetadataMatcher = FileSystems.getDefault().getPathMatcher("glob:${samplesMetadata['path']}")
+            samplesMetadataId = samplesMetadata["id"]
+        }
+
+        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath)
     }
 
     @Override
@@ -107,13 +145,46 @@ class IridaNextObserver implements TraceObserver {
         publishedFiles[source] = destination
     }
 
+    private Map<String, Object> csvToJsonById(Path path, String idColumn) {
+        path = Nextflow.file(path) as Path
+        List rowsList = path.splitCsv(header:true, strip:true, sep:',', quote:'\"')
+
+        Map<String, Object> rowsMap = rowsList.collectEntries { row ->
+            if (idColumn !in row) {
+                throw new Exception("Error: column with idColumn=${idColumn} not in CSV ${path}")
+            } else {
+                return [(row[idColumn] as String): (row as Map).findAll { it.key != idColumn }]
+            }
+        }
+
+        return rowsMap
+    }
+
+    private void processOutputPath(Path outputPath, Map<String,String> indexInfo) {
+        if (publishedFiles.containsKey(outputPath)) {
+            Path publishedPath = publishedFiles[outputPath]
+            def currScope = indexInfo["scope"]
+            
+            if (pathMatchers[currScope].any {it.matches(publishedPath)}) {
+                iridaNextJSONOutput.addFile(currScope, indexInfo["subscope"], publishedPath)
+            }
+        } else {
+            log.trace "Not match outputPath: ${outputPath}"
+        }
+    }
+
     @Override
     void onFlowComplete() {
+        if (!session.isSuccess())
+            return
+
+        // Generate files section
         // Some of this code derived from https://github.com/nextflow-io/nf-prov/blob/master/plugins/nf-prov
         tasks.each { task ->
             Map<Short,Map<String,String>> outParamInfo = [:]
             def currSubscope = null
             task.outputs.each { outParam, object -> 
+                log.debug "task ${task}, outParam ${outParam}, object ${object}"
                 Short paramIndex = outParam.getIndex()
                 if (!outParamInfo.containsKey(paramIndex)) {
                     Map<String,String> currIndexInfo = [:]
@@ -122,35 +193,55 @@ class IridaNextObserver implements TraceObserver {
                     // case meta map
                     if (outParam instanceof ValueOutParam && object instanceof Map) {
                         Map objectMap = (Map)object
-                        if (outParam.getName() == "meta" && "id" in objectMap) {
+                        if (outParam.getName() == "meta" && this.filesMetaId in objectMap) {
+                            log.trace "${this.filesMetaId} in ${objectMap}"
                             currIndexInfo["scope"] = "samples"
-                            currIndexInfo["subscope"] = objectMap["id"].toString()
+                            currIndexInfo["subscope"] = objectMap[this.filesMetaId].toString()
+                            iridaNextJSONOutput.addId(currIndexInfo["scope"], currIndexInfo["subscope"])
                         } else {
-                            throw new Exception("Found value channel output that doesn't have meta.id: ${objectMap}")
+                            throw new Exception("Found value channel output in task [${task.getName()}] that doesn't have meta.${this.filesMetaId}: ${objectMap}")
                         }
                     } else {
                         currIndexInfo["scope"] = "global"
                         currIndexInfo["subscope"] = ""
                     }
+
+                    log.debug "Setup info task [${task.getName()}], outParamInfo[${paramIndex}]: ${outParamInfo[paramIndex]}"
                 }
 
-                Map<String,String> currIndexInfo = outParamInfo[paramIndex]
-
                 if (object instanceof Path) {
-                    Path processPath = (Path)object
-
-                    if (publishedFiles.containsKey(processPath)) {
-                        Path publishedPath = publishedFiles[processPath]
-                        def currScope = currIndexInfo["scope"]
-                        
-                        if (pathMatchers[currScope].any {it.matches(publishedPath)}) {
-                            iridaNextOutput.addFile(currScope, currIndexInfo["subscope"], publishedPath)
+                    log.debug "outParamInfo[${paramIndex}]: ${outParamInfo[paramIndex]}, object as Path: ${object as Path}"
+                    processOutputPath(object as Path, outParamInfo[paramIndex])
+                } else if (object instanceof List) {
+                    log.debug "outParamInfo[${paramIndex}]: ${outParamInfo[paramIndex]}, object as List: ${object as List}"
+                    (object as List).each {
+                        if (it instanceof Path) {
+                            processOutputPath(it as Path, outParamInfo[paramIndex])
                         }
                     }
                 }
             }
         }
 
-        log.info "${JsonOutput.prettyPrint(iridaNextOutput.toJson())}"
+        // Generate metadata section
+        // some code derived from https://github.com/nextflow-io/nf-validation
+        if (samplesMetadataMatcher != null && samplesMetadataId != null) {
+            List matchedFiles = new ArrayList(publishedFiles.values().findAll {samplesMetadataMatcher.matches(it)})
+
+            if (!matchedFiles.isEmpty()) {
+                log.trace "Matched metadata: ${matchedFiles}"
+                Map metadataSamplesMap = csvToJsonById(matchedFiles[0] as Path, samplesMetadataId)
+                iridaNextJSONOutput.appendMetadata("samples", metadataSamplesMap)
+            }
+        }
+
+        if (iridaNextOutputPath != null) {
+            if (iridaNextOutputPath.exists() && !outputFileOverwrite) {
+                throw new Exception("Error: iridanext.output.path=${iridaNextOutputPath} exists and iridanext.output.overwrite=${outputFileOverwrite}")
+            } else {
+                iridaNextJSONOutput.write(iridaNextOutputPath)
+                log.debug "Wrote IRIDA Next output to ${iridaNextOutputPath}"
+            }
+        }
     }
 }

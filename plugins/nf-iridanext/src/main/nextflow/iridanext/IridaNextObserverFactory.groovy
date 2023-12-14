@@ -28,12 +28,17 @@ import nextflow.trace.TraceObserverFactory
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
 @CompileStatic
-class IridaNextFactory implements TraceObserverFactory {
+class IridaNextObserverFactory implements TraceObserverFactory {
 
     @Override
     Collection<TraceObserver> create(Session session) {
         final result = new ArrayList()
-        result.add( new IridaNextObserver() )
+        final enabled = session.config.navigate('iridanext.enabled')
+
+        if (enabled) {
+            result.add( new IridaNextObserver() )
+        }
+        
         return result
     }
 }

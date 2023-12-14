@@ -1,4 +1,5 @@
 /*
+ * Copyright 2023, Government of Canada
  * Copyright 2020-2022, Seqera Labs
  * Copyright 2013-2019, Centre for Genomic Regulation (CRG)
  *
@@ -15,7 +16,7 @@
  * limitations under the License.
  */
 
-package nextflow.hello
+package nextflow.iridanext
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs

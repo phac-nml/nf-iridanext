@@ -22,21 +22,58 @@ import java.nio.file.Paths
 import java.util.List
 import java.util.Map
 import java.nio.file.Path
+import java.io.OutputStream
+import java.util.zip.GZIPOutputStream
+
 import groovy.transform.CompileStatic
 import groovy.json.JsonOutput
 import groovy.util.logging.Slf4j
 
 @Slf4j
 @CompileStatic
-class IridaNextOutput {
+class IridaNextJSONOutput {
     private Map files = ["global": [], "samples": [:]]
     private Map metadata = ["samples": [:]]
+    private Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
     // private final Map<String, List<Map<Object, Object>>> files = ["global": [], "samples": []]
     // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
+    private Path relativizePath
+    private Boolean shouldRelativize
+
+    public IridaNextJSONOutput(Path relativizePath) {
+        this.relativizePath = relativizePath
+        this.shouldRelativize = (this.relativizePath != null)
+    }
+
+    public void appendMetadata(String scope, Map data) {
+        if (scope in metadata.keySet()) {
+            Map validMetadata = data.collectEntries { k, v ->
+                if (k in scopeIds[scope]) {
+                    return [(k): v]
+                } else {
+                    log.trace "scope=${scope}, id=${k} is not a valid identifier. Removing from metadata."
+                }
+            }
+            metadata[scope] = (metadata[scope] as Map) + validMetadata
+        }
+    }
+
+    public void addId(String scope, String id) {
+        log.trace "Adding scope=${scope} id=${id}"
+        scopeIds[scope].add(id)
+    }
+
+    public Boolean isValidId(String scope, String id) {
+        return id in scopeIds[scope]
+    }
 
     public void addFile(String scope, String subscope, Path path) {
         if (!(scope in files.keySet())) {
             throw new Exception("scope=${scope} not in valid set of scopes: ${files.keySet()}")
+        }
+
+        if (shouldRelativize) {
+            path = relativizePath.relativize(path)
         }
 
         // Treat empty string and null as same
@@ -48,6 +85,8 @@ class IridaNextOutput {
         if (scope == "samples" && subscope == null) {
             throw new Exception("scope=${scope} but subscope is null")
         } else if (scope == "samples" && subscope != null) {
+            assert isValidId(scope, subscope)
+
             def files_scope_map = (Map)files_scope
             if (!files_scope_map.containsKey(subscope)) {
                 files_scope_map[subscope] = []
@@ -67,5 +106,19 @@ class IridaNextOutput {
 
     public String toJson() {
         return JsonOutput.toJson(["files": files, "metadata": metadata])
+    }
+
+    public void write(Path path) {
+        // Documentation for reading/writing to Nextflow files using this method is available at
+        // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
+        path.withOutputStream {
+            OutputStream outputStream = it as OutputStream
+            if (path.extension == 'gz') {
+                outputStream = new GZIPOutputStream(outputStream)
+            }
+
+            outputStream.write(JsonOutput.prettyPrint(toJson()).getBytes("utf-8"))
+            outputStream.close()
+        }
     }
 }

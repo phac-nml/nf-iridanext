@@ -18,4 +18,3 @@
 rootProject.name = 'nf-iridanext'
 include('plugins')
 include('plugins:nf-iridanext')
-includeBuild('../nextflow')
