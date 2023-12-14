@@ -22,6 +22,9 @@ import java.nio.file.Paths
 import java.util.List
 import java.util.Map
 import java.nio.file.Path
+import java.io.OutputStream
+import java.util.zip.GZIPOutputStream
+
 import groovy.transform.CompileStatic
 import groovy.json.JsonOutput
 import groovy.util.logging.Slf4j
@@ -34,6 +37,13 @@ class IridaNextJSONOutput {
     private Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
     // private final Map<String, List<Map<Object, Object>>> files = ["global": [], "samples": []]
     // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
+    private Path relativizePath
+    private Boolean shouldRelativize
+
+    public IridaNextJSONOutput(Path relativizePath) {
+        this.relativizePath = relativizePath
+        this.shouldRelativize = (this.relativizePath != null)
+    }
 
     public void appendMetadata(String scope, Map data) {
         if (scope in metadata.keySet()) {
@@ -92,5 +102,19 @@ class IridaNextJSONOutput {
 
     public String toJson() {
         return JsonOutput.toJson(["files": files, "metadata": metadata])
+    }
+
+    public void write(Path path) {
+        // Documentation for reading/writing to Nextflow files using this method is available at
+        // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
+        path.withOutputStream {
+            OutputStream outputStream = it as OutputStream
+            if (path.extension == 'gz') {
+                outputStream = new GZIPOutputStream(outputStream)
+            }
+
+            outputStream.write(JsonOutput.prettyPrint(toJson()).getBytes("utf-8"))
+            outputStream.close()
+        }
     }
 }

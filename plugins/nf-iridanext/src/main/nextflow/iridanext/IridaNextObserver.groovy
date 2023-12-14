@@ -21,8 +21,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.FileSystems
 import java.nio.file.PathMatcher
-import java.io.OutputStream
-import java.util.zip.GZIPOutputStream
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -51,7 +49,7 @@ class IridaNextObserver implements TraceObserver {
     private Map<Path,Path> publishedFiles = [:]
     private List<TaskRun> tasks = []
     private List traces = []
-    private IridaNextJSONOutput iridaNextJSONOutput = new IridaNextJSONOutput()
+    private IridaNextJSONOutput iridaNextJSONOutput
     private Map<String,List<PathMatcher>> pathMatchers
     private List<PathMatcher> samplesMatchers
     private List<PathMatcher> globalMatchers
@@ -59,7 +57,9 @@ class IridaNextObserver implements TraceObserver {
     private String filesMetaId
     private String samplesMetadataId
     private Path iridaNextOutputPath
+    private Path outputFilesRootDir
     private Boolean outputFileOverwrite
+    private Boolean relativizeOutputPaths
     private Session session
 
     public IridaNextObserver() {
@@ -86,12 +86,16 @@ class IridaNextObserver implements TraceObserver {
     @Override
     void onFlowCreate(Session session) {
         this.session = session
+        Path relativizePath = null
 
         iridaNextOutputPath = session.config.navigate('iridanext.output.path') as Path
         if (iridaNextOutputPath != null) {
             iridaNextOutputPath = Nextflow.file(iridaNextOutputPath) as Path
+            relativizePath = iridaNextOutputPath.getParent()
         }
+
         outputFileOverwrite = session.config.navigate('iridanext.output.overwrite', false)
+        relativizeOutputPaths = session.config.navigate('iridanext.output.relativize', true)
 
         Map<String,Object> iridaNextFiles = session.config.navigate('iridanext.output.files') as Map<String,Object>
         if (iridaNextFiles != null) {
@@ -126,6 +130,8 @@ class IridaNextObserver implements TraceObserver {
             samplesMetadataMatcher = FileSystems.getDefault().getPathMatcher("glob:${samplesMetadata['path']}")
             samplesMetadataId = samplesMetadata["id"]
         }
+
+        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath)
     }
 
     @Override
@@ -231,17 +237,7 @@ class IridaNextObserver implements TraceObserver {
             if (iridaNextOutputPath.exists() && !outputFileOverwrite) {
                 throw new Exception("Error: iridanext.output.path=${iridaNextOutputPath} exists and iridanext.output.overwrite=${outputFileOverwrite}")
             } else {
-                // Documentation for reading/writing to Nextflow files using this method is available at
-                // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
-                iridaNextOutputPath.withOutputStream {
-                    OutputStream outputStream = it as OutputStream
-                    if (iridaNextOutputPath.extension == 'gz') {
-                        outputStream = new GZIPOutputStream(outputStream)
-                    }
-
-                    outputStream.write(JsonOutput.prettyPrint(iridaNextJSONOutput.toJson()).getBytes("utf-8"))
-                    outputStream.close()
-                }
+                iridaNextJSONOutput.write(iridaNextOutputPath)
                 log.debug "Wrote IRIDA Next output to ${iridaNextOutputPath}"
             }
         }
