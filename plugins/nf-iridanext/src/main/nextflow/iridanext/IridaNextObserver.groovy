@@ -56,6 +56,7 @@ class IridaNextObserver implements TraceObserver {
     private List<PathMatcher> samplesMatchers
     private List<PathMatcher> globalMatchers
     private PathMatcher samplesMetadataMatcher
+    private String filesMetaId
     private String samplesMetadataId
     private Path iridaNextOutputPath
     private Boolean outputFileOverwrite
@@ -89,24 +90,26 @@ class IridaNextObserver implements TraceObserver {
         }
         outputFileOverwrite = session.config.navigate('iridanext.output.overwrite', false)
 
-        def iridaNextFiles = session.config.navigate('iridanext.output.files')
+        Map<String,Object> iridaNextFiles = session.config.navigate('iridanext.output.files') as Map<String,Object>
         if (iridaNextFiles != null) {
-            if (!iridaNextFiles instanceof Map<String,Object>) {
-                throw new Exception("Expected a map in config for iridanext.files=${iridaNextFiles}")
-            }
+            // Used for overriding the "meta.id" key used to define identifiers for a scope
+            // (e.g., by default meta.id is used for a sample identifier in a pipeline)
+            this.filesMetaId = iridaNextFiles?.idkey ?: "id"
 
-            iridaNextFiles = (Map<String,Object>)iridaNextFiles
             iridaNextFiles.each {scope, matchers ->
-                if (matchers instanceof String) {
-                    matchers = [matchers]
-                }
+                // "id" is a special keyword and isn't used for file matchers
+                if (scope != "idkey") {
+                    if (matchers instanceof String) {
+                        matchers = [matchers]
+                    }
 
-                if (!(matchers instanceof List)) {
-                    throw new Exception("Invalid configuration for iridanext.files=${iridaNextFiles}")
-                }
+                    if (!(matchers instanceof List)) {
+                        throw new Exception("Invalid configuration for iridanext.files=${iridaNextFiles}")
+                    }
 
-                List<PathMatcher> matchersGlob = matchers.collect {FileSystems.getDefault().getPathMatcher("glob:${it}")}
-                addPathMatchers(scope, matchersGlob)
+                    List<PathMatcher> matchersGlob = matchers.collect {FileSystems.getDefault().getPathMatcher("glob:${it}")}
+                    addPathMatchers(scope, matchersGlob)
+                }
             }
         }
 
@@ -176,12 +179,13 @@ class IridaNextObserver implements TraceObserver {
                     // case meta map
                     if (outParam instanceof ValueOutParam && object instanceof Map) {
                         Map objectMap = (Map)object
-                        if (outParam.getName() == "meta" && "id" in objectMap) {
+                        if (outParam.getName() == "meta" && this.filesMetaId in objectMap) {
+                            log.trace "${this.filesMetaId} in ${objectMap}"
                             currIndexInfo["scope"] = "samples"
-                            currIndexInfo["subscope"] = objectMap["id"].toString()
+                            currIndexInfo["subscope"] = objectMap[this.filesMetaId].toString()
                             iridaNextJSONOutput.addId(currIndexInfo["scope"], currIndexInfo["subscope"])
                         } else {
-                            throw new Exception("Found value channel output in task [${task.getName()}] that doesn't have meta.id: ${objectMap}")
+                            throw new Exception("Found value channel output in task [${task.getName()}] that doesn't have meta.${this.filesMetaId}: ${objectMap}")
                         }
                     } else {
                         currIndexInfo["scope"] = "global"

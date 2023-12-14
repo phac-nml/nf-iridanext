@@ -49,6 +49,7 @@ class IridaNextJSONOutput {
     }
 
     public void addId(String scope, String id) {
+        log.trace "Adding scope=${scope} id=${id}"
         scopeIds[scope].add(id)
     }
 
