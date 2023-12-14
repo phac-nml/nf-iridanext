@@ -59,7 +59,6 @@ class IridaNextObserver implements TraceObserver {
     private Path iridaNextOutputPath
     private Path outputFilesRootDir
     private Boolean outputFileOverwrite
-    private Boolean relativizeOutputPaths
     private Session session
 
     public IridaNextObserver() {
@@ -88,14 +87,17 @@ class IridaNextObserver implements TraceObserver {
         this.session = session
         Path relativizePath = null
 
+        Boolean relativizeOutputPaths = session.config.navigate('iridanext.output.relativize', true)
+
         iridaNextOutputPath = session.config.navigate('iridanext.output.path') as Path
         if (iridaNextOutputPath != null) {
             iridaNextOutputPath = Nextflow.file(iridaNextOutputPath) as Path
-            relativizePath = iridaNextOutputPath.getParent()
+            if (relativizeOutputPaths) {
+                relativizePath = iridaNextOutputPath.getParent()
+            }
         }
 
         outputFileOverwrite = session.config.navigate('iridanext.output.overwrite', false)
-        relativizeOutputPaths = session.config.navigate('iridanext.output.relativize', true)
 
         Map<String,Object> iridaNextFiles = session.config.navigate('iridanext.output.files') as Map<String,Object>
         if (iridaNextFiles != null) {

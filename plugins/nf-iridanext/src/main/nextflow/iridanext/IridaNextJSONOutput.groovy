@@ -72,6 +72,10 @@ class IridaNextJSONOutput {
             throw new Exception("scope=${scope} not in valid set of scopes: ${files.keySet()}")
         }
 
+        if (shouldRelativize) {
+            path = relativizePath.relativize(path)
+        }
+
         // Treat empty string and null as same
         if (subscope == "") {
             subscope = null
