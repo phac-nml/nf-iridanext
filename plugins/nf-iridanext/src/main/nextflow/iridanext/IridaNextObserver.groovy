@@ -99,21 +99,23 @@ class IridaNextObserver implements TraceObserver {
 
         outputFileOverwrite = session.config.navigate('iridanext.output.overwrite', false)
 
-        Map<String,Object> iridaNextFiles = session.config.navigate('iridanext.output.files') as Map<String,Object>
-        if (iridaNextFiles != null) {
-            // Used for overriding the "meta.id" key used to define identifiers for a scope
-            // (e.g., by default meta.id is used for a sample identifier in a pipeline)
-            this.filesMetaId = iridaNextFiles?.idkey ?: "id"
+        // Used for overriding the "meta.id" key used to define identifiers for a scope
+        // (e.g., by default meta.id is used for a sample identifier in a pipeline)
+        this.filesMetaId = session.config.navigate('iridanext.output.files.idkey', "id")
 
-            iridaNextFiles.each {scope, matchers ->
-                // "id" is a special keyword and isn't used for file matchers
+        def iridaNextFiles = session.config.navigate('iridanext.output.files')
+        if (iridaNextFiles != null) {
+            Map<String, Object> iridaNextFilesMap = iridaNextFiles as Map<String,Object>
+
+            iridaNextFilesMap.each {scope, matchers ->
+                // "idkey" is a special keyword and isn't used for file matchers
                 if (scope != "idkey") {
                     if (matchers instanceof String) {
                         matchers = [matchers]
                     }
 
                     if (!(matchers instanceof List)) {
-                        throw new Exception("Invalid configuration for iridanext.files=${iridaNextFiles}")
+                        throw new Exception("Invalid configuration for iridanext.files=${iridaNextFilesMap}")
                     }
 
                     List<PathMatcher> matchersGlob = matchers.collect {FileSystems.getDefault().getPathMatcher("glob:${it}")}
@@ -199,7 +201,7 @@ class IridaNextObserver implements TraceObserver {
                             currIndexInfo["subscope"] = objectMap[this.filesMetaId].toString()
                             iridaNextJSONOutput.addId(currIndexInfo["scope"], currIndexInfo["subscope"])
                         } else {
-                            throw new Exception("Found value channel output in task [${task.getName()}] that doesn't have meta.${this.filesMetaId}: ${objectMap}")
+                            throw new Exception("iridanext.output.files.idkey=${filesMetaId}, but output for task [${task.getName()}] has map ${outParam.getName()} missing key ${filesMetaId}: ${objectMap}")
                         }
                     } else {
                         currIndexInfo["scope"] = "global"
