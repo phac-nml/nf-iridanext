@@ -162,7 +162,7 @@ Please see the [Nextflow plugins documentation][nextflow-develop-plugins] and th
 ### 2. Install
 
 ```bash
-cp -r build/plugins/nf-iridanext-0.1.0 ~/.nextflow/plugins
+cp -r build/plugins/nf-iridanext-0.2.0 ~/.nextflow/plugins
 ```
 
 This copies the compiled plugin files into the Nextflow plugin cache (default `~/.nextflow/plugins`). Please change the version `0.1.0` to the version of the plugin built from source.
@@ -173,7 +173,7 @@ In order to use the built plugin, you have to specify the exact version in the N
 
 ```conf
 plugins {
-    id 'nf-iridanext@0.1.0'
+    id 'nf-iridanext@0.2.0'
 }
 ```
 
@@ -182,6 +182,9 @@ plugins {
 One use case of this plugin is to structure reads and metadata downloaded from NCBI/ENA for storage in IRIDA Next by making use of the [nf-core/fetchngs][nf-core/fetchngs] pipeline. The example configuration [fetchngs.conf][] can be used for this purpose. To test, please run the following (using [ids.csv][fetchngs-ids.csv] as example data accessions):
 
 ```bash
+# Tell Nextflow where to get plugin since it's not part of Nextflow plugins index yet
+export NXF_PLUGINS_TEST_REPOSITORY="https://github.com/phac-nml/nf-iridanext/releases/download/0.1.0/nf-iridanext-0.1.0-meta.json"
+
 # Download config and SRA accessions
 wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/examples/fetchngs/fetchngs.conf
 wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/examples/fetchngs/ids.csv
@@ -190,8 +193,6 @@ nextflow run nf-core/fetchngs -profile singularity --outdir results --input ids.
 ```
 
 This will produce the following output: [iridanext.output.json][fetchngs-out].
-
-*Note: Until this plugin is released, you will have to [build the plugin from source](#1-build) in order to run the above test with fetchngs.*
 
 # Credits
 
