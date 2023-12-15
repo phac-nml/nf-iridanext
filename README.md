@@ -117,6 +117,7 @@ The `metadata.samples.path` keyword specifies a file to parse for metadata (only
 
 If there exists an example CSV file like the following:
 
+**output.csv**
 | column1 | b | c |
 |--|--|--|
 | SAMPLE1 | 2 | 3 |
