@@ -9,7 +9,7 @@ This project contains a plugin for integrating Nextflow pipelines with [IRIDA Ne
 The following is the minimal configuration needed for this plugin.
 
 **nextflow.config**
-```
+```conf
 plugins {
     id 'nf-iridanext'
 }
@@ -46,7 +46,7 @@ This file conforms to the standards as defined in the [IRIDA Next Pipeline Stand
 To include files to be saved within IRIDA Next, you can define path match expressions under the `iridanext.output.files` section. The **global** section is used for global output files for the pipeline while the **samples** is used for output files associated with particular samples (matching to sample identifiers is automatically performed).
 
 **nextflow.config**
-```
+```conf
 plugins {
     id 'nf-iridanext'
 }
@@ -84,7 +84,7 @@ This configuration will produce the following example JSON output:
 
 Files are matched to samples using the `meta.id` map used by [nf-core formatted modules][nf-core-meta-map]. The matching key (`id` in `meta.id`) can be overridden by setting:
 
-```
+```conf
 iridanext.output.files.idkey = "newkey"
 ```
 
@@ -93,7 +93,7 @@ iridanext.output.files.idkey = "newkey"
 Metadata associated with samples can be included by filling in the the `iridanext.output.metadata.samples` section, like below:
 
 **nextflow.config**
-```
+```conf
 plugins {
     id 'nf-iridanext'
 }
@@ -178,7 +178,7 @@ plugins {
 
 # Example: nf-core/fetchngs
 
-One use case of this plugin is to structure reads and metadata downloaded from NCBI/ENA for storage in IRIDA Next by making use of the [nf-core/fetchngs][fetchngs] pipeline. The example configuration [fetchngs.conf][] can be used for this purpose. To test, please run the following (using [ids.csv][] as example data accessions):
+One use case of this plugin is to structure reads and metadata downloaded from NCBI/ENA for storage in IRIDA Next by making use of the [nf-core/fetchngs][fetchngs] pipeline. The example configuration [fetchngs.conf][] can be used for this purpose. To test, please run the following (using [ids.csv][fetchngs-ids.csv] as example data accessions):
 
 ```bash
 # Download config and SRA accessions
@@ -190,7 +190,7 @@ nextflow run nf-core/fetchngs -profile singularity --outdir results --input ids.
 
 This will produce the following output: [iridanext.output.json][fetchngs-out].
 
-*Note: Until this plugin is released, you will have to [build the plugin from source][#1-build] in order to run the above test with fetchngs.*
+*Note: Until this plugin is released, you will have to [build the plugin from source](#1-build) in order to run the above test with fetchngs.*
 
 # Credits
 
