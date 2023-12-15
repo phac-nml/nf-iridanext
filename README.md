@@ -4,7 +4,7 @@ This project contains a plugin for integrating Nextflow pipelines with [IRIDA Ne
 
 # Getting started
 
-## Example 1: Minimal configuration
+## Scenario 1: Minimal configuration
 
 The following is the minimal configuration needed for this plugin.
 
@@ -41,7 +41,7 @@ When run with a pipeline (e.g., the [IRIDA Next Example pipeline][iridanextexamp
 
 This file conforms to the standards as defined in the [IRIDA Next Pipeline Standards][iridanext-pipeline-standards] document.
 
-## Example 2: Including files
+## Scenario 2: Including files
 
 To include files to be saved within IRIDA Next, you can define path match expressions under the `iridanext.output.files` section. The **global** section is used for global output files for the pipeline while the **samples** is used for output files associated with particular samples (matching to sample identifiers is automatically performed).
 
@@ -88,7 +88,7 @@ Files are matched to samples using the `meta.id` map used by [nf-core formatted 
 iridanext.output.files.idkey = "newkey"
 ```
 
-## Example 3: Including metadata
+## Scenario 3: Including metadata
 
 Metadata associated with samples can be included by filling in the the `iridanext.output.metadata.samples` section, like below:
 
@@ -142,16 +142,55 @@ Then running the pipeline will produce an output like the following:
 }
 ```
 
-# Larger example
+# Development
 
-One use case of this plugin is to structure reads and metadata downloaded from NCBI/ENA for storage in IRIDA Next by making use of the [nf-core/fetchngs][fetchngs] pipeline. The example configuration [fetchngs.conf][] can be used for this purpose. To test, please run the following:
+## Build and install from source
+
+In order to build and install the plugin from source, please do the following:
+
+### 1. Build
 
 ```bash
-# Download config
-wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/conf/fetchngs.conf
-
-nextflow run nf-core/fetchngs -profile test,singularity --outdir results -c fetchngs.conf
+git clone https://github.com/phac-nml/nf-iridanext.git
+cd nf-iridanext
+make buildPlugins
 ```
+
+Please see the [Nextflow plugins documentation][nextflow-develop-plugins] and the [nf-hello][] example plugin for more details.
+
+### 2. Install
+
+```bash
+cp -r build/plugins/nf-iridanext-0.1.0 ~/.nextflow/plugins
+```
+
+This copies the compiled plugin files into the Nextflow plugin cache (default `~/.nextflow/plugins`). Please change the version `0.1.0` to the version of the plugin built from source.
+
+### 3. Use
+
+In order to use the built plugin, you have to specify the exact version in the Nextflow configuration so that Nextflow does not try to update the plugin. That is, in the configuration use:
+
+```conf
+plugins {
+    id 'nf-iridanext@0.1.0'
+}
+```
+
+# Example: nf-core/fetchngs
+
+One use case of this plugin is to structure reads and metadata downloaded from NCBI/ENA for storage in IRIDA Next by making use of the [nf-core/fetchngs][fetchngs] pipeline. The example configuration [fetchngs.conf][] can be used for this purpose. To test, please run the following (using [ids.csv][] as example data accessions):
+
+```bash
+# Download config and SRA accessions
+wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/conf/fetchngs.conf
+wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/docs/docs/examples/fetchngs/ids.csv
+
+nextflow run nf-core/fetchngs -profile singularity --outdir results --input ids.csv -c fetchngs.conf
+```
+
+This will produce the following output: [iridanext.output.json][fetchngs-out].
+
+*Note: Until this plugin is released, you will have to [build the plugin from source][#1-build] in order to run the above test with fetchngs.*
 
 # Credits
 
@@ -183,4 +222,8 @@ specific language governing permissions and limitations under the License.
 [iridanextexample]: https://github.com/phac-nml/iridanextexample
 [nf-core-meta-map]: https://nf-co.re/docs/contributing/modules#what-is-the-meta-map
 [nf-core/fetchngs]: https://nf-co.re/fetchngs
-[fetchngs.conf]: docs/conf/fetchngs.conf
+[fetchngs.conf]: docs/examples/fetchngs/fetchngs.conf
+[fetchngs-ids.csv]: docs/examples/fetchngs/ids.csv
+[fetchngs-out]: docs/examples/fetchngs/iridanext.output.json
+[nextflow-develop-plugins]: https://www.nextflow.io/docs/latest/developer/plugins.html
+[nf-hello]: https://github.com/nextflow-io/nf-hello
