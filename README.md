@@ -4,6 +4,14 @@ This project contains a plugin for integrating Nextflow pipelines with [IRIDA Ne
 
 # Getting started
 
+Until this plugin is stable and fully released to test out you will have to set the following environment variable:
+
+```bash
+export NXF_PLUGINS_TEST_REPOSITORY="https://github.com/phac-nml/nf-iridanext/releases/download/0.1.0/nf-iridanext-0.1.0-meta.json"
+```
+
+Once this is set, the following are example Nextflow configurations that can be used.
+
 ## Scenario 1: Minimal configuration
 
 The following is the minimal configuration needed for this plugin.
