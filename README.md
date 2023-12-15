@@ -182,7 +182,7 @@ One use case of this plugin is to structure reads and metadata downloaded from N
 
 ```bash
 # Download config and SRA accessions
-wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/conf/fetchngs.conf
+wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/examples/fetchngs/fetchngs.conf
 wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/examples/fetchngs/ids.csv
 
 nextflow run nf-core/fetchngs -profile singularity --outdir results --input ids.csv -c fetchngs.conf
