@@ -1,0 +1,262 @@
+{
+    "files": {
+        "global": [
+            
+        ],
+        "samples": {
+            "ERR1109373": [
+                {
+                    "path": "fastq/ERX1188904_ERR1109373_2.fastq.gz"
+                },
+                {
+                    "path": "fastq/ERX1188904_ERR1109373_1.fastq.gz"
+                }
+            ],
+            "DRR026872": [
+                {
+                    "path": "fastq/DRX024467_DRR026872.fastq.gz"
+                }
+            ],
+            "SRR13191702": [
+                {
+                    "path": "fastq/SRX9626017_SRR13191702_2.fastq.gz"
+                },
+                {
+                    "path": "fastq/SRX9626017_SRR13191702_1.fastq.gz"
+                }
+            ],
+            "SRR9984183": [
+                {
+                    "path": "fastq/SRX6725035_SRR9984183.fastq.gz"
+                }
+            ],
+            "ERR1160846": [
+                {
+                    "path": "fastq/ERX1234253_ERR1160846.fastq.gz"
+                }
+            ],
+            "DRR028935": [
+                {
+                    "path": "fastq/DRX026011_DRR028935_2.fastq.gz"
+                },
+                {
+                    "path": "fastq/DRX026011_DRR028935_1.fastq.gz"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "samples": {
+            "DRR026872": {
+                "sample": "DRX024467",
+                "fastq_1": "results/fastq/DRX024467_DRR026872.fastq.gz",
+                "fastq_2": "",
+                "experiment_accession": "DRX024467",
+                "sample_accession": "SAMD00023098",
+                "secondary_sample_accession": "DRS033740",
+                "study_accession": "PRJDB4356",
+                "secondary_study_accession": "DRP003256",
+                "submission_accession": "DRA002758",
+                "run_alias": "DRR026872",
+                "experiment_alias": "DRX024467",
+                "sample_alias": "SAMD00023098",
+                "study_alias": "DRP003256",
+                "library_layout": "SINGLE",
+                "library_selection": "Restriction Digest",
+                "library_source": "GENOMIC",
+                "library_strategy": "OTHER",
+                "library_name": "IpeRAD1_3",
+                "instrument_model": "Illumina HiSeq 2500",
+                "instrument_platform": "ILLUMINA",
+                "base_count": "62550",
+                "read_count": "417",
+                "tax_id": "35883",
+                "scientific_name": "Ipomoea nil",
+                "sample_title": "F2 plant dreived from a cross between Tokyo Kokei-standard and Africa #21",
+                "experiment_title": "Illumina HiSeq 2500 sequencing: Illumina HiSeq 2500 sequencing of SAMD00023098",
+                "study_title": "The Japanese morning glory genome sequence",
+                "sample_description": "Keywords: GSC:MIxS MIGS:6.0",
+                "fastq_md5": "515e5448c55e054113c4a22df5f62791",
+                "fastq_bytes": "38447",
+                "fastq_ftp": "ftp.sra.ebi.ac.uk/vol1/fastq/DRR026/DRR026872/DRR026872.fastq.gz",
+                "fastq_galaxy": "ftp.sra.ebi.ac.uk/vol1/fastq/DRR026/DRR026872/DRR026872.fastq.gz",
+                "fastq_aspera": "fasp.sra.ebi.ac.uk:/vol1/fastq/DRR026/DRR026872/DRR026872.fastq.gz"
+            },
+            "DRR028935": {
+                "sample": "DRX026011",
+                "fastq_1": "results/fastq/DRX026011_DRR028935_1.fastq.gz",
+                "fastq_2": "results/fastq/DRX026011_DRR028935_2.fastq.gz",
+                "experiment_accession": "DRX026011",
+                "sample_accession": "SAMD00024405",
+                "secondary_sample_accession": "DRS019431",
+                "study_accession": "PRJDB3420",
+                "secondary_study_accession": "DRP002616",
+                "submission_accession": "DRA002949",
+                "run_alias": "DRR028935",
+                "experiment_alias": "DRX026011",
+                "sample_alias": "SAMD00024405",
+                "study_alias": "DRP002616",
+                "library_layout": "PAIRED",
+                "library_selection": "cDNA",
+                "library_source": "TRANSCRIPTOMIC",
+                "library_strategy": "RNA-Seq",
+                "library_name": "day0_BbSQE-I",
+                "instrument_model": "Illumina HiSeq 2500",
+                "instrument_platform": "ILLUMINA",
+                "base_count": "194930",
+                "read_count": "965",
+                "tax_id": "1202541",
+                "scientific_name": "Botryococcus braunii Showa",
+                "sample_title": "Botryococcus braunii Showa at day 0 after inoculation into fresh culture medium",
+                "experiment_title": "Illumina HiSeq 2500 paired end sequencing: Illumina HiSeq 2500 paired end sequencing of SAMD00024405",
+                "study_title": "Liquid culture of Botryococcus braunii, race B, Showa",
+                "sample_description": "Liquid culture",
+                "fastq_md5": "cc01df82a9354bb6b3be93483b20c35a;941c9998d746416dad53c94c480ddf30",
+                "fastq_bytes": "60275;61610",
+                "fastq_ftp": "ftp.sra.ebi.ac.uk/vol1/fastq/DRR028/DRR028935/DRR028935_1.fastq.gz;ftp.sra.ebi.ac.uk/vol1/fastq/DRR028/DRR028935/DRR028935_2.fastq.gz",
+                "fastq_galaxy": "ftp.sra.ebi.ac.uk/vol1/fastq/DRR028/DRR028935/DRR028935_1.fastq.gz;ftp.sra.ebi.ac.uk/vol1/fastq/DRR028/DRR028935/DRR028935_2.fastq.gz",
+                "fastq_aspera": "fasp.sra.ebi.ac.uk:/vol1/fastq/DRR028/DRR028935/DRR028935_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/DRR028/DRR028935/DRR028935_2.fastq.gz"
+            },
+            "ERR1109373": {
+                "sample": "ERX1188904",
+                "fastq_1": "results/fastq/ERX1188904_ERR1109373_1.fastq.gz",
+                "fastq_2": "results/fastq/ERX1188904_ERR1109373_2.fastq.gz",
+                "experiment_accession": "ERX1188904",
+                "sample_accession": "SAMEA3643867",
+                "secondary_sample_accession": "ERS951016",
+                "study_accession": "PRJEB11633",
+                "secondary_study_accession": "ERP013030",
+                "submission_accession": "ERA528939",
+                "run_alias": "ena-RUN-CAM-03-11-2015-17:01:52:847-7",
+                "experiment_alias": "ena-EXPERIMENT-CAM-03-11-2015-17:01:52:847-7",
+                "sample_alias": "sample_56",
+                "study_alias": "ena-STUDY-CAM-02-11-2015-17:42:24:189-13",
+                "library_layout": "PAIRED",
+                "library_selection": "RT-PCR",
+                "library_source": "TRANSCRIPTOMIC",
+                "library_strategy": "RNA-Seq",
+                "library_name": "unspecified",
+                "instrument_model": "Illumina HiSeq 2500",
+                "instrument_platform": "ILLUMINA",
+                "base_count": "29700",
+                "read_count": "169",
+                "tax_id": "63433",
+                "scientific_name": "Leptopilina boulardi",
+                "sample_title": "RNA-Seq reads mapped onto L. Boulardi Toti-like virus genome",
+                "experiment_title": "Illumina HiSeq 2500 paired end sequencing",
+                "study_title": "Total RNA from abdomen and head of L. boulardi females and alignment of the RNA-Seq reads against the genome of L. boulardi Toti-like Virus.",
+                "sample_description": "RNA-Seq reads mapped onto L. Boulardi Toti-like virus genome",
+                "fastq_md5": "8d7d7b854d0207d1226477a30103fade;9fd57225d6c07a31843276d6df9b15c0;5a62e8f785687dce890cfb4fe3e607f9",
+                "fastq_bytes": "3221;8151;8118",
+                "fastq_ftp": "ftp.sra.ebi.ac.uk/vol1/fastq/ERR110/003/ERR1109373/ERR1109373.fastq.gz;ftp.sra.ebi.ac.uk/vol1/fastq/ERR110/003/ERR1109373/ERR1109373_1.fastq.gz;ftp.sra.ebi.ac.uk/vol1/fastq/ERR110/003/ERR1109373/ERR1109373_2.fastq.gz",
+                "fastq_galaxy": "ftp.sra.ebi.ac.uk/vol1/fastq/ERR110/003/ERR1109373/ERR1109373.fastq.gz;ftp.sra.ebi.ac.uk/vol1/fastq/ERR110/003/ERR1109373/ERR1109373_1.fastq.gz;ftp.sra.ebi.ac.uk/vol1/fastq/ERR110/003/ERR1109373/ERR1109373_2.fastq.gz",
+                "fastq_aspera": "fasp.sra.ebi.ac.uk:/vol1/fastq/ERR110/003/ERR1109373/ERR1109373.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/ERR110/003/ERR1109373/ERR1109373_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/ERR110/003/ERR1109373/ERR1109373_2.fastq.gz"
+            },
+            "ERR1160846": {
+                "sample": "ERX1234253",
+                "fastq_1": "results/fastq/ERX1234253_ERR1160846.fastq.gz",
+                "fastq_2": "",
+                "experiment_accession": "ERX1234253",
+                "sample_accession": "SAMEA3687214",
+                "secondary_sample_accession": "ERS994363",
+                "study_accession": "PRJEB11419",
+                "secondary_study_accession": "ERP012803",
+                "submission_accession": "ERA541392",
+                "run_alias": "qiita_ppdid_706:10317.BLANK.93.3E.r22",
+                "experiment_alias": "qiita_ptid_1263:10317.BLANK.93.3E.r22",
+                "sample_alias": "qiita_sid_10317:10317.BLANK.93.3E.r22",
+                "study_alias": "qiita_sid_10317",
+                "library_layout": "SINGLE",
+                "library_selection": "PCR",
+                "library_source": "METAGENOMIC",
+                "library_strategy": "AMPLICON",
+                "library_name": "10317.BLANK.93.3E.r22",
+                "instrument_model": "Illumina HiSeq 2500",
+                "instrument_platform": "ILLUMINA",
+                "base_count": "35658",
+                "read_count": "283",
+                "tax_id": "256318",
+                "scientific_name": "metagenome",
+                "sample_title": "10317.BLANK.93.3E.r22",
+                "experiment_title": "Illumina HiSeq 2500 sequencing: qiita_ptid_1263:10317.BLANK.93.3E.r22",
+                "study_title": "American Gut Project",
+                "sample_description": "American Gut control",
+                "fastq_md5": "5924f20ef547ebdfed7cad795bbab6e6",
+                "fastq_bytes": "18077",
+                "fastq_ftp": "ftp.sra.ebi.ac.uk/vol1/fastq/ERR116/006/ERR1160846/ERR1160846.fastq.gz",
+                "fastq_galaxy": "ftp.sra.ebi.ac.uk/vol1/fastq/ERR116/006/ERR1160846/ERR1160846.fastq.gz",
+                "fastq_aspera": "fasp.sra.ebi.ac.uk:/vol1/fastq/ERR116/006/ERR1160846/ERR1160846.fastq.gz"
+            },
+            "SRR9984183": {
+                "sample": "SRX6725035",
+                "fastq_1": "results/fastq/SRX6725035_SRR9984183.fastq.gz",
+                "fastq_2": "",
+                "experiment_accession": "SRX6725035",
+                "sample_accession": "SAMN12581720",
+                "secondary_sample_accession": "SRS5277011",
+                "study_accession": "PRJNA560329",
+                "secondary_study_accession": "SRP218535",
+                "submission_accession": "SRA942061",
+                "run_alias": "Emb289P1_bin131.fastq",
+                "experiment_alias": "Emb289P1_bin131",
+                "sample_alias": "Emb289P1_bin131",
+                "study_alias": "PRJNA560329",
+                "library_layout": "SINGLE",
+                "library_selection": "RANDOM",
+                "library_source": "METAGENOMIC",
+                "library_strategy": "WGS",
+                "library_name": "Emb289P1_bin131",
+                "instrument_model": "Illumina HiSeq 2500",
+                "instrument_platform": "ILLUMINA",
+                "base_count": "1996273",
+                "read_count": "58",
+                "tax_id": "2660712",
+                "scientific_name": "Defluviitaleaceae bacterium",
+                "sample_title": "MIMAG Metagenome-assembled Genome sample from Defluviitaleaceae bacterium",
+                "experiment_title": "Illumina HiSeq 2500 sequencing: Binning of metagenomic reads from the P1 gut compartment of Embiratermes neotenicus",
+                "study_title": "Phylogenomic analysis of 589 metagenome-assembled genomes encompassing all major prokaryotic lineages from the gut of higher termites",
+                "sample_description": "Keywords: GSC:MIxS MIMAG:5.0",
+                "fastq_md5": "0b512d2dc31685983456bd56fd836544",
+                "fastq_bytes": "605358",
+                "fastq_ftp": "ftp.sra.ebi.ac.uk/vol1/fastq/SRR998/003/SRR9984183/SRR9984183.fastq.gz",
+                "fastq_galaxy": "ftp.sra.ebi.ac.uk/vol1/fastq/SRR998/003/SRR9984183/SRR9984183.fastq.gz",
+                "fastq_aspera": "fasp.sra.ebi.ac.uk:/vol1/fastq/SRR998/003/SRR9984183/SRR9984183.fastq.gz"
+            },
+            "SRR13191702": {
+                "sample": "SRX9626017",
+                "fastq_1": "results/fastq/SRX9626017_SRR13191702_1.fastq.gz",
+                "fastq_2": "results/fastq/SRX9626017_SRR13191702_2.fastq.gz",
+                "experiment_accession": "SRX9626017",
+                "sample_accession": "SAMN16980141",
+                "secondary_sample_accession": "SRS7827211",
+                "study_accession": "PRJNA682076",
+                "secondary_study_accession": "SRP295653",
+                "submission_accession": "SRA1166126",
+                "run_alias": "S.170804.00784_662_L001_R1_001.fastq.gz",
+                "experiment_alias": "S.170804.00784",
+                "sample_alias": "S.170804.00784_662",
+                "study_alias": "PRJNA682076",
+                "library_layout": "PAIRED",
+                "library_selection": "PCR",
+                "library_source": "METAGENOMIC",
+                "library_strategy": "AMPLICON",
+                "library_name": "S.170804.00784",
+                "instrument_model": "Illumina HiSeq 2500",
+                "instrument_platform": "ILLUMINA",
+                "base_count": "45682",
+                "read_count": "91",
+                "tax_id": "408170",
+                "scientific_name": "human gut metagenome",
+                "sample_title": "Metagenome or environmental sample from human gut metagenome",
+                "experiment_title": "Illumina HiSeq 2500 sequencing: Stool Microbiome Features to Discriminate Clostridium Difficile Colonization and Infection",
+                "study_title": "Stool Microbiome Features to Discriminate Clostridium Difficile Colonization and Infection",
+                "sample_description": "Metagenome or environmental sample from human gut metagenome",
+                "fastq_md5": "89c5be920021a035084d8aeb74f32df7;56271be38a80db78ef3bdfc5d9909b98",
+                "fastq_bytes": "15420;16324",
+                "fastq_ftp": "ftp.sra.ebi.ac.uk/vol1/fastq/SRR131/002/SRR13191702/SRR13191702_1.fastq.gz;ftp.sra.ebi.ac.uk/vol1/fastq/SRR131/002/SRR13191702/SRR13191702_2.fastq.gz",
+                "fastq_galaxy": "ftp.sra.ebi.ac.uk/vol1/fastq/SRR131/002/SRR13191702/SRR13191702_1.fastq.gz;ftp.sra.ebi.ac.uk/vol1/fastq/SRR131/002/SRR13191702/SRR13191702_2.fastq.gz",
+                "fastq_aspera": "fasp.sra.ebi.ac.uk:/vol1/fastq/SRR131/002/SRR13191702/SRR13191702_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/SRR131/002/SRR13191702/SRR13191702_2.fastq.gz"
+            }
+        }
+    }
+}
