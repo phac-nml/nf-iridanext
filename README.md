@@ -147,7 +147,10 @@ Then running the pipeline will produce an output like the following:
 One use case of this plugin is to structure reads and metadata downloaded from NCBI/ENA for storage in IRIDA Next by making use of the [nf-core/fetchngs][fetchngs] pipeline. The example configuration [fetchngs.conf][] can be used for this purpose. To test, please run the following:
 
 ```bash
+# Download config
+wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/conf/fetchngs.conf
 
+nextflow run nf-core/fetchngs -profile test,singularity --outdir results -c fetchngs.conf
 ```
 
 # Credits
