@@ -2,13 +2,162 @@
  
 This project contains a plugin for integrating Nextflow pipelines with [IRIDA Next][irida-next]. In particular, it will enable a pipeline to produce output consistent with the IRIDA Next [pipeline standards][].
 
+# Getting started
+
+## Example 1: Minimal configuration
+
+The following is the minimal configuration needed for this plugin.
+
+**nextflow.config**
+```
+plugins {
+    id 'nf-iridanext'
+}
+
+iridanext {
+    enabled = true
+    output {
+        path = "${params.outdir}/iridanext.output.json.gz"
+    }
+}
+```
+
+When run with a pipeline (e.g., the [IRIDA Next Example pipeline][iridanextexample]), the configuration will produce the following JSON output in a file `${params.outdir}/iridanext.output.json.gz`.
+
+*Note: `${params.outdir}` is optional and is used in the case where the file should be written to the output directory specified by `--outdir`.*
+
+**iridanext.output.json.gz**
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+        "samples": {}
+    }
+}
+```
+
+This file conforms to the standards as defined in the [IRIDA Next Pipeline Standards][iridanext-pipeline-standards] document.
+
+## Example 2: Including files
+
+To include files to be saved within IRIDA Next, you can define path match expressions under the `iridanext.output.files` section. The **global** section is used for global output files for the pipeline while the **samples** is used for output files associated with particular samples (matching to sample identifiers is automatically performed).
+
+**nextflow.config**
+```
+plugins {
+    id 'nf-iridanext'
+}
+
+iridanext {
+    enabled = true
+    output {
+        path = "${params.outdir}/iridanext.output.json.gz"
+        overwrite = true
+        files {
+            global = ["**/summary/summary.txt.gz"]
+            samples = ["**/assembly/*.assembly.fa.gz"]
+        }
+    }
+}
+```
+
+This configuration will produce the following example JSON output:
+
+**iridanext.output.json.gz**
+```json
+{
+    "files": {
+        "global": [{"path": "summary/summary.txt.gz"}],
+        "samples": {
+            "SAMPLE1": [{"path": "assembly/SAMPLE1.assembly.fa.gz"}],
+            "SAMPLE3": [{"path": "assembly/SAMPLE3.assembly.fa.gz"}],
+            "SAMPLE2": [{"path": "assembly/SAMPLE2.assembly.fa.gz"}]}
+    },
+    "metadata": {
+        "samples": {}
+    }
+}
+```
+
+Files are matched to samples using the `meta.id` map used by [nf-core formatted modules][nf-core-meta-map]. The matching key (`id` in `meta.id`) can be overridden by setting:
+
+```
+iridanext.output.files.idkey = "newkey"
+```
+
+## Example 3: Including metadata
+
+Metadata associated with samples can be included by filling in the the `iridanext.output.metadata.samples` section, like below:
+
+**nextflow.config**
+```
+plugins {
+    id 'nf-iridanext'
+}
+
+iridanext {
+    enabled = true
+    output {
+        path = "${params.outdir}/iridanext.output.json.gz"
+        overwrite = true
+        metadata {
+            samples {
+                path = "**/output.csv"
+                id = "column1"
+            }
+        }
+    }
+}
+```
+
+The `metadata.samples.path` keyword specifies a file to parse for metadata (only CSV parsing is supported now). The `metadata.samples.id` defines the column that should match to the sample identifiers.
+
+If there exists an example CSV file like the following:
+
+| column1 | b | c |
+|--|--|--|
+| SAMPLE1 | 2 | 3 |
+| SAMPLE2 | 4 | 5 |
+| SAMPLE3 | 6 | 7 |
+
+Then running the pipeline will produce an output like the following:
+
+**iridanext.output.json.gz**
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {"b": "2","c": "3"},
+            "SAMPLE2": {"b": "4","c": "5"},
+            "SAMPLE3": {"b": "6","c": "7"}
+        }
+    }
+}
+```
+
+# Larger example
+
+One use case of this plugin is to structure reads and metadata downloaded from NCBI/ENA for storage in IRIDA Next by making use of the [nf-core/fetchngs][fetchngs] pipeline. The example configuration [fetchngs.conf][] can be used for this purpose. To test, please run the following:
+
+```bash
+
+```
+
 # Credits
 
-This plugin was developed based on the `nf-hello` Nextflow plugin template <https://github.com/nextflow-io/nf-hello>.
+This plugin was developed based on the `nf-hello` Nextflow plugin template <https://github.com/nextflow-io/nf-hello>. Other sources of information for development include the [nf-prov][] and [nf-validation][] Nextflow plugins, as well as the [Nextflow documentation][nextflow-docs].
 
 # Legal
 
 Copyright 2023 Government of Canada
+
 Original nf-hello project Copyright to respective authors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -24,3 +173,11 @@ specific language governing permissions and limitations under the License.
 
 [irida-next]: https://github.com/phac-nml/irida-next
 [pipeline standards]: https://github.com/phac-nml/pipeline-standards
+[nf-prov]: https://github.com/nextflow-io/nf-prov
+[nf-validation]: https://github.com/nextflow-io/nf-validation
+[nextflow-docs]: https://www.nextflow.io/docs/latest/index.html
+[iridanext-pipeline-standards]: https://github.com/phac-nml/pipeline-standards?tab=readme-ov-file#4-output
+[iridanextexample]: https://github.com/phac-nml/iridanextexample
+[nf-core-meta-map]: https://nf-co.re/docs/contributing/modules#what-is-the-meta-map
+[nf-core/fetchngs]: https://nf-co.re/fetchngs
+[fetchngs.conf]: docs/conf/fetchngs.conf
