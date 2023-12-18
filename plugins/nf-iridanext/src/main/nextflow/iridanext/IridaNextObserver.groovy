@@ -77,8 +77,15 @@ class IridaNextObserver implements TraceObserver {
 
     @Override
     void onProcessComplete(TaskHandler handler, TraceRecord trace) {
-        final task = handler.task
-        tasks << task
+        log.trace "onProcessComplete: ${handler.task}"
+        tasks << handler.task
+        traces << trace
+    }
+
+    @Override
+    void onProcessCached(TaskHandler handler, TraceRecord trace) {
+        log.trace "onProcessCached: ${handler.task}"
+        tasks << handler.task
         traces << trace
     }
 
