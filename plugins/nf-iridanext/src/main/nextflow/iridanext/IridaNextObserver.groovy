@@ -35,6 +35,7 @@ import nextflow.script.params.ValueOutParam
 import nextflow.Nextflow
 
 import nextflow.iridanext.IridaNextJSONOutput
+import nextflow.iridanext.MetadataParser
 
 /**
  * IridaNext workflow observer
@@ -53,9 +54,8 @@ class IridaNextObserver implements TraceObserver {
     private Map<String,List<PathMatcher>> pathMatchers
     private List<PathMatcher> samplesMatchers
     private List<PathMatcher> globalMatchers
-    private PathMatcher samplesMetadataMatcher
     private String filesMetaId
-    private String samplesMetadataId
+    private List<MetadataParser> samplesMetadataParsers
     private Path iridaNextOutputPath
     private Path outputFilesRootDir
     private Boolean outputFileOverwrite
@@ -137,9 +137,20 @@ class IridaNextObserver implements TraceObserver {
                 throw new Exception("Expected a map in config for iridanext.metadata=${iridaNextMetadata}")
             }
 
-            Map<String, String> samplesMetadata = iridaNextMetadata["samples"] as Map<String,String>
-            samplesMetadataMatcher = FileSystems.getDefault().getPathMatcher("glob:${samplesMetadata['path']}")
-            samplesMetadataId = samplesMetadata["id"]
+            List<Map<String, Object>> samplesMetadata = iridaNextMetadata["samples"] as List<Map<String,Object>>
+            this.samplesMetadataParsers = samplesMetadata.collect { parser ->
+                if (!parser instanceof Map<String, Object>) {
+                    throw new Exception("Invalid entry for iridanext.output.metadata.samples=${samplesMetadata}")
+                }
+
+                parser = parser as Map<String, Object>
+                String pathMatcher = parser?.path
+                String id = parser?.id
+                String type = parser?.type
+                PathMatcher samplesMetadataMatcher = FileSystems.getDefault().getPathMatcher("glob:${pathMatcher}")
+
+                return MetadataParser.createMetadataParser(type, samplesMetadataMatcher, id)
+            }
         }
 
         iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath)
@@ -152,21 +163,6 @@ class IridaNextObserver implements TraceObserver {
         }
 
         publishedFiles[source] = destination
-    }
-
-    private Map<String, Object> csvToJsonById(Path path, String idColumn) {
-        path = Nextflow.file(path) as Path
-        List rowsList = path.splitCsv(header:true, strip:true, sep:',', quote:'\"')
-
-        Map<String, Object> rowsMap = rowsList.collectEntries { row ->
-            if (idColumn !in row) {
-                throw new Exception("Error: column with idColumn=${idColumn} not in CSV ${path}")
-            } else {
-                return [(row[idColumn] as String): (row as Map).findAll { it.key != idColumn }]
-            }
-        }
-
-        return rowsMap
     }
 
     private void processOutputPath(Path outputPath, Map<String,String> indexInfo) {
@@ -234,14 +230,9 @@ class IridaNextObserver implements TraceObserver {
 
         // Generate metadata section
         // some code derived from https://github.com/nextflow-io/nf-validation
-        if (samplesMetadataMatcher != null && samplesMetadataId != null) {
-            List matchedFiles = new ArrayList(publishedFiles.values().findAll {samplesMetadataMatcher.matches(it)})
-
-            if (!matchedFiles.isEmpty()) {
-                log.trace "Matched metadata: ${matchedFiles}"
-                Map metadataSamplesMap = csvToJsonById(matchedFiles[0] as Path, samplesMetadataId)
-                iridaNextJSONOutput.appendMetadata("samples", metadataSamplesMap)
-            }
+        samplesMetadataParsers.each { metadataMatcher -> 
+            Map samplesMetadataMap = metadataMatcher.matchAndParseMetadata(publishedFiles.values())
+            iridaNextJSONOutput.appendMetadata("samples", metadataSamplesMap)
         }
 
         if (iridaNextOutputPath != null) {
