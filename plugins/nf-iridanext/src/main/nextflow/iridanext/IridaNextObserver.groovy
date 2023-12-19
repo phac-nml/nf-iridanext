@@ -36,6 +36,7 @@ import nextflow.Nextflow
 
 import nextflow.iridanext.IridaNextJSONOutput
 import nextflow.iridanext.MetadataParser
+import nextflow.iridanext.MetadataParserFactory
 
 /**
  * IridaNext workflow observer
@@ -149,7 +150,7 @@ class IridaNextObserver implements TraceObserver {
                 String type = parser?.type
                 PathMatcher samplesMetadataMatcher = FileSystems.getDefault().getPathMatcher("glob:${pathMatcher}")
 
-                return MetadataParser.createMetadataParser(type, samplesMetadataMatcher, id)
+                return MetadataParserFactory.createMetadataParser(type, samplesMetadataMatcher, id)
             }
         }
 
