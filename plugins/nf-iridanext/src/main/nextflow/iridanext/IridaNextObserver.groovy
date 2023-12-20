@@ -152,7 +152,7 @@ class IridaNextObserver implements TraceObserver {
                 if (type == "csv") {
                     return new MetadataParserCSV(parserConfigMap?.idcol, sep, pathMatcher) as MetadataParser
                 } else if (type == "json") {
-                    return new MetadataParserJSON()
+                    return new MetadataParserJSON(pathMatcher)
                 } else {
                     throw new Exception("Invalid config for iridanext.output.metadata.samples: ${samplesMetadata}")
                 }
