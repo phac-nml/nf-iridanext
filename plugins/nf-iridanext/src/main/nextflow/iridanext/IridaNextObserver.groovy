@@ -37,6 +37,7 @@ import nextflow.Nextflow
 import nextflow.iridanext.IridaNextJSONOutput
 import nextflow.iridanext.MetadataParser
 import nextflow.iridanext.MetadataParserFactory
+import nextflow.iridanext.MetadataParserCSV
 
 /**
  * IridaNext workflow observer
@@ -138,23 +139,32 @@ class IridaNextObserver implements TraceObserver {
                 throw new Exception("Expected a map in config for iridanext.metadata=${iridaNextMetadata}")
             }
 
-            List<Map<String, Object>> samplesMetadata = iridaNextMetadata["samples"] as List<Map<String,Object>>
-            this.samplesMetadataParsers = samplesMetadata.collect { parser ->
-                if (!parser instanceof Map<String, Object>) {
-                    throw new Exception("Invalid entry for iridanext.output.metadata.samples=${samplesMetadata}")
+            Map<String, Object> samplesMetadata = iridaNextMetadata["samples"] as Map<String,Object>
+            this.samplesMetadataParsers = samplesMetadata.collect { type, parserConfig ->
+                if (!(parserConfig instanceof Map<String, String>)) {
+                    throw new Exception("Invalid config for iridanext.output.metadata.samples: ${samplesMetadata}")
                 }
 
-                parser = parser as Map<String, Object>
-                String pathMatcher = parser?.path
-                String id = parser?.id
-                String type = parser?.type
-                PathMatcher samplesMetadataMatcher = FileSystems.getDefault().getPathMatcher("glob:${pathMatcher}")
+                Map<String, String> parserConfigMap = parserConfig as Map<String, String>
+                PathMatcher pathMatcher = createPathMatcher(parserConfigMap?.path)
 
-                return MetadataParserFactory.createMetadataParser(type, samplesMetadataMatcher, id)
+                if (type == "csv") {
+                    return new MetadataParserCSV(pathMatcher, parserConfigMap?.id) as MetadataParser
+                } else {
+                    throw new Exception("Invalid config for iridanext.output.metadata.samples: ${samplesMetadata}")
+                }
             }
         }
 
         iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath)
+    }
+
+    private PathMatcher createPathMatcher(String pathMatch) {
+        if (pathMatch == null) {
+            return null
+        } else {
+            return FileSystems.getDefault().getPathMatcher("glob:${pathMatch}")
+        }
     }
 
     @Override
@@ -233,7 +243,7 @@ class IridaNextObserver implements TraceObserver {
         // some code derived from https://github.com/nextflow-io/nf-validation
         samplesMetadataParsers.each { metadataMatcher -> 
             Map samplesMetadataMap = metadataMatcher.matchAndParseMetadata(publishedFiles.values())
-            iridaNextJSONOutput.appendMetadata("samples", metadataSamplesMap)
+            iridaNextJSONOutput.appendMetadata("samples", samplesMetadataMap)
         }
 
         if (iridaNextOutputPath != null) {

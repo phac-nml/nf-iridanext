@@ -6,10 +6,12 @@ import java.nio.file.Path
 
 import groovy.transform.CompileStatic
 
+import nextflow.Nextflow
 import nextflow.iridanext.MetadataParser
 
 @CompileStatic
 class MetadataParserCSV extends MetadataParser {
+    
     public MetadataParserCSV(PathMatcher pathMatcher, String id) {
         super(pathMatcher, id)
     }
