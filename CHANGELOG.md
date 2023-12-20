@@ -1,5 +1,7 @@
 # Unreleased
 
+## 0.2.0.dev0
+
 * Added support for writing JSON output file when using `-resume` in a pipeline.
 * Re-structured Nextflow config syntax for loading metadata from CSV file.
 * Added support for reading metadata from JSON file.
