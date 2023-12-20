@@ -15,8 +15,18 @@ class MetadataParserCSVTest extends Specification {
                               |4,5,6""".stripMargin()
         def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
         def parser = new MetadataParserCSV("a")
-        def csvMap = parser.parseMetadata(csvFile)
+        def csvMapColA = parser.parseMetadata(csvFile)
+
+        parser = new MetadataParserCSV("b")
+        def csvMapColB = parser.parseMetadata(csvFile)
         then:
-        csvMap != null
+        csvMapColA == [
+            "1": ["b": "2", "c": "3"],
+            "4": ["b": "5", "c": "6"]
+        ]
+        csvMapColB == [
+            "2": ["a": "1", "c": "3"],
+            "5": ["a": "4", "c": "6"]
+        ]
     }
 }
