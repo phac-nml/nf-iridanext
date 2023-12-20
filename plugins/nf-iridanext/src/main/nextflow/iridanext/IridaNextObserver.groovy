@@ -36,7 +36,6 @@ import nextflow.Nextflow
 
 import nextflow.iridanext.IridaNextJSONOutput
 import nextflow.iridanext.MetadataParser
-import nextflow.iridanext.MetadataParserFactory
 import nextflow.iridanext.MetadataParserCSV
 
 /**
