@@ -57,7 +57,7 @@ class IridaNextObserver implements TraceObserver {
     private List<PathMatcher> samplesMatchers
     private List<PathMatcher> globalMatchers
     private String filesMetaId
-    private List<MetadataParser> samplesMetadataParsers
+    private List<MetadataParser> samplesMetadataParsers = []
     private Path iridaNextOutputPath
     private Path outputFilesRootDir
     private Boolean outputFileOverwrite
