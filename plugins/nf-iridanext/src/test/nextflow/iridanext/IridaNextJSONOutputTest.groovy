@@ -41,4 +41,26 @@ class IridaNextJSONOutputTest extends Specification {
             ]
         ]
     }
+
+    def 'Test add sample files' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput()
+        iridaNextOutput.addId("samples", "1")
+        iridaNextOutput.addFile("samples", "1", Paths.get("sample1.fasta"))
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parseText(iridaNextOutput.toJson())
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [
+                    "1": [["path": "sample1.fasta"]],
+                ],
+            ],
+            "metadata": [
+                "samples": [:]
+            ]
+        ]
+    }
 }
