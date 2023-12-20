@@ -148,7 +148,7 @@ class IridaNextObserver implements TraceObserver {
                 PathMatcher pathMatcher = createPathMatcher(parserConfigMap?.path)
 
                 if (type == "csv") {
-                    return new MetadataParserCSV(pathMatcher, parserConfigMap?.id) as MetadataParser
+                    return new MetadataParserCSV(parserConfigMap?.id, pathMatcher) as MetadataParser
                 } else {
                     throw new Exception("Invalid config for iridanext.output.metadata.samples: ${samplesMetadata}")
                 }

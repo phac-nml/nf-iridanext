@@ -12,8 +12,8 @@ import nextflow.iridanext.MetadataParser
 @CompileStatic
 class MetadataParserCSV extends MetadataParser {
     
-    public MetadataParserCSV(PathMatcher pathMatcher, String id) {
-        super(pathMatcher, id)
+    public MetadataParserCSV(String id, PathMatcher pathMatcher = null) {
+        super(id, pathMatcher)
     }
 
     @Override

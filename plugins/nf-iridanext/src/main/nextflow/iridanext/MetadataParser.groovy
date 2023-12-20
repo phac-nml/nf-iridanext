@@ -10,10 +10,10 @@ import groovy.util.logging.Slf4j
 @Slf4j
 @CompileStatic
 class MetadataParser {
-    protected PathMatcher pathMatcher
+    private PathMatcher pathMatcher
     protected String id
 
-    public MetadataParser(PathMatcher pathMatcher, String id) {
+    public MetadataParser(String id, PathMatcher pathMatcher = null) {
         this.pathMatcher = pathMatcher
         this.id = id
     }
@@ -23,7 +23,12 @@ class MetadataParser {
     }
 
     public Map<String, Object> matchAndParseMetadata(Collection<Path> filesToMatch) {
-        List matchedFiles = new ArrayList(filesToMatch.findAll {this.pathMatcher.matches(it)})
+        List matchedFiles
+        if (pathMatcher == null) {
+            matchedFiles = new ArrayList(filesToMatch)
+        } else {
+            matchedFiles = new ArrayList(filesToMatch.findAll {this.pathMatcher.matches(it)})
+        }
 
         if (!matchedFiles.isEmpty()) {
             log.trace "Matched metadata: ${matchedFiles}"
