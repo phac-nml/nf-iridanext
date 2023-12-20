@@ -40,7 +40,7 @@ class IridaNextJSONOutput {
     private Path relativizePath
     private Boolean shouldRelativize
 
-    public IridaNextJSONOutput(Path relativizePath) {
+    public IridaNextJSONOutput(Path relativizePath = null) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
     }
@@ -52,6 +52,7 @@ class IridaNextJSONOutput {
                     return [(k): v]
                 } else {
                     log.trace "scope=${scope}, id=${k} is not a valid identifier. Removing from metadata."
+                    return [:]
                 }
             }
             metadata[scope] = (metadata[scope] as Map) + validMetadata
