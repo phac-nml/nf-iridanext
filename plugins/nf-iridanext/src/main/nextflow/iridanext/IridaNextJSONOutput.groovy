@@ -52,6 +52,7 @@ class IridaNextJSONOutput {
                     return [(k): v]
                 } else {
                     log.trace "scope=${scope}, id=${k} is not a valid identifier. Removing from metadata."
+                    return [:]
                 }
             }
             metadata[scope] = (metadata[scope] as Map) + validMetadata

@@ -63,4 +63,99 @@ class IridaNextJSONOutputTest extends Specification {
             ]
         ]
     }
+
+    def 'Test add metadata' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput()
+        iridaNextOutput.addId("samples", "1")
+        iridaNextOutput.appendMetadata("samples", [
+            "1": [
+                "colour": "blue",
+                "size": "large"
+            ]
+        ])
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parseText(iridaNextOutput.toJson())
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:],
+            ],
+            "metadata": [
+                "samples": [
+                    "1": [
+                        "colour": "blue",
+                        "size": "large"
+                    ]
+                ]
+            ]
+        ]
+    }
+
+    def 'Test add metadata missing id' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput()
+        iridaNextOutput.appendMetadata("samples", [
+            "1": [
+                "colour": "blue",
+                "size": "large"
+            ]
+        ])
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parseText(iridaNextOutput.toJson())
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:],
+            ],
+            "metadata": [
+                "samples": [:]
+            ]
+        ]
+    }
+
+    def 'Test merge metadata' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput()
+        iridaNextOutput.addId("samples", "1")
+        iridaNextOutput.addId("samples", "2")
+        iridaNextOutput.appendMetadata("samples", [
+            "1": [
+                "colour": "blue",
+                "size": "large"
+            ]
+        ])
+        iridaNextOutput.appendMetadata("samples", [
+            "2": [
+                "colour": "red",
+                "size": "medium"
+            ]
+        ])
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parseText(iridaNextOutput.toJson())
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:],
+            ],
+            "metadata": [
+                "samples": [
+                    "1": [
+                        "colour": "blue",
+                        "size": "large"
+                    ],
+                    "2": [
+                        "colour": "red",
+                        "size": "medium"
+                    ]
+                ]
+            ]
+        ]
+    }
 }
