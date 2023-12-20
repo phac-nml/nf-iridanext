@@ -158,4 +158,60 @@ class IridaNextJSONOutputTest extends Specification {
             ]
         ]
     }
+
+    def 'Test relativize paths' () {
+        when:
+        def testFile = Paths.get("/tmp/sample1.fasta")
+
+        def iridaNextOutputNoRelativize = new IridaNextJSONOutput()
+        iridaNextOutputNoRelativize.addFile("global", testFile)
+
+        def iridaNextOutputRelativize = new IridaNextJSONOutput(Paths.get("/tmp"))
+        iridaNextOutputRelativize.addFile("global", testFile)
+
+        def iridaNextOutputRelativizeOther = new IridaNextJSONOutput(Paths.get("/data"))
+        iridaNextOutputRelativizeOther.addFile("global", testFile)
+        
+        def jsonSlurper = new JsonSlurper()
+        def outputNoRelativize = jsonSlurper.parseText(iridaNextOutputNoRelativize.toJson())
+        def outputRelativize = jsonSlurper.parseText(iridaNextOutputRelativize.toJson())
+        def outputRelativizeOther = jsonSlurper.parseText(iridaNextOutputRelativizeOther.toJson())
+
+        then:
+        outputNoRelativize == [
+            "files": [
+                "global": [
+                    ["path": "/tmp/sample1.fasta"]
+                ],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [:]
+            ]
+        ]
+
+        outputRelativize == [
+            "files": [
+                "global": [
+                    ["path": "sample1.fasta"]
+                ],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [:]
+            ]
+        ]
+
+        outputRelativizeOther == [
+            "files": [
+                "global": [
+                    ["path": "../tmp/sample1.fasta"]
+                ],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [:]
+            ]
+        ]
+    }
 }
