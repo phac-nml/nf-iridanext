@@ -40,7 +40,7 @@ class IridaNextJSONOutput {
     private Path relativizePath
     private Boolean shouldRelativize
 
-    public IridaNextJSONOutput(Path relativizePath) {
+    public IridaNextJSONOutput(Path relativizePath = null) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
     }
