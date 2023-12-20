@@ -1,5 +1,7 @@
 package nextflow.iridanext
 
+import java.nio.file.FileSystems
+
 import nextflow.iridanext.MetadataParser
 import nextflow.iridanext.MetadataParserCSV
 import spock.lang.Specification
@@ -8,7 +10,7 @@ import nextflow.iridanext.TestHelper
 
 class MetadataParserCSVTest extends Specification {
 
-    def 'Test parse CSV' () {
+    def 'Test parse CSV file' () {
         when:
         String csvContent = """a,b,c
                               |1,2,3
@@ -19,6 +21,7 @@ class MetadataParserCSVTest extends Specification {
 
         parser = new MetadataParserCSV("b")
         def csvMapColB = parser.parseMetadata(csvFile)
+
         then:
         csvMapColA == [
             "1": ["b": "2", "c": "3"],
@@ -28,5 +31,27 @@ class MetadataParserCSVTest extends Specification {
             "2": ["a": "1", "c": "3"],
             "5": ["a": "4", "c": "6"]
         ]
+    }
+
+    def 'Test matchAndParse CSV file' () {
+        when:
+        String csvContent = """a,b,c
+                              |1,2,3
+                              |4,5,6""".stripMargin()
+        def csvFile = TestHelper.createInMemTempFile("tempMatchAndParse.csv", csvContent)
+        def pathMatcherMatch = FileSystems.getDefault().getPathMatcher("glob:**/tempMatchAndParse.csv")
+        def parserMatch = new MetadataParserCSV("a", pathMatcherMatch)
+        def csvMapMatch = parserMatch.matchAndParseMetadata([csvFile])
+
+        def pathMatcherUnmatch = FileSystems.getDefault().getPathMatcher("glob:**/tempMatchAndParse-unmatch.csv")
+        def parserUnmatch = new MetadataParserCSV("a", pathMatcherUnmatch)
+        def csvMapUnmatch = parserUnmatch.matchAndParseMetadata([csvFile])
+        
+        then:
+        csvMapMatch == [
+            "1": ["b": "2", "c": "3"],
+            "4": ["b": "5", "c": "6"]
+        ]
+        csvMapUnmatch == [:]
     }
 }
