@@ -11,11 +11,9 @@ import groovy.util.logging.Slf4j
 @CompileStatic
 class MetadataParser {
     private PathMatcher pathMatcher
-    protected String id
 
-    public MetadataParser(String id, PathMatcher pathMatcher = null) {
+    public MetadataParser(PathMatcher pathMatcher = null) {
         this.pathMatcher = pathMatcher
-        this.id = id
     }
 
     public Map<String, Object> parseMetadata(Path path) {

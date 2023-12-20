@@ -17,7 +17,7 @@ class MetadataParserJSONTest extends Specification {
                                     "2": {"b": "3", "c": "4"}
                                 }'''.stripMargin()
         def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
-        def parser = new MetadataParserJSON("a")
+        def parser = new MetadataParserJSON()
         def outputData = parser.parseMetadata(jsonFile)
 
         then:

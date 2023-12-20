@@ -37,6 +37,7 @@ import nextflow.Nextflow
 import nextflow.iridanext.IridaNextJSONOutput
 import nextflow.iridanext.MetadataParser
 import nextflow.iridanext.MetadataParserCSV
+import nextflow.iridanext.MetadataParserJSON
 
 /**
  * IridaNext workflow observer
@@ -148,7 +149,9 @@ class IridaNextObserver implements TraceObserver {
                 PathMatcher pathMatcher = createPathMatcher(parserConfigMap?.path)
 
                 if (type == "csv") {
-                    return new MetadataParserCSV(parserConfigMap?.id, pathMatcher) as MetadataParser
+                    return new MetadataParserCSV(parserConfigMap?.idcol, pathMatcher) as MetadataParser
+                } else if (type == "json") {
+                    return new MetadataParserJSON()
                 } else {
                     throw new Exception("Invalid config for iridanext.output.metadata.samples: ${samplesMetadata}")
                 }

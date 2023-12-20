@@ -11,14 +11,17 @@ import nextflow.iridanext.MetadataParser
 
 @CompileStatic
 class MetadataParserCSV extends MetadataParser {
+
+    private String idcol
     
-    public MetadataParserCSV(String id, PathMatcher pathMatcher = null) {
-        super(id, pathMatcher)
+    public MetadataParserCSV(String idcol, PathMatcher pathMatcher = null) {
+        super(pathMatcher)
+        this.idcol = idcol
     }
 
     @Override
     public Map<String, Object> parseMetadata(Path path) {
-        return csvToJsonById(path, this.id)
+        return csvToJsonById(path, this.idcol)
     }
 
     private Map<String, Object> csvToJsonById(Path path, String idColumn) {

@@ -15,8 +15,8 @@ class MetadataParserJSON extends MetadataParser {
 
     private JsonSlurper jsonSlurper
     
-    public MetadataParserJSON(String id, PathMatcher pathMatcher = null) {
-        super(id, pathMatcher)
+    public MetadataParserJSON(PathMatcher pathMatcher = null) {
+        super(pathMatcher)
 
         this.jsonSlurper = new JsonSlurper()
     }
