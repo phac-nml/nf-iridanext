@@ -12,14 +12,14 @@ class MetadataParserCSVTest extends Specification {
 
     def 'Test parse CSV file' () {
         when:
-        String csvContent = """a,b,c
-                              |1,2,3
-                              |4,5,6""".stripMargin()
+        def csvContent = """a,b,c
+                           |1,2,3
+                           |4,5,6""".stripMargin()
         def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
-        def parser = new MetadataParserCSV("a")
+        def parser = new MetadataParserCSV("a", ",")
         def csvMapColA = parser.parseMetadata(csvFile)
 
-        parser = new MetadataParserCSV("b")
+        parser = new MetadataParserCSV("b", ",")
         def csvMapColB = parser.parseMetadata(csvFile)
 
         then:
@@ -33,20 +33,36 @@ class MetadataParserCSVTest extends Specification {
         ]
     }
 
+    def 'Test parse CSV file alternative separator' () {
+        when:
+        def csvContent = """a;b;c
+                           |1;2;3
+                           |4;5;6""".stripMargin()
+        def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+        def parser = new MetadataParserCSV("a", ";")
+        def csvMap = parser.parseMetadata(csvFile)
+
+        then:
+        csvMap == [
+            "1": ["b": "2", "c": "3"],
+            "4": ["b": "5", "c": "6"]
+        ]
+    }
+
     def 'Test matchAndParse CSV file' () {
         when:
-        String csvContent = """a,b,c
-                              |1,2,3
-                              |4,5,6""".stripMargin()
+        def csvContent = """a,b,c
+                           |1,2,3
+                           |4,5,6""".stripMargin()
         def csvFile = TestHelper.createInMemTempFile("tempMatchAndParse.csv", csvContent)
         def pathMatcherMatch = FileSystems.getDefault().getPathMatcher("glob:**/tempMatchAndParse.csv")
-        def parserMatch = new MetadataParserCSV("a", pathMatcherMatch)
+        def parserMatch = new MetadataParserCSV("a", ",", pathMatcherMatch)
         def csvMapMatch = parserMatch.matchAndParseMetadata([csvFile])
 
         def pathMatcherUnmatch = FileSystems.getDefault().getPathMatcher("glob:**/tempMatchAndParse-unmatch.csv")
-        def parserUnmatch = new MetadataParserCSV("a", pathMatcherUnmatch)
+        def parserUnmatch = new MetadataParserCSV("a", ",", pathMatcherUnmatch)
         def csvMapUnmatch = parserUnmatch.matchAndParseMetadata([csvFile])
-        
+
         then:
         csvMapMatch == [
             "1": ["b": "2", "c": "3"],

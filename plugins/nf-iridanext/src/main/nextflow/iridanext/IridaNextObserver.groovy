@@ -147,9 +147,10 @@ class IridaNextObserver implements TraceObserver {
 
                 Map<String, String> parserConfigMap = parserConfig as Map<String, String>
                 PathMatcher pathMatcher = createPathMatcher(parserConfigMap?.path)
+                String sep = parserConfigMap.get("sep", ",")
 
                 if (type == "csv") {
-                    return new MetadataParserCSV(parserConfigMap?.idcol, pathMatcher) as MetadataParser
+                    return new MetadataParserCSV(parserConfigMap?.idcol, sep, pathMatcher) as MetadataParser
                 } else if (type == "json") {
                     return new MetadataParserJSON()
                 } else {

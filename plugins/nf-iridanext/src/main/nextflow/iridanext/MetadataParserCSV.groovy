@@ -13,10 +13,12 @@ import nextflow.iridanext.MetadataParser
 class MetadataParserCSV extends MetadataParser {
 
     private String idcol
+    private String sep
     
-    public MetadataParserCSV(String idcol, PathMatcher pathMatcher = null) {
+    public MetadataParserCSV(String idcol, String sep, PathMatcher pathMatcher = null) {
         super(pathMatcher)
         this.idcol = idcol
+        this.sep = sep
     }
 
     @Override
@@ -26,7 +28,7 @@ class MetadataParserCSV extends MetadataParser {
 
     private Map<String, Object> csvToJsonById(Path path, String idColumn) {
         path = Nextflow.file(path) as Path
-        List rowsList = path.splitCsv(header:true, strip:true, sep:',', quote:'\"')
+        List rowsList = path.splitCsv(header:true, strip:true, sep:sep, quote:'\"')
 
         Map<String, Object> rowsMap = rowsList.collectEntries { row ->
             if (idColumn !in row) {
