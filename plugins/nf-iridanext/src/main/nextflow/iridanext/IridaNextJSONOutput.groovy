@@ -131,7 +131,11 @@ class IridaNextJSONOutput {
     public String toJson() {
         Map outputMetadata = metadata
         if (flatten) {
-            outputMetadata = flattenMap(outputMetadata)
+            // Flattens only data underneath a sample entry in the samples map
+            Map outputMetadataSamples = (outputMetadata["samples"] as Map).collectEntries { k, v ->
+                [(k): flattenMap(v as Map)]
+            }
+            outputMetadata = ["samples": outputMetadataSamples]
         }
 
         return JsonOutput.toJson(["files": files, "metadata": outputMetadata])
