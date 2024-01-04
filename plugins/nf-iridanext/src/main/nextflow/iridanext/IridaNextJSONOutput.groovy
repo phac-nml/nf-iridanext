@@ -39,10 +39,12 @@ class IridaNextJSONOutput {
     // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
     private Path relativizePath
     private Boolean shouldRelativize
+    private Boolean flatten
 
-    public IridaNextJSONOutput(Path relativizePath = null) {
+    public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
+        this.flatten = flatten
     }
 
     public void appendMetadata(String scope, Map data) {
@@ -105,8 +107,38 @@ class IridaNextJSONOutput {
         addFile(scope, null, path)
     }
 
+    private static Map flattenR(def item, String flatName="") {
+        if (item instanceof Map) {
+            Map flatMap = item.collectEntries { k, v ->
+                flattenR(v, "${flatName}.${k}")
+            }
+            return flatMap
+        } else if (item instanceof List) {
+            Map flatListAsMap = item.indexed().collectEntries { i, v ->
+                flattenR(v, "${flatName}.${i + 1}")
+            }
+            return flatListAsMap
+        } else {
+            String nameMinusInitialDot = flatName.substring(1)
+            return [(nameMinusInitialDot): item]
+        }
+    }
+
+    public static Map flattenMap(Map data) {
+        return flattenR(data)
+    }
+
     public String toJson() {
-        return JsonOutput.toJson(["files": files, "metadata": metadata])
+        Map outputMetadata = metadata
+        if (flatten) {
+            // Flattens only data underneath a sample entry in the samples map
+            Map outputMetadataSamples = (outputMetadata["samples"] as Map).collectEntries { k, v ->
+                [(k): flattenMap(v as Map)]
+            }
+            outputMetadata = ["samples": outputMetadataSamples]
+        }
+
+        return JsonOutput.toJson(["files": files, "metadata": outputMetadata])
     }
 
     public void write(Path path) {

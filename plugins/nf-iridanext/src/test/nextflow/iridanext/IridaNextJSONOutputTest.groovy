@@ -159,6 +159,114 @@ class IridaNextJSONOutputTest extends Specification {
         ]
     }
 
+    def 'Test flatten map already flat' () {
+        when:
+        Map flatMap = IridaNextJSONOutput.flattenMap([
+            "key1": "value1",
+            "key2": "value2"
+        ])
+
+        then:
+        flatMap == [
+            "key1": "value1",
+            "key2": "value2"
+        ]
+    }
+
+    def 'Test flatten map' () {
+        when:
+        Map flatMap = IridaNextJSONOutput.flattenMap([
+            "key1": "value1",
+            "key2": ["a": "value2", "b": "value3"],
+            "key3": ["value4", "value5"]
+        ])
+
+        then:
+        flatMap == [
+            "key1": "value1",
+            "key2.a": "value2",
+            "key2.b": "value3",
+            "key3.1": "value4",
+            "key3.2": "value5"
+        ]
+    }
+
+    def 'Test flatten metadata' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput(null, true)
+        iridaNextOutput.addId("samples", "1")
+        iridaNextOutput.appendMetadata("samples", [
+            "1": [
+                "colour": "blue",
+                "sizes": ["small", "medium", "large"],
+                "keys": ["a": "1", "b": "2"]
+            ]
+        ])
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parseText(iridaNextOutput.toJson())
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:],
+            ],
+            "metadata": [
+                "samples": [
+                    "1": [
+                        "colour": "blue",
+                        "sizes.1": "small",
+                        "sizes.2": "medium",
+                        "sizes.3": "large",
+                        "keys.a": "1",
+                        "keys.b": "2"
+                    ]
+                ]
+            ]
+        ]
+    }
+
+    def 'Test flatten metadata multiple samples' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput(null, true)
+        iridaNextOutput.addId("samples", "1")
+        iridaNextOutput.addId("samples", "2")
+        iridaNextOutput.appendMetadata("samples", [
+            "1": [
+                "colour": "blue",
+                "keys": ["a": "1", "b": "2"]
+            ],
+            "2": [
+                "colour": "red",
+                "keys": ["a": "3", "b": "4"]
+            ]
+        ])
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parseText(iridaNextOutput.toJson())
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:],
+            ],
+            "metadata": [
+                "samples": [
+                    "1": [
+                        "colour": "blue",
+                        "keys.a": "1",
+                        "keys.b": "2"
+                    ],
+                    "2": [
+                        "colour": "red",
+                        "keys.a": "3",
+                        "keys.b": "4"
+                    ]
+                ]
+            ]
+        ]
+    }
+
     def 'Test relativize paths' () {
         when:
         def testFile = Paths.get("/tmp/sample1.fasta")

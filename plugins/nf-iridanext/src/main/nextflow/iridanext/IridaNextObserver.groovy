@@ -133,6 +133,7 @@ class IridaNextObserver implements TraceObserver {
             }
         }
 
+        Boolean flattenMetadata = session.config.navigate('iridanext.output.metadata.flatten', false)
         def iridaNextMetadata = session.config.navigate('iridanext.output.metadata')
         if (iridaNextMetadata != null) {
             if (!iridaNextMetadata instanceof Map<String,Object>) {
@@ -159,7 +160,7 @@ class IridaNextObserver implements TraceObserver {
             }
         }
 
-        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath)
+        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, flattenMetadata)
     }
 
     private PathMatcher createPathMatcher(String pathMatch) {
