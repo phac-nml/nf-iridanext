@@ -107,17 +107,20 @@ class IridaNextJSONOutput {
         addFile(scope, null, path)
     }
 
-    private static Map flattenR(item, flatName="") {
+    private static Map flattenR(def item, String flatName="") {
         if (item instanceof Map) {
-            return item.collectEntries { k, v ->
+            Map flatMap = item.collectEntries { k, v ->
                 flattenR(v, "${flatName}.${k}")
             }
+            return flatMap
         } else if (item instanceof List) {
-            return item.indexed().collectEntries { i, v ->
+            Map flatListAsMap = item.indexed().collectEntries { i, v ->
                 flattenR(v, "${flatName}.${i + 1}")
             }
+            return flatListAsMap
         } else {
-            return [flatName: item]
+            String nameMinusInitialDot = flatName.substring(1)
+            return [(nameMinusInitialDot): item]
         }
     }
 
@@ -126,7 +129,7 @@ class IridaNextJSONOutput {
     }
 
     public String toJson() {
-        outputMetadata = metadata
+        Map outputMetadata = metadata
         if (flatten) {
             outputMetadata = flattenMap(outputMetadata)
         }
