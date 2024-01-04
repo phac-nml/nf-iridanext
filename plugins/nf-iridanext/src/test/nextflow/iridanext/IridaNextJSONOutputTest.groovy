@@ -159,6 +159,41 @@ class IridaNextJSONOutputTest extends Specification {
         ]
     }
 
+    def 'Test flatten metadata' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput(null, true)
+        iridaNextOutput.addId("samples", "1")
+        iridaNextOutput.appendMetadata("samples", [
+            "1": [
+                "colour": "blue",
+                "sizes": ["small", "medium", "large"],
+                "keys": ["a": "1", "b": "2"]
+            ]
+        ])
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parseText(iridaNextOutput.toJson())
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:],
+            ],
+            "metadata": [
+                "samples": [
+                    "1": [
+                        "colour": "blue",
+                        "sizes.1": "small",
+                        "sizes.2": "medium",
+                        "sizes.3": "large",
+                        "keys.a": "1",
+                        "keys.b": "2"
+                    ]
+                ]
+            ]
+        ]
+    }
+
     def 'Test relativize paths' () {
         when:
         def testFile = Paths.get("/tmp/sample1.fasta")
