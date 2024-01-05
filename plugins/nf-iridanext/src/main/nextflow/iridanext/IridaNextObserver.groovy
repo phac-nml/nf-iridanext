@@ -71,6 +71,10 @@ class IridaNextObserver implements TraceObserver {
         return iridaNextJSONOutput
     }
 
+    public List<MetadataParser> getSamplesMetadataParsers() {
+        return samplesMetadataParsers
+    }
+
     public String getFilesMetaId() {
         return filesMetaId
     }
