@@ -35,8 +35,6 @@ class IridaNextJSONOutput {
     private Map files = ["global": [], "samples": [:]]
     private Map metadata = ["samples": [:]]
     private Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
-    // private final Map<String, List<Map<Object, Object>>> files = ["global": [], "samples": []]
-    // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
     private Path relativizePath
     private Boolean shouldRelativize
     private Boolean flatten
@@ -45,6 +43,18 @@ class IridaNextJSONOutput {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
         this.flatten = flatten
+    }
+
+    public Boolean getShouldRelativize() {
+        return shouldRelativize
+    }
+
+    public Path getRelativizePath() {
+        return relativizePath
+    }
+
+    public Boolean shouldFlatten() {
+        return flatten
     }
 
     public void appendMetadata(String scope, Map data) {

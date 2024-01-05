@@ -54,8 +54,6 @@ class IridaNextObserver implements TraceObserver {
     private List traces = []
     private IridaNextJSONOutput iridaNextJSONOutput
     private Map<String,List<PathMatcher>> pathMatchers
-    private List<PathMatcher> samplesMatchers
-    private List<PathMatcher> globalMatchers
     private String filesMetaId
     private List<MetadataParser> samplesMetadataParsers = []
     private Path iridaNextOutputPath
@@ -69,12 +67,28 @@ class IridaNextObserver implements TraceObserver {
         addPathMatchers("samples", [])
     }
 
+    public IridaNextJSONOutput getIridaNextJSONOutput() {
+        return iridaNextJSONOutput
+    }
+
+    public List<MetadataParser> getSamplesMetadataParsers() {
+        return samplesMetadataParsers
+    }
+
+    public String getFilesMetaId() {
+        return filesMetaId
+    }
+
     public addPathMatchers(String scope, List<PathMatcher> matchers) {
         if (pathMatchers.containsKey(scope)) {
             pathMatchers[scope].addAll(matchers)
         } else {
             pathMatchers[scope] = matchers
         }
+    }
+
+    public List<PathMatcher> getPathMatchers(String scope) {
+        return pathMatchers[scope]
     }
 
     @Override

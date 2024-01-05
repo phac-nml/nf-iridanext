@@ -21,6 +21,14 @@ class MetadataParserCSV extends MetadataParser {
         this.sep = sep
     }
 
+    public String getIdCol() {
+        return idcol
+    }
+
+    public String getSep() {
+        return sep
+    }
+
     @Override
     public Map<String, Object> parseMetadata(Path path) {
         return csvToJsonById(path, this.idcol)
