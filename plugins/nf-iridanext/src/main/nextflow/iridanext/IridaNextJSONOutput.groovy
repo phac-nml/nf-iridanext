@@ -47,6 +47,14 @@ class IridaNextJSONOutput {
         this.flatten = flatten
     }
 
+    public Boolean getShouldRelativize() {
+        return shouldRelativize
+    }
+
+    public Path getRelativizePath() {
+        return relativizePath
+    }
+
     public void appendMetadata(String scope, Map data) {
         if (scope in metadata.keySet()) {
             Map validMetadata = data.collectEntries { k, v ->

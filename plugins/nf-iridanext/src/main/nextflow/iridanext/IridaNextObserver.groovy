@@ -69,6 +69,10 @@ class IridaNextObserver implements TraceObserver {
         addPathMatchers("samples", [])
     }
 
+    public IridaNextJSONOutput getIridaNextJSONOutput() {
+        return iridaNextJSONOutput
+    }
+
     public addPathMatchers(String scope, List<PathMatcher> matchers) {
         if (pathMatchers.containsKey(scope)) {
             pathMatchers[scope].addAll(matchers)
