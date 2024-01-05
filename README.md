@@ -113,15 +113,17 @@ iridanext {
         overwrite = true
         metadata {
             samples {
-                path = "**/output.csv"
-                id = "column1"
+                csv {
+                    path = "**/output.csv"
+                    idcol = "column1"
+                }
             }
         }
     }
 }
 ```
 
-The `metadata.samples.path` keyword specifies a file to parse for metadata (only CSV parsing is supported now). The `metadata.samples.id` defines the column that should match to the sample identifiers.
+This will parse a CSV file for metadata. The `csv.path` keyword specifies the file to parse. The `csv.idcol` defines the column that should match to the sample identifiers.
 
 If there exists an example CSV file like the following:
 
@@ -151,6 +153,104 @@ Then running the pipeline will produce an output like the following:
 }
 ```
 
+The CSV parser will only include metadata in the final output JSON for sample identifiers in the CSV file (defined in the column specified by `csv.idcol`) that match to sample identifiers in the pipeline [meta map][nf-core-meta-map] (the key in the meta map defined using `iridanext.output.files.idkey`).
+
+### JSON metadata
+
+If, instead of parsing a CSV file, you wish to parse metadata from a JSON file, then you can replace the `csv {}` configuration section above with:
+
+```conf
+json {
+    path = "**/output.json"
+}
+```
+
+For example, a JSON file like the following:
+
+**output.json**
+```json
+{
+    "SAMPLE1": {
+        "key1": "value1",
+        "key2": ["a", "b"]
+    },
+    "SAMPLE2": {
+        "key1": "value2"
+    }
+}
+```
+
+Would result in the following output:
+
+**iridanext.output.json.gz**
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {"key1": "value1"},
+            "SAMPLE2": {"key2": ["a", "b"]}
+        }
+    }
+}
+```
+
+### Flatten metadata
+
+Setting the configuration value `iridanext.output.metadata.flatten = true` will flatten the metadata JSON to a single level of key/value pairs (using dot `.` notation for keys).
+
+The two scenarios show the difference between `flatten = false` (default) and `flatten = true`.
+
+#### flatten = false
+
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {
+                "key1": {
+                    "subkey1": "value1",
+                    "subkey2": "value2"
+                }
+            },
+            "SAMPLE2": {
+                "key2": ["a", "b"]
+            }
+        }
+    }
+}
+```
+
+#### flatten = true
+
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {
+                "key1.subkey1": "value1",
+                "key1.subkey2": "value2"
+            },
+            "SAMPLE2": {
+                "key2.1": "a",
+                "key2.2": "b"
+            }
+        }
+    }
+}
+```
+
 # Development
 
 ## Build and install from source
@@ -173,7 +273,7 @@ Please see the [Nextflow plugins documentation][nextflow-develop-plugins] and th
 cp -r build/plugins/nf-iridanext-0.2.0 ~/.nextflow/plugins
 ```
 
-This copies the compiled plugin files into the Nextflow plugin cache (default `~/.nextflow/plugins`). Please change the version `0.1.0` to the version of the plugin built from source.
+This copies the compiled plugin files into the Nextflow plugin cache (default `~/.nextflow/plugins`). Please change the version `0.2.0` to the version of the plugin built from source.
 
 ### 3. Use
 
