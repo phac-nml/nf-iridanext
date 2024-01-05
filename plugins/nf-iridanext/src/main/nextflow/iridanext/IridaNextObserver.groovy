@@ -54,8 +54,6 @@ class IridaNextObserver implements TraceObserver {
     private List traces = []
     private IridaNextJSONOutput iridaNextJSONOutput
     private Map<String,List<PathMatcher>> pathMatchers
-    private List<PathMatcher> samplesMatchers
-    private List<PathMatcher> globalMatchers
     private String filesMetaId
     private List<MetadataParser> samplesMetadataParsers = []
     private Path iridaNextOutputPath

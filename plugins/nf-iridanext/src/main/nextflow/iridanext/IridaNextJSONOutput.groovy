@@ -35,8 +35,6 @@ class IridaNextJSONOutput {
     private Map files = ["global": [], "samples": [:]]
     private Map metadata = ["samples": [:]]
     private Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
-    // private final Map<String, List<Map<Object, Object>>> files = ["global": [], "samples": []]
-    // private final Map<String, Map<Object, Object>> metadata = ["samples": []]
     private Path relativizePath
     private Boolean shouldRelativize
     private Boolean flatten
