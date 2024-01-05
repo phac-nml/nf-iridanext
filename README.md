@@ -198,6 +198,59 @@ Would result in the following output:
 }
 ```
 
+### Flatten metadata
+
+Setting the configuration value `iridanext.output.metadata.flatten = true` will flatten the metadata JSON to a single level of key/value pairs (using dot `.` notation for keys).
+
+The two scenarios show the difference between `flatten = false` (default) and `flatten = true`.
+
+#### flatten = false
+
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {
+                "key1": {
+                    "subkey1": "value1",
+                    "subkey2": "value2"
+                }
+            },
+            "SAMPLE2": {
+                "key2": ["a", "b"]
+            }
+        }
+    }
+}
+```
+
+#### flatten = true
+
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {
+                "key1.subkey1": "value1",
+                "key1.subkey2": "value2"
+            },
+            "SAMPLE2": {
+                "key2.1": "a",
+                "key2.2": "b"
+            }
+        }
+    }
+}
+```
+
 # Development
 
 ## Build and install from source
