@@ -1,9 +1,9 @@
 # Unreleased
 
 * Added support for writing JSON output file when using `-resume` in a pipeline.
-* Re-structured Nextflow config syntax for loading metadata from CSV file.
-* Added support for reading metadata from JSON file.
-* Added support for flattening samples metadata with `iridanext.output.metadata.flatten`.
+* Re-structured Nextflow config syntax for loading metadata from CSV file using `csv {}` section in config.
+* Added support for reading metadata from JSON file using `json {}` section in config.
+* Added support for flattening samples metadata with `iridanext.output.metadata.flatten=true`.
 
 # 0.1.0 - 2023/12/14
 
