@@ -73,12 +73,20 @@ class IridaNextObserver implements TraceObserver {
         return iridaNextJSONOutput
     }
 
+    public String getFilesMetaId() {
+        return filesMetaId
+    }
+
     public addPathMatchers(String scope, List<PathMatcher> matchers) {
         if (pathMatchers.containsKey(scope)) {
             pathMatchers[scope].addAll(matchers)
         } else {
             pathMatchers[scope] = matchers
         }
+    }
+
+    public List<PathMatcher> getPathMatchers(String scope) {
+        return pathMatchers[scope]
     }
 
     @Override
