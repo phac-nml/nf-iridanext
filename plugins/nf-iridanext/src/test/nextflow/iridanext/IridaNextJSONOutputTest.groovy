@@ -322,4 +322,24 @@ class IridaNextJSONOutputTest extends Specification {
             ]
         ]
     }
+
+    def 'Test validate output against schema' () {
+        when:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [:]
+            ]
+        ]
+        def iridaNextOutput = new IridaNextJSONOutput()
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parseText(iridaNextOutput.toJson())
+        TestHelper.createInMemTempFile("temp.csv", csvContent)
+
+        then:
+        IridaNextJSONOutput.validateOutput()
+    }
 }
