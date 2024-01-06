@@ -64,6 +64,9 @@ class IridaNextObserver implements TraceObserver {
     private Boolean outputFileOverwrite
     private Session session
 
+    private static final Set<String> validMetadataSampleControls = ["ignore", "keep", "rename"].toSet()
+    private static final Set<String> validMetadataSampleParsers = ["csv", "json"].toSet()
+
     public IridaNextObserver() {
         pathMatchers = [:]
         addPathMatchers("global", [])
@@ -166,25 +169,28 @@ class IridaNextObserver implements TraceObserver {
             }
 
             Map<String, Object> samplesMetadata = iridaNextMetadata["samples"] as Map<String,Object>
+            List<String> ignoreKeys = samplesMetadata.get("ignore", [].toSet()) as List<String>
+            List<String> keepKeys = samplesMetadata.get("keep", null) as List<String>
+            Map<String, String> renameKeys = samplesMetadata.get("rename", [:]) as Map<String, String>
+
             this.samplesMetadataParsers = samplesMetadata.collect { type, parserConfig ->
-                if (!(parserConfig instanceof Map<String, Object>)) {
+                if (type in validMetadataSampleControls) {
+                    return null
+                } else if (!(parserConfig instanceof Map<String, Object>)) {
                     throw new Exception("Invalid config for iridanext.output.metadata.samples: ${samplesMetadata}")
                 }
 
                 Map<String, Object> parserConfigMap = parserConfig as Map<String, Object>
                 PathMatcher pathMatcher = createPathMatcher(parserConfigMap?.path as String)
                 String sep = parserConfigMap.get("sep", ",") as String
-                List<String> ignoreKeys = parserConfigMap.get("ignore", [].toSet()) as List<String>
-                List<String> keepKeys = parserConfigMap.get("keep", null) as List<String>
-                Map<String, String> renameKeys = parserConfigMap.get("rename", [:]) as Map<String, String>
 
                 MetadataParser parser = null
                 if (type == "csv") {
                     parser = new MetadataParserCSV(parserConfigMap?.idcol as String, sep, pathMatcher) as MetadataParser
                 } else if (type == "json") {
                     parser = new MetadataParserJSON(pathMatcher)
-                } else {
-                    throw new Exception("Invalid config for iridanext.output.metadata.samples: ${samplesMetadata}")
+                } else if (!(type in validMetadataSampleParsers)) {
+                    throw new Exception("Invalid type=${type} for iridanext.output.metadata.samples: ${samplesMetadata}")
                 }
 
                 parser.setIgnoreKeys(ignoreKeys)
@@ -192,6 +198,8 @@ class IridaNextObserver implements TraceObserver {
                 parser.setRenameKeys(renameKeys)
                 return parser
             }
+            // Remove nulls
+            this.samplesMetadataParsers = this.samplesMetadataParsers.findAll()
         }
 
         iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, flattenMetadata, jsonSchema, validate)
