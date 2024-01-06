@@ -192,11 +192,11 @@ class IridaNextJSONOutput {
 
         try {
             // validate all JSON against passed schema prior to writing
-            if (validate) {
+            if (validate && jsonSchema != null) {
                 validateJson(jsonString)
                 log.debug "Validation successfull against schema ${jsonSchema.getUri()} for JSON prior to writing to ${path}"
             } else {
-                log.debug "Ignoring validation of ${path} against schema ${jsonSchema.getUri()}"
+                log.debug "Ignoring validation of ${path} against schema ${jsonSchema ? jsonSchema.getUri() : ''}"
             }
 
             // Documentation for reading/writing to Nextflow files using this method is available at
