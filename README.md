@@ -198,6 +198,134 @@ Would result in the following output:
 }
 ```
 
+### Adjust saved metadata
+
+The `iridanext.output.metadata.samples.{ignore,keep,rename}` configuration options can be used to adjust what is stored within the metadata JSON structure. For example:
+
+#### ignore
+
+Setting `iridanext.output.metadata.samples.ignore = ["b"]` in the config (like below) will cause the metadata in the column *b* to be ignored in the final IRIDA Next output JSON file.
+
+For example, in the config below:
+
+**nextflow.config**
+```config
+plugins {
+    id 'nf-iridanext'
+}
+
+iridanext {
+    enabled = true
+    output {
+        path = "${params.outdir}/iridanext.output.json.gz"
+        overwrite = true
+        metadata {
+            samples {
+                ignore = ["b"]
+                csv {
+                    path = "**/output.csv"
+                    idcol = "column1"
+                }
+            }
+        }
+    }
+}
+```
+
+If this used to load the below CSV file.
+
+**output.csv**
+| column1 | b | c |
+|--|--|--|
+| SAMPLE1 | 2 | 3 |
+| SAMPLE2 | 4 | 5 |
+| SAMPLE3 | 6 | 7 |
+
+Then an output like below is produced (that is, the *b* column is ignored).
+
+**iridanext.output.json.gz**
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {"c": "3"},
+            "SAMPLE2": {"c": "5"},
+            "SAMPLE3": {"c": "7"}
+        }
+    }
+}
+```
+
+#### keep
+
+Setting `iridanext.output.metadata.samples.keep = ["b"]` is similar to the ignore case, except the listed columns will be kept.
+
+**iridanext.output.json.gz**
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {"b": "2"},
+            "SAMPLE2": {"b": "4"},
+            "SAMPLE3": {"b": "6"}
+        }
+    }
+}
+```
+
+#### rename
+
+Setting `iridanext.output.metadata.samples.rename` will rename the listed keys to new key names (specified as a Map). For example:
+
+**nextflow.config**
+```config
+plugins {
+    id 'nf-iridanext'
+}
+
+iridanext {
+    enabled = true
+    output {
+        path = "${params.outdir}/iridanext.output.json.gz"
+        overwrite = true
+        metadata {
+            samples {
+                rename = ["b": "b_col"]
+                csv {
+                    path = "**/output.csv"
+                    idcol = "column1"
+                }
+            }
+        }
+    }
+}
+```
+
+**iridanext.output.json.gz**
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {"b_col": "2","c": "3"},
+            "SAMPLE2": {"b_col": "4","c": "5"},
+            "SAMPLE3": {"b_col": "6","c": "7"}
+        }
+    }
+}
+```
+
 ### Flatten metadata
 
 Setting the configuration value `iridanext.output.metadata.flatten = true` will flatten the metadata JSON to a single level of key/value pairs (using dot `.` notation for keys).
