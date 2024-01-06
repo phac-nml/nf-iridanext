@@ -25,6 +25,7 @@ import java.nio.file.Path
 import java.io.OutputStream
 import java.util.zip.GZIPOutputStream
 import net.jimblackler.jsonschemafriend.Schema
+import net.jimblackler.jsonschemafriend.SchemaStore
 import net.jimblackler.jsonschemafriend.Validator
 
 import groovy.transform.CompileStatic
@@ -48,6 +49,11 @@ class IridaNextJSONOutput {
         this.shouldRelativize = (this.relativizePath != null)
         this.flatten = flatten
         this.jsonSchema = jsonSchema
+    }
+
+    public static Schema loadDefaultOutputSchema() {
+        SchemaStore schemaStore = new SchemaStore()
+        return schemaStore.loadSchema(IridaNextJSONOutput.class.getResource("output_schema.json"))
     }
 
     public Boolean getShouldRelativize() {

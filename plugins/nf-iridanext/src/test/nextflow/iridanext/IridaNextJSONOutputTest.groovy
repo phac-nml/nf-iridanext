@@ -10,7 +10,9 @@ import net.jimblackler.jsonschemafriend.SchemaStore
 import net.jimblackler.jsonschemafriend.ValidationException
 
 import nextflow.iridanext.TestHelper
+import groovy.util.logging.Slf4j
 
+@Slf4j
 class IridaNextJSONOutputTest extends Specification {
 
     def 'Test add ids' () {
@@ -371,5 +373,36 @@ class IridaNextJSONOutputTest extends Specification {
 
         then:
         thrown(ValidationException)
+    }
+
+    def 'Test validate JSON against packaged schema success' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = IridaNextJSONOutput.loadDefaultOutputSchema()
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
+
+        then:
+        iridaNextOutput.validateJson('{"files": {}, "metadata": {}}')
+    }
+
+    def 'Test validate JSON against packaged schema fail' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = IridaNextJSONOutput.loadDefaultOutputSchema()
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
+        iridaNextOutput.validateJson('{"files": "string", "metadata": {}}')
+
+        then:
+        thrown(ValidationException)
+    }
+
+    def 'Test validate output against packaged schema success' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = IridaNextJSONOutput.loadDefaultOutputSchema()
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
+
+        then:
+        iridaNextOutput.validateJson(iridaNextOutput.toJson())
     }
 }
