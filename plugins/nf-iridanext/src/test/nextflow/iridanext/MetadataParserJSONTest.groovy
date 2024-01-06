@@ -15,6 +15,11 @@ class MetadataParserJSONTest extends Specification {
                                     "2": {"b": "3", "c": "4"}
                                 }'''.stripMargin()
 
+    private static final jsonContentComplex = '''{
+                                    "1": {"coords": {"x": 2, "y": 8}, "coords.x": 3},
+                                    "2": {"coords": {"x": 0, "y": 1}, "coords.x": 4}
+                                }'''.stripMargin()
+
     def 'Test parse JSON file' () {
         when:
         def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
@@ -67,6 +72,33 @@ class MetadataParserJSONTest extends Specification {
         outputData == [
             "1": ["brename": "2", "c": "3"],
             "2": ["brename": "3", "c": "4"]
+        ]
+    }
+
+    def 'Test parse JSON file complex' () {
+        when:
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
+        MetadataParserJSON parser = new MetadataParserJSON()
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["coords": ["x": 2, "y": 8], "coords.x": 3],
+            "2": ["coords": ["x": 0, "y": 1], "coords.x": 4]
+        ]
+    }
+
+    def 'Test parse JSON file set complex ignore keys' () {
+        when:
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
+        MetadataParserJSON parser = new MetadataParserJSON()
+        parser.setIgnoreKeys(["coords.x"])
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["coords": ["x": 2, "y": 8]],
+            "2": ["coords": ["x": 0, "y": 1]]
         ]
     }
 }

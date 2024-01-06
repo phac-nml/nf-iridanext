@@ -14,9 +14,19 @@ class MetadataParser {
     private Set<String> ignoreKeys = [].toSet()
     private Set<String> keepKeys
     private Map<String, String> renameKeys = [:]
+    private Boolean hierarchicalExpression = false
+    private String hierarchicalSeparator = '.'
 
     public MetadataParser(PathMatcher pathMatcher = null) {
         this.pathMatcher = pathMatcher
+    }
+
+    public void setHierarchicalExpression(Boolean hierarchicalExpression) {
+        this.hierarchicalExpression = hierarchicalExpression
+    }
+
+    public void setHierarchicalSeparator(String hierarchicalSeparator) {
+        this.hierarchicalSeparator = hierarchicalSeparator
     }
 
     public void setIgnoreKeys(List<String> ignoreKeys) {
