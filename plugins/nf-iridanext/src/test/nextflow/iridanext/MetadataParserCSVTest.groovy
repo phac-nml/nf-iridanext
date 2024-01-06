@@ -78,10 +78,29 @@ class MetadataParserCSVTest extends Specification {
                            |4,5,6""".stripMargin()
         def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
         MetadataParserCSV parser = new MetadataParserCSV("a", ",")
+        parser.setIgnoreKeys(["b"])
+        def csvMap = parser.parseMetadata(csvFile)
+
+        then:
+        csvMap == [
+            "1": ["c": "3"],
+            "4": ["c": "6"]
+        ]
+    }
+
+    def 'Test parse CSV file ignore with idcol key' () {
+        when:
+        def csvContent = """a,b,c
+                           |1,2,3
+                           |4,5,6""".stripMargin()
+        def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+        MetadataParserCSV parser = new MetadataParserCSV("a", ",")
         parser.setIgnoreKeys(["a", "b"])
         def csvMap = parser.parseMetadata(csvFile)
 
         then:
+        // ignoring column "a" (the idcol) will have no effect since
+        // it's used to set the same identifier
         csvMap == [
             "1": ["c": "3"],
             "4": ["c": "6"]
