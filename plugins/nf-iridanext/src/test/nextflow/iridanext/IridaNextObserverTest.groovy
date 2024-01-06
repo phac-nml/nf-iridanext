@@ -173,6 +173,7 @@ class IridaNextObserverTest extends Specification {
                 enabled: true,
                 output: [
                     schema: "${schemaFile}",
+                    validate: true
                 ]
             ]
         ]
@@ -183,6 +184,77 @@ class IridaNextObserverTest extends Specification {
         iridaNextObserver.onFlowCreate(session)
         
         then:
+        iridaNextObserver.getIridaNextJSONOutput().shouldValidate()
         iridaNextObserver.getIridaNextJSONOutput().getOutputSchema().getUri().toString().endsWith("test_schema.json")
+    }
+
+    def 'Test disable JSON schema validation' () {
+        when:
+        String schemaString = '''{
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "type": "object",
+            "properties": {
+                "files": {
+                    "type": "object"
+                },
+                "metadata": {
+                    "type": "object"
+                }
+            }
+        }
+        '''
+        def schemaFile = TestHelper.createInMemTempFile("test_schema.json", schemaString)
+        def config = [
+            iridanext: [
+                enabled: true,
+                output: [
+                    schema: "${schemaFile}",
+                    validate: false
+                ]
+            ]
+        ]
+        def session = Spy(Session) {
+            getConfig() >> config
+        }
+        IridaNextObserver iridaNextObserver = new IridaNextObserver()
+        iridaNextObserver.onFlowCreate(session)
+        
+        then:
+        !iridaNextObserver.getIridaNextJSONOutput().shouldValidate()
+    }
+
+    def 'Test default JSON schema to validate' () {
+        when:
+        String schemaString = '''{
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "type": "object",
+            "properties": {
+                "files": {
+                    "type": "object"
+                },
+                "metadata": {
+                    "type": "object"
+                }
+            }
+        }
+        '''
+        def schemaFile = TestHelper.createInMemTempFile("test_schema.json", schemaString)
+        def config = [
+            iridanext: [
+                enabled: true,
+                output: [
+                    validate: true
+                ]
+            ]
+        ]
+        def session = Spy(Session) {
+            getConfig() >> config
+        }
+        IridaNextObserver iridaNextObserver = new IridaNextObserver()
+        iridaNextObserver.onFlowCreate(session)
+        
+        then:
+        iridaNextObserver.getIridaNextJSONOutput().shouldValidate()
+        iridaNextObserver.getIridaNextJSONOutput().getOutputSchema().getUri().toString().endsWith("output_schema.json")
     }
 }

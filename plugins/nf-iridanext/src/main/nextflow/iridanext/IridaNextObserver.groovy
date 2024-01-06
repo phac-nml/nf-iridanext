@@ -125,7 +125,8 @@ class IridaNextObserver implements TraceObserver {
 
         outputFileOverwrite = session.config.navigate('iridanext.output.overwrite', false)
         String jsonSchemaPath = session.config.navigate('iridanext.output.schema')
-        Schema jsonSchema = null
+        Boolean validate = session.config.navigate('iridanext.output.validate', false)
+        Schema jsonSchema = IridaNextJSONOutput.defaultSchema
         if (jsonSchemaPath != null) {
             SchemaStore schemaStore = new SchemaStore()
             Path jsonSchemaPathAsPath = Nextflow.file(jsonSchemaPath) as Path
@@ -184,7 +185,7 @@ class IridaNextObserver implements TraceObserver {
             }
         }
 
-        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, flattenMetadata, jsonSchema)
+        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, flattenMetadata, jsonSchema, validate)
     }
 
     private PathMatcher createPathMatcher(String pathMatch) {

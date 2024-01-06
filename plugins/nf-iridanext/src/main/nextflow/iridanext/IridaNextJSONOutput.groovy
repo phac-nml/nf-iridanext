@@ -43,20 +43,26 @@ class IridaNextJSONOutput {
     private Boolean shouldRelativize
     private Boolean flatten
     private Schema jsonSchema
+    private Boolean validate
 
-    public static defaultSchema = loadDefaultOutputSchema()
+    public static final Schema defaultSchema = loadDefaultOutputSchema()
 
     public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false,
-        Schema jsonSchema = null) {
+        Schema jsonSchema = null, Boolean validate = false) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
         this.flatten = flatten
         this.jsonSchema = jsonSchema
+        this.validate = validate
     }
 
     public static Schema loadDefaultOutputSchema() {
         SchemaStore schemaStore = new SchemaStore()
         return schemaStore.loadSchema(IridaNextJSONOutput.class.getResource("output_schema.json"))
+    }
+
+    public Boolean shouldValidate() {
+        return validate
     }
 
     public Schema getOutputSchema() {
