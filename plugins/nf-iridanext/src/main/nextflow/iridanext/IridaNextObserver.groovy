@@ -21,6 +21,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.FileSystems
 import java.nio.file.PathMatcher
+import java.net.URI
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -33,6 +34,8 @@ import nextflow.processor.TaskRun
 import nextflow.script.params.FileOutParam
 import nextflow.script.params.ValueOutParam
 import nextflow.Nextflow
+import net.jimblackler.jsonschemafriend.Schema
+import net.jimblackler.jsonschemafriend.SchemaStore
 
 import nextflow.iridanext.IridaNextJSONOutput
 import nextflow.iridanext.MetadataParser
@@ -121,6 +124,13 @@ class IridaNextObserver implements TraceObserver {
         }
 
         outputFileOverwrite = session.config.navigate('iridanext.output.overwrite', false)
+        String jsonSchemaPath = session.config.navigate('iridanext.output.schema')
+        Schema jsonSchema = null
+        if (jsonSchemaPath != null) {
+            SchemaStore schemaStore = new SchemaStore()
+            Path jsonSchemaPathAsPath = Nextflow.file(jsonSchemaPath) as Path
+            jsonSchema = schemaStore.loadSchema(jsonSchemaPathAsPath.toFile().toURI())
+        }
 
         // Used for overriding the "meta.id" key used to define identifiers for a scope
         // (e.g., by default meta.id is used for a sample identifier in a pipeline)
@@ -174,7 +184,7 @@ class IridaNextObserver implements TraceObserver {
             }
         }
 
-        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, flattenMetadata)
+        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, flattenMetadata, jsonSchema)
     }
 
     private PathMatcher createPathMatcher(String pathMatch) {

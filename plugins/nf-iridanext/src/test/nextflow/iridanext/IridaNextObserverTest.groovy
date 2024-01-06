@@ -9,9 +9,11 @@ import nextflow.Session
 import spock.lang.Specification
 import net.jimblackler.jsonschemafriend.Schema
 import net.jimblackler.jsonschemafriend.SchemaStore
+import groovy.util.logging.Slf4j
 
 import nextflow.iridanext.TestHelper
 
+@Slf4j
 class IridaNextObserverTest extends Specification {
 
     def 'Test relativize paths' () {
@@ -173,10 +175,11 @@ class IridaNextObserverTest extends Specification {
             iridanext: [
                 enabled: true,
                 output: [
-                    schema: schemaFile
+                    schema: "${schemaFile}",
                 ]
             ]
         ]
+        log.info "config=${config}"
         def session = Spy(Session) {
             getConfig() >> config
         }
