@@ -378,7 +378,7 @@ class IridaNextJSONOutputTest extends Specification {
     def 'Test validate JSON against packaged schema success' () {
         when:
         def schemaStore = new SchemaStore()
-        Schema schema = IridaNextJSONOutput.loadDefaultOutputSchema()
+        Schema schema = IridaNextJSONOutput.defaultSchema
         IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
 
         then:
@@ -388,7 +388,7 @@ class IridaNextJSONOutputTest extends Specification {
     def 'Test validate JSON against packaged schema fail' () {
         when:
         def schemaStore = new SchemaStore()
-        Schema schema = IridaNextJSONOutput.loadDefaultOutputSchema()
+        Schema schema = IridaNextJSONOutput.defaultSchema
         IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
         iridaNextOutput.validateJson('{"files": "string", "metadata": {}}')
 
@@ -399,7 +399,7 @@ class IridaNextJSONOutputTest extends Specification {
     def 'Test validate output against packaged schema success' () {
         when:
         def schemaStore = new SchemaStore()
-        Schema schema = IridaNextJSONOutput.loadDefaultOutputSchema()
+        Schema schema = IridaNextJSONOutput.defaultSchema
         IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
 
         then:

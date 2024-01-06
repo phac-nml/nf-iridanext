@@ -46,7 +46,7 @@ class IridaNextJSONOutput {
     public static defaultSchema = loadDefaultOutputSchema()
 
     public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false,
-        Schema jsonSchema = defaultSchema) {
+        Schema jsonSchema = null) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
         this.flatten = flatten
@@ -158,6 +158,8 @@ class IridaNextJSONOutput {
         Validator validator = new Validator()
         if (jsonSchema != null) {
             validator.validateJson(jsonSchema, json)
+        } else {
+            log.debug "Ignoring validating IRIDA Next output json against schema since jsonSchema=${jsonSchema}"
         }
     }
 
