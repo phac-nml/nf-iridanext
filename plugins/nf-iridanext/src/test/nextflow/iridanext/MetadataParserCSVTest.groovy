@@ -123,4 +123,21 @@ class MetadataParserCSVTest extends Specification {
             "4": ["c": "6"]
         ]
     }
+
+    def 'Test parse CSV file rename keys' () {
+        when:
+        def csvContent = """a,b,c
+                           |1,2,3
+                           |4,5,6""".stripMargin()
+        def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+        MetadataParserCSV parser = new MetadataParserCSV("a", ",")
+        parser.setRenameKeys(["b": "brename"])
+        def csvMap = parser.parseMetadata(csvFile)
+
+        then:
+        csvMap == [
+            "1": ["brename": "2", "c": "3"],
+            "4": ["brename": "5", "c": "6"]
+        ]
+    }
 }

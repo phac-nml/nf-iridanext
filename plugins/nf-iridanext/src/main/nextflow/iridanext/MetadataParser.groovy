@@ -11,19 +11,32 @@ import groovy.util.logging.Slf4j
 @CompileStatic
 class MetadataParser {
     private PathMatcher pathMatcher
-    private Set<String> ignoreKeys
+    private Set<String> ignoreKeys = [].toSet()
     private Set<String> keepKeys
+    private Map<String, String> renameKeys = [:]
 
     public MetadataParser(PathMatcher pathMatcher = null) {
         this.pathMatcher = pathMatcher
     }
 
     public void setIgnoreKeys(List<String> ignoreKeys) {
-        this.ignoreKeys = ignoreKeys.toSet()
+        if (ignoreKeys == null) {
+            this.ignoreKeys = [].toSet()
+        } else {
+            this.ignoreKeys = ignoreKeys.toSet()
+        }
     }
 
     public void setKeepKeys(List<String> keepKeys) {
         this.keepKeys = keepKeys.toSet()
+    }
+
+    public void setRenameKeys(Map<String, String> renameKeys) {
+        if (renameKeys == null) {
+            this.renameKeys = [:]
+        } else {
+            this.renameKeys = renameKeys
+        }
     }
 
     public Map<String, Object> parseMetadata(Path path) {
@@ -32,10 +45,13 @@ class MetadataParser {
         metadata = metadata.collectEntries { m ->
             if (m.value instanceof Map) {
                 Map keepValues = (m.value as Map).collectEntries { n ->
-                    if (this.ignoreKeys != null && n.key in this.ignoreKeys) {
+                    if (n.key in this.ignoreKeys) {
                         return [:]
                     } else if (this.keepKeys != null && !(n.key in this.keepKeys)) {
                         return [:]
+                    } else if (n.key in this.renameKeys) {
+                        def renamedKey = this.renameKeys[n.key]
+                        return [(renamedKey): n.value]
                     } else {
                         return n
                     }

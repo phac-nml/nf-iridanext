@@ -55,4 +55,18 @@ class MetadataParserJSONTest extends Specification {
             "2": ["b": "3"]
         ]
     }
+
+    def 'Test parse JSON file rename keys' () {
+        when:
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
+        MetadataParserJSON parser = new MetadataParserJSON()
+        parser.setRenameKeys(["b": "brename"])
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["brename": "2", "c": "3"],
+            "2": ["brename": "3", "c": "4"]
+        ]
+    }
 }
