@@ -5,6 +5,9 @@ import java.nio.file.Paths
 import nextflow.iridanext.IridaNextJSONOutput
 import spock.lang.Specification
 import groovy.json.JsonSlurper
+import net.jimblackler.jsonschemafriend.Schema
+import net.jimblackler.jsonschemafriend.SchemaStore
+import net.jimblackler.jsonschemafriend.ValidationException
 
 import nextflow.iridanext.TestHelper
 
@@ -323,23 +326,50 @@ class IridaNextJSONOutputTest extends Specification {
         ]
     }
 
-    def 'Test validate output against schema' () {
+    def 'Test validate output against in-memory schema' () {
         when:
-        output == [
-            "files": [
-                "global": [],
-                "samples": [:]
-            ],
-            "metadata": [
-                "samples": [:]
-            ]
-        ]
-        def iridaNextOutput = new IridaNextJSONOutput()
-        def jsonSlurper = new JsonSlurper()
-        def output = jsonSlurper.parseText(iridaNextOutput.toJson())
-        TestHelper.createInMemTempFile("temp.csv", csvContent)
+        String schemaString = '''{
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "type": "object",
+            "properties": {
+                "files": {
+                    "type": "object"
+                },
+                "metadata": {
+                    "type": "object"
+                }
+            }
+        }
+        '''
+        def schemaStore = new SchemaStore()
+        Schema schema = schemaStore.loadSchemaJson(schemaString)
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
 
         then:
-        IridaNextJSONOutput.validateOutput()
+        iridaNextOutput.validateJson(iridaNextOutput.toJson())
+    }
+
+    def 'Test failure with mismatch of schema' () {
+        when:
+        String schemaString = '''{
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "type": "object",
+            "properties": {
+                "files": {
+                    "type": "integer"
+                },
+                "metadata": {
+                    "type": "object"
+                }
+            }
+        }
+        '''
+        def schemaStore = new SchemaStore()
+        Schema schema = schemaStore.loadSchemaJson(schemaString)
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
+        iridaNextOutput.validateJson(iridaNextOutput.toJson())
+
+        then:
+        thrown(ValidationException)
     }
 }

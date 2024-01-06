@@ -24,6 +24,8 @@ import java.util.Map
 import java.nio.file.Path
 import java.io.OutputStream
 import java.util.zip.GZIPOutputStream
+import net.jimblackler.jsonschemafriend.Schema
+import net.jimblackler.jsonschemafriend.Validator
 
 import groovy.transform.CompileStatic
 import groovy.json.JsonOutput
@@ -38,11 +40,14 @@ class IridaNextJSONOutput {
     private Path relativizePath
     private Boolean shouldRelativize
     private Boolean flatten
+    private Schema jsonSchema
 
-    public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false) {
+    public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false,
+        Schema jsonSchema = null) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
         this.flatten = flatten
+        this.jsonSchema = jsonSchema
     }
 
     public Boolean getShouldRelativize() {
@@ -136,6 +141,16 @@ class IridaNextJSONOutput {
 
     public static Map flattenMap(Map data) {
         return flattenR(data)
+    }
+
+    /**
+    Validates the passed JSON string. Throws an exception if JSON is invalid.
+    **/
+    public void validateJson(String json) {
+        Validator validator = new Validator()
+        if (jsonSchema != null) {
+            validator.validateJson(jsonSchema, json)
+        }
     }
 
     public String toJson() {
