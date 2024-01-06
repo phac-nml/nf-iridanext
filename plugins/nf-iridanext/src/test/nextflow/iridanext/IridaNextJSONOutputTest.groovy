@@ -1,6 +1,8 @@
 package nextflow.iridanext
 
 import java.nio.file.Paths
+import java.nio.file.Path
+import java.nio.file.Files
 
 import nextflow.iridanext.IridaNextJSONOutput
 import spock.lang.Specification
@@ -404,5 +406,62 @@ class IridaNextJSONOutputTest extends Specification {
 
         then:
         iridaNextOutput.validateJson(iridaNextOutput.toJson())
+    }
+
+    def 'Test write JSON file' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput()
+        Path tempJsonFile = Files.createTempFile("iridanext.output", ".json")
+        iridaNextOutput.write(tempJsonFile)
+
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parse(tempJsonFile)
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [:]
+            ]
+        ]
+    }
+
+    def 'Test write complex JSON file' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput()
+        iridaNextOutput.addId("samples", "1")
+        iridaNextOutput.addFile("global", Paths.get("sample1.fasta"))
+        iridaNextOutput.appendMetadata("samples", [
+            "1": [
+                "colour": "blue",
+                "size": "large"
+            ]
+        ])
+        Path tempJsonFile = Files.createTempFile("iridanext.output", ".json")
+        iridaNextOutput.write(tempJsonFile)
+
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parse(tempJsonFile)
+
+        then:
+        output == [
+            "files": [
+                "global": [
+                    ["path": "sample1.fasta"]
+                ],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [
+                    "1": [
+                        "colour": "blue",
+                        "size": "large"
+                    ]
+                ]
+            ]
+        ]
     }
 }
