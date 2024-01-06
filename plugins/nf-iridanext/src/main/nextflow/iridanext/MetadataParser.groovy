@@ -27,8 +27,16 @@ class MetadataParser {
         }
     }
 
+    public Set<String> getIgnoreKeys() {
+        return this.ignoreKeys
+    }
+
     public void setKeepKeys(List<String> keepKeys) {
         this.keepKeys = keepKeys.toSet()
+    }
+
+    public Set<String> getKeepKeys() {
+        return this.keepKeys
     }
 
     public void setRenameKeys(Map<String, String> renameKeys) {
@@ -37,6 +45,10 @@ class MetadataParser {
         } else {
             this.renameKeys = renameKeys
         }
+    }
+
+    public Map<String,String> getRenameKeys() {
+        return this.renameKeys
     }
 
     public Map<String, Object> parseMetadata(Path path) {

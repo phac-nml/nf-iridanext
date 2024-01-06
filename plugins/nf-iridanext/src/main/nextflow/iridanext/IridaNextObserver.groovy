@@ -167,21 +167,30 @@ class IridaNextObserver implements TraceObserver {
 
             Map<String, Object> samplesMetadata = iridaNextMetadata["samples"] as Map<String,Object>
             this.samplesMetadataParsers = samplesMetadata.collect { type, parserConfig ->
-                if (!(parserConfig instanceof Map<String, String>)) {
+                if (!(parserConfig instanceof Map<String, Object>)) {
                     throw new Exception("Invalid config for iridanext.output.metadata.samples: ${samplesMetadata}")
                 }
 
-                Map<String, String> parserConfigMap = parserConfig as Map<String, String>
-                PathMatcher pathMatcher = createPathMatcher(parserConfigMap?.path)
-                String sep = parserConfigMap.get("sep", ",")
+                Map<String, Object> parserConfigMap = parserConfig as Map<String, Object>
+                PathMatcher pathMatcher = createPathMatcher(parserConfigMap?.path as String)
+                String sep = parserConfigMap.get("sep", ",") as String
+                List<String> ignoreKeys = parserConfigMap.get("ignore", [].toSet()) as List<String>
+                List<String> keepKeys = parserConfigMap.get("keep", null) as List<String>
+                Map<String, String> renameKeys = parserConfigMap.get("rename", [:]) as Map<String, String>
 
+                MetadataParser parser = null
                 if (type == "csv") {
-                    return new MetadataParserCSV(parserConfigMap?.idcol, sep, pathMatcher) as MetadataParser
+                    parser = new MetadataParserCSV(parserConfigMap?.idcol as String, sep, pathMatcher) as MetadataParser
                 } else if (type == "json") {
-                    return new MetadataParserJSON(pathMatcher)
+                    parser = new MetadataParserJSON(pathMatcher)
                 } else {
                     throw new Exception("Invalid config for iridanext.output.metadata.samples: ${samplesMetadata}")
                 }
+
+                parser.setIgnoreKeys(ignoreKeys)
+                parser.setKeepKeys(keepKeys)
+                parser.setRenameKeys(renameKeys)
+                return parser
             }
         }
 
