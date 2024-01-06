@@ -27,6 +27,7 @@ import java.util.zip.GZIPOutputStream
 import net.jimblackler.jsonschemafriend.Schema
 import net.jimblackler.jsonschemafriend.SchemaStore
 import net.jimblackler.jsonschemafriend.Validator
+import net.jimblackler.jsonschemafriend.ValidationException
 
 import groovy.transform.CompileStatic
 import groovy.json.JsonOutput
@@ -177,16 +178,27 @@ class IridaNextJSONOutput {
     }
 
     public void write(Path path) {
-        // Documentation for reading/writing to Nextflow files using this method is available at
-        // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
-        path.withOutputStream {
-            OutputStream outputStream = it as OutputStream
-            if (path.extension == 'gz') {
-                outputStream = new GZIPOutputStream(outputStream)
-            }
+        String jsonString = toJson()
 
-            outputStream.write(JsonOutput.prettyPrint(toJson()).getBytes("utf-8"))
-            outputStream.close()
+        // Having this line here means all json is validated against the passed schema prior
+        // to being written
+        try {
+            validateJson(jsonString)
+
+            // Documentation for reading/writing to Nextflow files using this method is available at
+            // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
+            path.withOutputStream {
+                OutputStream outputStream = it as OutputStream
+                if (path.extension == 'gz') {
+                    outputStream = new GZIPOutputStream(outputStream)
+                }
+
+                outputStream.write(JsonOutput.prettyPrint(jsonString).getBytes("utf-8"))
+                outputStream.close()
+            }
+        } catch (ValidationException e) {
+            log.error "Failed to write IRIDA Next JSON output to ${path}. JSON did not match schema ${jsonSchema}"
+            throw e
         }
     }
 }
