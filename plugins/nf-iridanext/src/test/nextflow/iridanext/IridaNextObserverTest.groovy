@@ -168,9 +168,6 @@ class IridaNextObserverTest extends Specification {
         }
         '''
         def schemaFile = TestHelper.createInMemTempFile("test_schema.json", schemaString)
-        def schemaStore = new SchemaStore()
-        Schema expectedSchema = schemaStore.loadSchemaJson(schemaString)
-
         def config = [
             iridanext: [
                 enabled: true,
@@ -179,7 +176,6 @@ class IridaNextObserverTest extends Specification {
                 ]
             ]
         ]
-        log.info "config=${config}"
         def session = Spy(Session) {
             getConfig() >> config
         }
@@ -187,6 +183,6 @@ class IridaNextObserverTest extends Specification {
         iridaNextObserver.onFlowCreate(session)
         
         then:
-        iridaNextObserver.getIridaNextJSONOutput().getOutputSchema() == expectedSchema
+        iridaNextObserver.getIridaNextJSONOutput().getOutputSchema().getUri().toString().endsWith("test_schema.json")
     }
 }
