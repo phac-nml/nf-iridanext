@@ -7,7 +7,10 @@ import nextflow.iridanext.MetadataParserCSV
 
 import nextflow.Session
 import spock.lang.Specification
+import net.jimblackler.jsonschemafriend.Schema
+import net.jimblackler.jsonschemafriend.SchemaStore
 
+import nextflow.iridanext.TestHelper
 
 class IridaNextObserverTest extends Specification {
 
@@ -145,5 +148,42 @@ class IridaNextObserverTest extends Specification {
         !iridaNextObserver.getIridaNextJSONOutput().shouldFlatten()
         iridaNextObserver.getSamplesMetadataParsers().size() == 1
         iridaNextObserver.getSamplesMetadataParsers()[0] instanceof MetadataParserJSON
+    }
+
+    def 'Test setting JSON schema to validate' () {
+        when:
+        String schemaString = '''{
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "type": "object",
+            "properties": {
+                "files": {
+                    "type": "object"
+                },
+                "metadata": {
+                    "type": "object"
+                }
+            }
+        }
+        '''
+        def schemaFile = TestHelper.createInMemTempFile("test_schema.json", schemaString)
+        def schemaStore = new SchemaStore()
+        Schema expectedSchema = schemaStore.loadSchemaJson(schemaString)
+
+        def config = [
+            iridanext: [
+                enabled: true,
+                output: [
+                    schema: schemaFile
+                ]
+            ]
+        ]
+        def session = Spy(Session) {
+            getConfig() >> config
+        }
+        IridaNextObserver iridaNextObserver = new IridaNextObserver()
+        iridaNextObserver.onFlowCreate(session)
+        
+        then:
+        iridaNextObserver.getIridaNextJSONOutput().getOutputSchema() == expectedSchema
     }
 }

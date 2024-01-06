@@ -59,6 +59,10 @@ class IridaNextJSONOutput {
         return schemaStore.loadSchema(IridaNextJSONOutput.class.getResource("output_schema.json"))
     }
 
+    public Schema getOutputSchema() {
+        return jsonSchema
+    }
+
     public Boolean getShouldRelativize() {
         return shouldRelativize
     }
