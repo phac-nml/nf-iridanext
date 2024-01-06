@@ -43,8 +43,10 @@ class IridaNextJSONOutput {
     private Boolean flatten
     private Schema jsonSchema
 
+    public static defaultSchema = loadDefaultOutputSchema()
+
     public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false,
-        Schema jsonSchema = null) {
+        Schema jsonSchema = defaultSchema) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
         this.flatten = flatten
