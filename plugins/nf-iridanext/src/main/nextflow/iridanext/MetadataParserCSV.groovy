@@ -30,7 +30,7 @@ class MetadataParserCSV extends MetadataParser {
     }
 
     @Override
-    public Map<String, Object> parseMetadata(Path path) {
+    public Map<String, Object> doParse(Path path) {
         return csvToJsonById(path, this.idcol)
     }
 

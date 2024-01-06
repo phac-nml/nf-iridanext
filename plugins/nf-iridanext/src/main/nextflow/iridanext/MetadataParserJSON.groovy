@@ -22,7 +22,7 @@ class MetadataParserJSON extends MetadataParser {
     }
 
     @Override
-    public Map<String, Object> parseMetadata(Path path) {
+    public Map<String, Object> doParse(Path path) {
         path = Nextflow.file(path) as Path
         return jsonSlurper.parseText(path.text) as Map<String, Object>
     }

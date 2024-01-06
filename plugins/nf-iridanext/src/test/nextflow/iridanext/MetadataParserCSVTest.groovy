@@ -70,4 +70,38 @@ class MetadataParserCSVTest extends Specification {
         ]
         csvMapUnmatch == [:]
     }
+
+    // def 'Test parse CSV file ignore' () {
+    //     when:
+    //     def csvContent = """a,b,c
+    //                        |1,2,3
+    //                        |4,5,6""".stripMargin()
+    //     def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+    //     MetadataParserCSV parser = new MetadataParserCSV("a", ",")
+    //     parser.setIgnoreKeys(["a", "b"])
+    //     def csvMap = parser.parseMetadata(csvFile)
+
+    //     then:
+    //     csvMap == [
+    //         "1": ["c": "3"],
+    //         "4": ["c": "6"]
+    //     ]
+    // }
+
+    // def 'Test parse CSV file keep keys' () {
+    //     when:
+    //     def csvContent = """a,b,c
+    //                        |1,2,3
+    //                        |4,5,6""".stripMargin()
+    //     def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+    //     MetadataParserCSV parser = new MetadataParserCSV("a", ",")
+    //     parser.setKeepKeys(["c"])
+    //     def csvMap = parser.parseMetadata(csvFile)
+
+    //     then:
+    //     csvMap == [
+    //         "1": ["c": "3"],
+    //         "4": ["c": "6"]
+    //     ]
+    // }
 }
