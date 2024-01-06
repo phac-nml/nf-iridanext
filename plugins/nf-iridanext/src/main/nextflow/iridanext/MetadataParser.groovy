@@ -29,13 +29,22 @@ class MetadataParser {
     public Map<String, Object> parseMetadata(Path path) {
         Map<String, Object> metadata = doParse(path)
 
-        // if (keepKeys != null) {
-        //     metadata.retainAll {it.key in getThisObject().keepKeys}
-        // }
-
-        // if (ignoreKeys != null) {
-        //     metadata.removeAll {it.key in getThisObject().ignoreKeys}
-        // }
+        metadata = metadata.collectEntries { m ->
+            if (m.value instanceof Map) {
+                Map keepValues = (m.value as Map).collectEntries { n ->
+                    if (this.ignoreKeys != null && n.key in this.ignoreKeys) {
+                        return [:]
+                    } else if (this.keepKeys != null && !(n.key in this.keepKeys)) {
+                        return [:]
+                    } else {
+                        return n
+                    }
+                }
+                return [(m.key): keepValues]
+            } else {
+                return m
+            }
+        }
 
         return metadata
     }

@@ -28,31 +28,31 @@ class MetadataParserJSONTest extends Specification {
         ]
     }
 
-    // def 'Test parse JSON file set ignore keys' () {
-    //     when:
-    //     def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
-    //     MetadataParserJSON parser = new MetadataParserJSON()
-    //     parser.setIgnoreKeys("c")
-    //     def outputData = parser.parseMetadata(jsonFile)
+    def 'Test parse JSON file set ignore keys' () {
+        when:
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
+        MetadataParserJSON parser = new MetadataParserJSON()
+        parser.setIgnoreKeys(["c"])
+        def outputData = parser.parseMetadata(jsonFile)
 
-    //     then:
-    //     outputData == [
-    //         "1": ["b": "2"],
-    //         "2": ["b": "3"]
-    //     ]
-    // }
+        then:
+        outputData == [
+            "1": ["b": "2"],
+            "2": ["b": "3"]
+        ]
+    }
 
-    // def 'Test parse JSON file set keep keys' () {
-    //     when:
-    //     def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
-    //     MetadataParserJSON parser = new MetadataParserJSON()
-    //     parser.setKeepKeys("b")
-    //     def outputData = parser.parseMetadata(jsonFile)
+    def 'Test parse JSON file set keep keys' () {
+        when:
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
+        MetadataParserJSON parser = new MetadataParserJSON()
+        parser.setKeepKeys(["b"])
+        def outputData = parser.parseMetadata(jsonFile)
 
-    //     then:
-    //     outputData == [
-    //         "1": ["b": "2"],
-    //         "2": ["b": "3"]
-    //     ]
-    // }
+        then:
+        outputData == [
+            "1": ["b": "2"],
+            "2": ["b": "3"]
+        ]
+    }
 }
