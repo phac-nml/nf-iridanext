@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/plugins/nf-iridanext/src/resources/nextflow/iridanext/output_schema.json",
+    "title": "Default IRIDA Next JSON output schema",
+    "description": "Default schema used for validating IRIDA Next JSON output data",
+    "type": "object",
+    "properties": {
+        "files": {
+            "type": "object",
+            "properties": {
+                "global": {
+                    "type": "array"
+                },
+                "samples": {
+                    "type": "object"
+                }
+            }
+        },
+        "metadata": {
+            "type": "object",
+            "properties": {
+                "samples": {
+                    "type": "object"
+                }
+            }
+        }
+    }
+}

@@ -1,14 +1,49 @@
 package nextflow.iridanext
 
 import java.nio.file.Paths
+import java.nio.file.Path
+import java.nio.file.Files
 
 import nextflow.iridanext.IridaNextJSONOutput
 import spock.lang.Specification
 import groovy.json.JsonSlurper
+import net.jimblackler.jsonschemafriend.Schema
+import net.jimblackler.jsonschemafriend.SchemaStore
+import net.jimblackler.jsonschemafriend.ValidationException
 
 import nextflow.iridanext.TestHelper
+import groovy.util.logging.Slf4j
 
+@Slf4j
 class IridaNextJSONOutputTest extends Specification {
+
+    private static final String invalidJSONSchema = '''{
+        "$schema": "http://json-schema.org/draft-07/schema",
+        "type": "object",
+        "properties": {
+            "files": {
+                "type": "integer"
+            },
+            "metadata": {
+                "type": "object"
+            }
+        }
+    }
+    '''
+
+    private static final String validJSONSchema = '''{
+        "$schema": "http://json-schema.org/draft-07/schema",
+        "type": "object",
+        "properties": {
+            "files": {
+                "type": "object"
+            },
+            "metadata": {
+                "type": "object"
+            }
+        }
+    }
+    '''
 
     def 'Test add ids' () {
         when:
@@ -315,6 +350,150 @@ class IridaNextJSONOutputTest extends Specification {
                 "global": [
                     ["path": "../tmp/sample1.fasta"]
                 ],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [:]
+            ]
+        ]
+    }
+
+    def 'Test validate output against in-memory schema' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = schemaStore.loadSchemaJson(validJSONSchema)
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
+
+        then:
+        iridaNextOutput.validateJson(iridaNextOutput.toJson())
+    }
+
+    def 'Test failure with mismatch of schema' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = schemaStore.loadSchemaJson(invalidJSONSchema)
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
+        iridaNextOutput.validateJson(iridaNextOutput.toJson())
+
+        then:
+        thrown(ValidationException)
+    }
+
+    def 'Test validate JSON against packaged schema success' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = IridaNextJSONOutput.defaultSchema
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
+
+        then:
+        iridaNextOutput.validateJson('{"files": {}, "metadata": {}}')
+    }
+
+    def 'Test validate JSON against packaged schema fail' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = IridaNextJSONOutput.defaultSchema
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
+        iridaNextOutput.validateJson('{"files": "string", "metadata": {}}')
+
+        then:
+        thrown(ValidationException)
+    }
+
+    def 'Test validate output against packaged schema success' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = IridaNextJSONOutput.defaultSchema
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
+
+        then:
+        iridaNextOutput.validateJson(iridaNextOutput.toJson())
+    }
+
+    def 'Test write JSON file' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput()
+        Path tempJsonFile = Files.createTempFile("iridanext.output", ".json")
+        iridaNextOutput.write(tempJsonFile)
+
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parse(tempJsonFile)
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [:]
+            ]
+        ]
+    }
+
+    def 'Test write complex JSON file' () {
+        when:
+        def iridaNextOutput = new IridaNextJSONOutput()
+        iridaNextOutput.addId("samples", "1")
+        iridaNextOutput.addFile("global", Paths.get("sample1.fasta"))
+        iridaNextOutput.appendMetadata("samples", [
+            "1": [
+                "colour": "blue",
+                "size": "large"
+            ]
+        ])
+        Path tempJsonFile = Files.createTempFile("iridanext.output", ".json")
+        iridaNextOutput.write(tempJsonFile)
+
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parse(tempJsonFile)
+
+        then:
+        output == [
+            "files": [
+                "global": [
+                    ["path": "sample1.fasta"]
+                ],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [
+                    "1": [
+                        "colour": "blue",
+                        "size": "large"
+                    ]
+                ]
+            ]
+        ]
+    }
+
+    def 'Test failure to write with mismatch of schema' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = schemaStore.loadSchemaJson(invalidJSONSchema)
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema, true)
+        Path tempJsonFile = Files.createTempFile("iridanext.output", ".json")
+        iridaNextOutput.write(tempJsonFile)
+
+        then:
+        thrown(ValidationException)
+    }
+
+    def 'Test ignore validation with mismatch of schema' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = schemaStore.loadSchemaJson(invalidJSONSchema)
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema, false)
+        Path tempJsonFile = Files.createTempFile("iridanext.output", ".json")
+        iridaNextOutput.write(tempJsonFile)
+
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parse(tempJsonFile)
+
+        then:
+        output == [
+            "files": [
+                "global": [],
                 "samples": [:]
             ],
             "metadata": [

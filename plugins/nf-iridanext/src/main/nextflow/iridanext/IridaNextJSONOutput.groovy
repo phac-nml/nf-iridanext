@@ -24,6 +24,10 @@ import java.util.Map
 import java.nio.file.Path
 import java.io.OutputStream
 import java.util.zip.GZIPOutputStream
+import net.jimblackler.jsonschemafriend.Schema
+import net.jimblackler.jsonschemafriend.SchemaStore
+import net.jimblackler.jsonschemafriend.Validator
+import net.jimblackler.jsonschemafriend.ValidationException
 
 import groovy.transform.CompileStatic
 import groovy.json.JsonOutput
@@ -38,11 +42,31 @@ class IridaNextJSONOutput {
     private Path relativizePath
     private Boolean shouldRelativize
     private Boolean flatten
+    private Schema jsonSchema
+    private Boolean validate
 
-    public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false) {
+    public static final Schema defaultSchema = loadDefaultOutputSchema()
+
+    public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false,
+        Schema jsonSchema = null, Boolean validate = false) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
         this.flatten = flatten
+        this.jsonSchema = jsonSchema
+        this.validate = validate
+    }
+
+    public static Schema loadDefaultOutputSchema() {
+        SchemaStore schemaStore = new SchemaStore()
+        return schemaStore.loadSchema(IridaNextJSONOutput.class.getResource("output_schema.json"))
+    }
+
+    public Boolean shouldValidate() {
+        return validate
+    }
+
+    public Schema getOutputSchema() {
+        return jsonSchema
     }
 
     public Boolean getShouldRelativize() {
@@ -138,6 +162,18 @@ class IridaNextJSONOutput {
         return flattenR(data)
     }
 
+    /**
+    Validates the passed JSON string. Throws an exception if JSON is invalid.
+    **/
+    public void validateJson(String json) {
+        Validator validator = new Validator()
+        if (jsonSchema != null) {
+            validator.validateJson(jsonSchema, json)
+        } else {
+            log.debug "Ignoring validating IRIDA Next output json against schema since jsonSchema=${jsonSchema}"
+        }
+    }
+
     public String toJson() {
         Map outputMetadata = metadata
         if (flatten) {
@@ -152,16 +188,31 @@ class IridaNextJSONOutput {
     }
 
     public void write(Path path) {
-        // Documentation for reading/writing to Nextflow files using this method is available at
-        // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
-        path.withOutputStream {
-            OutputStream outputStream = it as OutputStream
-            if (path.extension == 'gz') {
-                outputStream = new GZIPOutputStream(outputStream)
+        String jsonString = toJson()
+
+        try {
+            // validate all JSON against passed schema prior to writing
+            if (validate && jsonSchema != null) {
+                validateJson(jsonString)
+                log.debug "Validation successfull against schema ${jsonSchema.getUri()} for JSON prior to writing to ${path}"
+            } else {
+                log.debug "Ignoring validation of ${path} against schema ${jsonSchema ? jsonSchema.getUri() : ''}"
             }
 
-            outputStream.write(JsonOutput.prettyPrint(toJson()).getBytes("utf-8"))
-            outputStream.close()
+            // Documentation for reading/writing to Nextflow files using this method is available at
+            // https://www.nextflow.io/docs/latest/script.html#reading-and-writing
+            path.withOutputStream {
+                OutputStream outputStream = it as OutputStream
+                if (path.extension == 'gz') {
+                    outputStream = new GZIPOutputStream(outputStream)
+                }
+
+                outputStream.write(JsonOutput.prettyPrint(jsonString).getBytes("utf-8"))
+                outputStream.close()
+            }
+        } catch (ValidationException e) {
+            log.error "Failed to write IRIDA Next JSON output to ${path}. JSON did not match schema ${jsonSchema}"
+            throw e
         }
     }
 }
