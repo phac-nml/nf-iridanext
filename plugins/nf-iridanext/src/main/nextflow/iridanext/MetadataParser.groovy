@@ -32,7 +32,11 @@ class MetadataParser {
     }
 
     public void setKeepKeys(List<String> keepKeys) {
-        this.keepKeys = keepKeys.toSet()
+        if (keepKeys == null) {
+            this.keepKeys = null
+        } else {
+            this.keepKeys = keepKeys.toSet()
+        }
     }
 
     public Set<String> getKeepKeys() {
