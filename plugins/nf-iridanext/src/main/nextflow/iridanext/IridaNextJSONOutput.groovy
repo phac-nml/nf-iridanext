@@ -190,10 +190,11 @@ class IridaNextJSONOutput {
     public void write(Path path) {
         String jsonString = toJson()
 
-        // Having this line here means all json is validated against the passed schema prior
-        // to being written
         try {
-            validateJson(jsonString)
+            // validate all JSON against passed schema prior to writing
+            if (validate) {
+                validateJson(jsonString)
+            }
 
             // Documentation for reading/writing to Nextflow files using this method is available at
             // https://www.nextflow.io/docs/latest/script.html#reading-and-writing

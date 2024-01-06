@@ -17,6 +17,34 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class IridaNextJSONOutputTest extends Specification {
 
+    private static final String invalidJSONSchema = '''{
+        "$schema": "http://json-schema.org/draft-07/schema",
+        "type": "object",
+        "properties": {
+            "files": {
+                "type": "integer"
+            },
+            "metadata": {
+                "type": "object"
+            }
+        }
+    }
+    '''
+
+    private static final String validJSONSchema = '''{
+        "$schema": "http://json-schema.org/draft-07/schema",
+        "type": "object",
+        "properties": {
+            "files": {
+                "type": "object"
+            },
+            "metadata": {
+                "type": "object"
+            }
+        }
+    }
+    '''
+
     def 'Test add ids' () {
         when:
         def iridaNextOutput = new IridaNextJSONOutput()
@@ -332,21 +360,8 @@ class IridaNextJSONOutputTest extends Specification {
 
     def 'Test validate output against in-memory schema' () {
         when:
-        String schemaString = '''{
-            "$schema": "http://json-schema.org/draft-07/schema",
-            "type": "object",
-            "properties": {
-                "files": {
-                    "type": "object"
-                },
-                "metadata": {
-                    "type": "object"
-                }
-            }
-        }
-        '''
         def schemaStore = new SchemaStore()
-        Schema schema = schemaStore.loadSchemaJson(schemaString)
+        Schema schema = schemaStore.loadSchemaJson(validJSONSchema)
         IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
 
         then:
@@ -355,21 +370,8 @@ class IridaNextJSONOutputTest extends Specification {
 
     def 'Test failure with mismatch of schema' () {
         when:
-        String schemaString = '''{
-            "$schema": "http://json-schema.org/draft-07/schema",
-            "type": "object",
-            "properties": {
-                "files": {
-                    "type": "integer"
-                },
-                "metadata": {
-                    "type": "object"
-                }
-            }
-        }
-        '''
         def schemaStore = new SchemaStore()
-        Schema schema = schemaStore.loadSchemaJson(schemaString)
+        Schema schema = schemaStore.loadSchemaJson(invalidJSONSchema)
         IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema)
         iridaNextOutput.validateJson(iridaNextOutput.toJson())
 
@@ -461,6 +463,41 @@ class IridaNextJSONOutputTest extends Specification {
                         "size": "large"
                     ]
                 ]
+            ]
+        ]
+    }
+
+    def 'Test failure to write with mismatch of schema' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = schemaStore.loadSchemaJson(invalidJSONSchema)
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema, true)
+        Path tempJsonFile = Files.createTempFile("iridanext.output", ".json")
+        iridaNextOutput.write(tempJsonFile)
+
+        then:
+        thrown(ValidationException)
+    }
+
+    def 'Test ignore validation with mismatch of schema' () {
+        when:
+        def schemaStore = new SchemaStore()
+        Schema schema = schemaStore.loadSchemaJson(invalidJSONSchema)
+        IridaNextJSONOutput iridaNextOutput = new IridaNextJSONOutput(null, false, schema, false)
+        Path tempJsonFile = Files.createTempFile("iridanext.output", ".json")
+        iridaNextOutput.write(tempJsonFile)
+
+        def jsonSlurper = new JsonSlurper()
+        def output = jsonSlurper.parse(tempJsonFile)
+
+        then:
+        output == [
+            "files": [
+                "global": [],
+                "samples": [:]
+            ],
+            "metadata": [
+                "samples": [:]
             ]
         ]
     }
