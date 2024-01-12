@@ -93,6 +93,7 @@ class MetadataParserJSONTest extends Specification {
         when:
         def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
         MetadataParserJSON parser = new MetadataParserJSON()
+        // "coords.x" is interpreted as the name of a single key and not a hierarchical key
         parser.setIgnoreKeys(["coords.x"])
         def outputData = parser.parseMetadata(jsonFile)
 
