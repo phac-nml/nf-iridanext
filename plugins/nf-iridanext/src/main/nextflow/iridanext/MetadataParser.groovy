@@ -65,24 +65,31 @@ class MetadataParser {
         return this.renameKeys
     }
 
+    protected Map filterMetadataR(Map data, String keyPrefix="") {
+        Map filteredData = data.collectEntries { n ->
+            String expandedKey = keyPrefix == "" ? n.key : "${keyPrefix}${hierarchicalSeparator}${n.key}"
+            if (expandedKey in this.ignoreKeys) {
+                return [:]
+            } else if (this.keepKeys != null && !(expandedKey in this.keepKeys)) {
+                return [:]
+            } else if (expandedKey in this.renameKeys) {
+                def renamedKey = this.renameKeys[expandedKey]
+                return [(renamedKey): n.value]
+            } else if (this.hierarchicalExpression && (n.value instanceof Map)) {
+                    return [(n.key): this.filterMetadataR(n.value as Map, n.key as String)]
+            } else {
+                return n
+            }
+        }
+        return filteredData
+    }
+
     public Map<String, Object> parseMetadata(Path path) {
         Map<String, Object> metadata = doParse(path)
 
         metadata = metadata.collectEntries { m ->
             if (m.value instanceof Map) {
-                Map keepValues = (m.value as Map).collectEntries { n ->
-                    if (n.key in this.ignoreKeys) {
-                        return [:]
-                    } else if (this.keepKeys != null && !(n.key in this.keepKeys)) {
-                        return [:]
-                    } else if (n.key in this.renameKeys) {
-                        def renamedKey = this.renameKeys[n.key]
-                        return [(renamedKey): n.value]
-                    } else {
-                        return n
-                    }
-                }
-                return [(m.key): keepValues]
+                return [(m.key): this.filterMetadataR(m.value as Map)]
             } else {
                 return m
             }

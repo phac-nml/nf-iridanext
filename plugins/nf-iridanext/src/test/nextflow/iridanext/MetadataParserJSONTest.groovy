@@ -104,7 +104,6 @@ class MetadataParserJSONTest extends Specification {
         ]
     }
 
-    @Ignore
     def 'Test parse JSON file set complex ignore keys hierarchical' () {
         when:
         def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
@@ -115,12 +114,11 @@ class MetadataParserJSONTest extends Specification {
 
         then:
         outputData == [
-            "1": ["coords": ["y": 8], "coords.x": 3],
-            "2": ["coords": ["y": 1], "coords.x": 4]
+            "1": ["coords": ["y": 8]],
+            "2": ["coords": ["y": 1]]
         ]
     }
 
-    @Ignore
     def 'Test parse JSON file set complex ignore keys hierarchical, change sep' () {
         when:
         def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
