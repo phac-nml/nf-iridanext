@@ -134,4 +134,35 @@ class MetadataParserJSONTest extends Specification {
             "2": ["coords": ["y": 1], "coords.x": 4]
         ]
     }
+
+    def 'Test parse JSON file set complex keep keys' () {
+        when:
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
+        MetadataParserJSON parser = new MetadataParserJSON()
+        // "coords.x" is interpreted as the name of a single key and not a hierarchical key
+        parser.setKeepKeys(["coords.x"])
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["coords.x": 3],
+            "2": ["coords.x": 4]
+        ]
+    }
+
+    @Ignore
+    def 'Test parse JSON file set complex keep keys hierarchical' () {
+        when:
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
+        MetadataParserJSON parser = new MetadataParserJSON()
+        parser.setHierarchicalExpression(true)
+        parser.setKeepKeys(["coords.x"])
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["coords": ["x": 2], "coords.x": 3],
+            "2": ["coords": ["x": 0], "coords.x": 4]
+        ]
+    }
 }
