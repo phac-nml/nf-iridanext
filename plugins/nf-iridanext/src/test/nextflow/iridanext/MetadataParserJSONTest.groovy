@@ -5,6 +5,7 @@ import java.nio.file.FileSystems
 import nextflow.iridanext.MetadataParser
 import nextflow.iridanext.MetadataParserJSON
 import spock.lang.Specification
+import spock.lang.Ignore
 
 import nextflow.iridanext.TestHelper
 
@@ -99,6 +100,39 @@ class MetadataParserJSONTest extends Specification {
         outputData == [
             "1": ["coords": ["x": 2, "y": 8]],
             "2": ["coords": ["x": 0, "y": 1]]
+        ]
+    }
+
+    @Ignore
+    def 'Test parse JSON file set complex ignore keys hierarchical' () {
+        when:
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
+        MetadataParserJSON parser = new MetadataParserJSON()
+        parser.setHierarchicalExpression(true)
+        parser.setIgnoreKeys(["coords.x"])
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["coords": ["y": 8], "coords.x": 3],
+            "2": ["coords": ["y": 1], "coords.x": 4]
+        ]
+    }
+
+    @Ignore
+    def 'Test parse JSON file set complex ignore keys hierarchical, change sep' () {
+        when:
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
+        MetadataParserJSON parser = new MetadataParserJSON()
+        parser.setHierarchicalExpression(true)
+        parser.setIgnoreKeys(["coords__x"])
+        parser.setHierarchicalSeparator('__')
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["coords": ["y": 8], "coords.x": 3],
+            "2": ["coords": ["y": 1], "coords.x": 4]
         ]
     }
 }
