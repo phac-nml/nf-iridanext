@@ -178,4 +178,101 @@ class MetadataPostProcessorTest extends Specification {
             ],
         ]
     }
+
+    def 'Test complex keep simple keys' () {
+        when:
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        // "coords.x" is interpreted as the name of a single key and not a hierarchical key
+        processor.setKeepKeys(["coords.x"])
+        def outputData = processor.process(complexMetadata)
+
+        then:
+        outputData == [
+            "1": [
+                "coords.x": 3
+            ],
+            "2": [
+                "coords.x": 4
+            ],
+        ]
+    }
+
+    @Ignore
+    def 'Test complex keep complex keys' () {
+        when:
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        // "coords.x" is interpreted as the name of a single key and not a hierarchical key
+        processor.setKeepKeys(["coords.x"])
+        processor.setHierarchicalExpression(true)
+        def outputData = processor.process(complexMetadata)
+
+        then:
+        outputData == [
+            "1": [
+                "coords": [
+                    "x": 2
+                ],
+                "coords.x": 3
+            ],
+            "2": [
+                "coords": [
+                    "x": 0
+                ],
+                "coords.x": 4
+            ],
+        ]
+    }
+
+    def 'Test complex rename simple keys' () {
+        when:
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        // "coords.x" is interpreted as the name of a single key and not a hierarchical key
+        processor.setRenameKeys(["coords.x": "rename_coords_x"])
+        def outputData = processor.process(complexMetadata)
+
+        then:
+        outputData == [
+            "1": [
+                "coords": [
+                    "x": 2,
+                    "y": 8
+                ],
+                "rename_coords_x": 3
+            ],
+            "2": [
+                "coords": [
+                    "x": 0,
+                    "y": 1
+                ],
+                "rename_coords_x": 4
+            ],
+        ]
+    }
+
+    @Ignore
+    def 'Test complex rename hierarchical keys' () {
+        when:
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        processor.setHierarchicalExpression(true)
+        processor.setRenameKeys(["coords.y": "rename_coords_y"])
+        def outputData = processor.process(complexMetadata)
+
+        then:
+        outputData == [
+            "1": [
+                "coords": [
+                    "x": 2
+                ],
+                "rename_coords_y": 8,
+                "coords.x": 3
+            ],
+            "2": [
+                "coords": [
+                    "x": 0
+                ],
+                "rename_coords_y": 1,
+                "coords.x": 4
+            ],
+        ]
+    }
 }
