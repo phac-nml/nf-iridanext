@@ -119,10 +119,11 @@ class IridaNextObserverTest extends Specification {
         iridaNextObserver.onFlowCreate(session)
         
         then:
-        iridaNextObserver.getIridaNextJSONOutput().shouldFlatten()
-        iridaNextObserver.getMetadataPostProcessor().getIgnoreKeys() == ["col2"].toSet()
-        iridaNextObserver.getMetadataPostProcessor().getKeepKeys() == ["col2", "col3"].toSet()
-        iridaNextObserver.getMetadataPostProcessor().getRenameKeys() == ["col2": "column_2"]
+        IridaNextJSONOutput jsonOutput = iridaNextObserver.getIridaNextJSONOutput()
+        jsonOutput.shouldFlatten()
+        jsonOutput.getMetadataPostProcessor().getIgnoreKeys() == ["col2"].toSet()
+        jsonOutput.getMetadataPostProcessor().getKeepKeys() == ["col2", "col3"].toSet()
+        jsonOutput.getMetadataPostProcessor().getRenameKeys() == ["col2": "column_2"]
         iridaNextObserver.getSamplesMetadataParsers().size() == 1
         iridaNextObserver.getSamplesMetadataParsers()[0] instanceof MetadataParserCSV
         MetadataParserCSV metadataParser = iridaNextObserver.getSamplesMetadataParsers()[0] as MetadataParserCSV
@@ -157,10 +158,11 @@ class IridaNextObserverTest extends Specification {
         iridaNextObserver.onFlowCreate(session)
         
         then:
-        !iridaNextObserver.getIridaNextJSONOutput().shouldFlatten()
-        iridaNextObserver.getMetadataPostProcessor().getIgnoreKeys() == ["k2"].toSet()
-        iridaNextObserver.getMetadataPostProcessor().getKeepKeys() == ["k2", "k3"].toSet()
-        iridaNextObserver.getMetadataPostProcessor().getRenameKeys() == ["k2": "key_2"]
+        IridaNextJSONOutput jsonOutput = iridaNextObserver.getIridaNextJSONOutput()
+        !jsonOutput.shouldFlatten()
+        jsonOutput.getMetadataPostProcessor().getIgnoreKeys() == ["k2"].toSet()
+        jsonOutput.getMetadataPostProcessor().getKeepKeys() == ["k2", "k3"].toSet()
+        jsonOutput.getMetadataPostProcessor().getRenameKeys() == ["k2": "key_2"]
         iridaNextObserver.getSamplesMetadataParsers().size() == 1
         iridaNextObserver.getSamplesMetadataParsers()[0] instanceof MetadataParserJSON
     }
