@@ -99,10 +99,10 @@ class IridaNextObserverTest extends Specification {
                 output: [
                     metadata: [
                         flatten: true,
+                        ignore: ["col2"],
+                        keep: ["col2", "col3"],
+                        rename: ["col2": "column_2"],
                         samples: [
-                            ignore: ["col2"],
-                            keep: ["col2", "col3"],
-                            rename: ["col2": "column_2"],
                             csv: [
                                 path: "**/output.csv",
                                 idcol: "col1"
@@ -120,14 +120,14 @@ class IridaNextObserverTest extends Specification {
         
         then:
         iridaNextObserver.getIridaNextJSONOutput().shouldFlatten()
+        iridaNextObserver.getMetadataPostProcessor().getIgnoreKeys() == ["col2"].toSet()
+        iridaNextObserver.getMetadataPostProcessor().getKeepKeys() == ["col2", "col3"].toSet()
+        iridaNextObserver.getMetadataPostProcessor().getRenameKeys() == ["col2": "column_2"]
         iridaNextObserver.getSamplesMetadataParsers().size() == 1
         iridaNextObserver.getSamplesMetadataParsers()[0] instanceof MetadataParserCSV
         MetadataParserCSV metadataParser = iridaNextObserver.getSamplesMetadataParsers()[0] as MetadataParserCSV
         metadataParser.getIdCol() == "col1"
         metadataParser.getSep() == ","
-        metadataParser.getIgnoreKeys() == ["col2"].toSet()
-        metadataParser.getKeepKeys() == ["col2", "col3"].toSet()
-        metadataParser.getRenameKeys() == ["col2": "column_2"]
     }
 
     def 'Test metadata parsing JSON' () {
@@ -138,10 +138,10 @@ class IridaNextObserverTest extends Specification {
                 output: [
                     metadata: [
                         flatten: false,
+                        ignore: ["k2"],
+                        keep: ["k2", "k3"],
+                        rename: ["k2": "key_2"],
                         samples: [
-                            ignore: ["k2"],
-                            keep: ["k2", "k3"],
-                            rename: ["k2": "key_2"],
                             json: [
                                 path: "**/output.json"
                             ]
@@ -158,12 +158,11 @@ class IridaNextObserverTest extends Specification {
         
         then:
         !iridaNextObserver.getIridaNextJSONOutput().shouldFlatten()
+        iridaNextObserver.getMetadataPostProcessor().getIgnoreKeys() == ["k2"].toSet()
+        iridaNextObserver.getMetadataPostProcessor().getKeepKeys() == ["k2", "k3"].toSet()
+        iridaNextObserver.getMetadataPostProcessor().getRenameKeys() == ["k2": "key_2"]
         iridaNextObserver.getSamplesMetadataParsers().size() == 1
         iridaNextObserver.getSamplesMetadataParsers()[0] instanceof MetadataParserJSON
-        MetadataParserJSON metadataParser = iridaNextObserver.getSamplesMetadataParsers()[0] as MetadataParserJSON
-        metadataParser.getIgnoreKeys() == ["k2"].toSet()
-        metadataParser.getKeepKeys() == ["k2", "k3"].toSet()
-        metadataParser.getRenameKeys() == ["k2": "key_2"]
     }
 
     def 'Test setting JSON schema to validate' () {

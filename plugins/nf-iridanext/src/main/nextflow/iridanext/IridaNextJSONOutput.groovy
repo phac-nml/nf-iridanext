@@ -28,6 +28,7 @@ import net.jimblackler.jsonschemafriend.Schema
 import net.jimblackler.jsonschemafriend.SchemaStore
 import net.jimblackler.jsonschemafriend.Validator
 import net.jimblackler.jsonschemafriend.ValidationException
+import nextflow.iridanext.MetadataPostProcessor
 
 import groovy.transform.CompileStatic
 import groovy.json.JsonOutput
@@ -44,6 +45,7 @@ class IridaNextJSONOutput {
     private Boolean flatten
     private Schema jsonSchema
     private Boolean validate
+    private MetadataPostProcessor metadataPostProcessor
 
     public static final Schema defaultSchema = loadDefaultOutputSchema()
 
@@ -54,6 +56,14 @@ class IridaNextJSONOutput {
         this.flatten = flatten
         this.jsonSchema = jsonSchema
         this.validate = validate
+    }
+
+    public void setMetadataPostProcessor(MetadataPostProcessor processor) {
+        this.metadataPostProcessor = processor
+    }
+
+    public MetadataPostProcessor getMetadataPostProcessor() {
+        return metadataPostProcessor
     }
 
     public static Schema loadDefaultOutputSchema() {

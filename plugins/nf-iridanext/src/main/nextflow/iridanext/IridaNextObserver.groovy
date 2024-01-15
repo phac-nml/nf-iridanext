@@ -81,6 +81,10 @@ class IridaNextObserver implements TraceObserver {
         return samplesMetadataParsers
     }
 
+    public MetadataPostProcessor getMetadataPostProcessor() {
+        return iridaNextJSONOutput.getMetadataPostProcessor()
+    }
+
     public String getFilesMetaId() {
         return filesMetaId
     }
@@ -162,6 +166,14 @@ class IridaNextObserver implements TraceObserver {
         }
 
         Boolean flattenMetadata = session.config.navigate('iridanext.output.metadata.flatten', false)
+        List<String> ignoreKeys = session.config.navigate("iridanext.output.metadata.ignore", []) as List<String>
+        List<String> keepKeys = session.config.navigate("iridanext.output.metadata.keep", null as List<String>) as List<String>
+        Map<String, String> renameKeys = session.config.navigate("iridanext.output.metadata.rename", [:]) as Map<String, String>
+        MetadataPostProcessor metadataPostProcessor = new MetadataPostProcessor()
+        metadataPostProcessor.setIgnoreKeys(ignoreKeys)
+        metadataPostProcessor.setKeepKeys(keepKeys)
+        metadataPostProcessor.setRenameKeys(renameKeys)
+
         def iridaNextMetadata = session.config.navigate('iridanext.output.metadata')
         if (iridaNextMetadata != null) {
             if (!iridaNextMetadata instanceof Map<String,Object>) {
@@ -169,9 +181,6 @@ class IridaNextObserver implements TraceObserver {
             }
 
             Map<String, Object> samplesMetadata = iridaNextMetadata["samples"] as Map<String,Object>
-            List<String> ignoreKeys = samplesMetadata.get("ignore", [].toSet()) as List<String>
-            List<String> keepKeys = samplesMetadata.get("keep", null) as List<String>
-            Map<String, String> renameKeys = samplesMetadata.get("rename", [:]) as Map<String, String>
 
             this.samplesMetadataParsers = samplesMetadata.collect { type, parserConfig ->
                 if (type in validMetadataSampleControls) {
@@ -192,10 +201,6 @@ class IridaNextObserver implements TraceObserver {
                 } else if (!(type in validMetadataSampleParsers)) {
                     throw new Exception("Invalid type=${type} for iridanext.output.metadata.samples: ${samplesMetadata}")
                 }
-
-                parser.setIgnoreKeys(ignoreKeys)
-                parser.setKeepKeys(keepKeys)
-                parser.setRenameKeys(renameKeys)
                 return parser
             }
             // Remove nulls
@@ -203,6 +208,7 @@ class IridaNextObserver implements TraceObserver {
         }
 
         iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, flattenMetadata, jsonSchema, validate)
+        iridaNextJSONOutput.setMetadataPostProcessor(metadataPostProcessor)
     }
 
     private PathMatcher createPathMatcher(String pathMatch) {
