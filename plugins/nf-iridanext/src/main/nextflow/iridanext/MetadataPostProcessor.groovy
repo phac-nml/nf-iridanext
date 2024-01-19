@@ -1,7 +1,9 @@
 package nextflow.iridanext
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 
+@Slf4j
 @CompileStatic
 class MetadataPostProcessor {
     private Set<String> ignoreKeys = [].toSet()
@@ -88,6 +90,7 @@ class MetadataPostProcessor {
     }
 
     private Map filterMetadataR(Map data, String keyPrefix="") {
+        Set dataKeys = data.keySet()
         Map filteredData = data.collectEntries { n ->
             String expandedKey = keyPrefix == "" ? n.key : "${keyPrefix}${hierarchicalSeparator}${n.key}"
             if (expandedKey in this.ignoreKeys) {
@@ -96,6 +99,10 @@ class MetadataPostProcessor {
                 return [:]
             } else if (expandedKey in this.renameKeys) {
                 def renamedKey = this.renameKeys[expandedKey]
+                if (renamedKey in dataKeys) {
+                    throw new Exception("Cannot rename metadata key [${expandedKey}] to [${renamedKey}]" +
+                                        ", key [${renamedKey}] already exists")
+                }
                 return [(renamedKey): n.value]
             } else if (this.hierarchicalExpression && (n.value instanceof Map)) {
                     return [(n.key): this.filterMetadataR(n.value as Map, n.key as String)]

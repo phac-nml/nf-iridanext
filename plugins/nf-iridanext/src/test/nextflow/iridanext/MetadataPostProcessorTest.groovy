@@ -411,4 +411,70 @@ class MetadataPostProcessorTest extends Specification {
             ]
         ]
     }
+
+    def 'Test rename key overlapping key error' () {
+        when:
+        Map metadata = [
+            "SAM1": [
+                "x": 1,
+                "y": 2
+            ]
+        ]
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        processor.setRenameKeys(["x": "y"])
+        def outputData = processor.process(metadata)
+
+        then:
+        def e = thrown(Exception)
+        e.message == "Cannot rename metadata key [x] to [y], key [y] already exists"
+    }
+
+    def 'Test rename key overlapping key error flatten' () {
+        when:
+        Map metadata = [
+            "SAM1": [
+                "coords": [
+                    "x": 1,
+                    "y": 2,
+                ],
+                "c": 5
+            ]
+        ]
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        processor.setFlatten(true)
+        processor.setRenameKeys(["coords.x": "c"])
+        def outputData = processor.process(metadata)
+
+        then:
+        def e = thrown(Exception)
+        e.message == "Cannot rename metadata key [coords.x] to [c], key [c] already exists"
+    }
+
+    def 'Test rename key overlapping key no flatten' () {
+        when:
+        Map metadata = [
+            "SAM1": [
+                "coords": [
+                    "x": 1,
+                    "y": 2,
+                ],
+                "c": 5
+            ]
+        ]
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        processor.setFlatten(false)
+        processor.setRenameKeys(["coords.x": "c"])
+        def outputData = processor.process(metadata)
+
+        then:
+        outputData == [
+            "SAM1": [
+                "coords": [
+                    "x": 1,
+                    "y": 2,
+                ],
+                "c": 5
+            ]
+        ]
+    }
 }
