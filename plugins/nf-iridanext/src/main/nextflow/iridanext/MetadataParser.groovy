@@ -11,77 +11,12 @@ import groovy.util.logging.Slf4j
 @CompileStatic
 class MetadataParser {
     private PathMatcher pathMatcher
-    private Set<String> ignoreKeys = [].toSet()
-    private Set<String> keepKeys
-    private Map<String, String> renameKeys = [:]
 
     public MetadataParser(PathMatcher pathMatcher = null) {
         this.pathMatcher = pathMatcher
     }
 
-    public void setIgnoreKeys(List<String> ignoreKeys) {
-        if (ignoreKeys == null) {
-            this.ignoreKeys = [].toSet()
-        } else {
-            this.ignoreKeys = ignoreKeys.toSet()
-        }
-    }
-
-    public Set<String> getIgnoreKeys() {
-        return this.ignoreKeys
-    }
-
-    public void setKeepKeys(List<String> keepKeys) {
-        if (keepKeys == null) {
-            this.keepKeys = null
-        } else {
-            this.keepKeys = keepKeys.toSet()
-        }
-    }
-
-    public Set<String> getKeepKeys() {
-        return this.keepKeys
-    }
-
-    public void setRenameKeys(Map<String, String> renameKeys) {
-        if (renameKeys == null) {
-            this.renameKeys = [:]
-        } else {
-            this.renameKeys = renameKeys
-        }
-    }
-
-    public Map<String,String> getRenameKeys() {
-        return this.renameKeys
-    }
-
     public Map<String, Object> parseMetadata(Path path) {
-        Map<String, Object> metadata = doParse(path)
-
-        metadata = metadata.collectEntries { m ->
-            if (m.value instanceof Map) {
-                Map keepValues = (m.value as Map).collectEntries { n ->
-                    if (n.key in this.ignoreKeys) {
-                        return [:]
-                    } else if (this.keepKeys != null && !(n.key in this.keepKeys)) {
-                        return [:]
-                    } else if (n.key in this.renameKeys) {
-                        def renamedKey = this.renameKeys[n.key]
-                        return [(renamedKey): n.value]
-                    } else {
-                        return n
-                    }
-                }
-                return [(m.key): keepValues]
-            } else {
-                return m
-            }
-        }
-
-        return metadata
-    }
-
-    protected Map<String, Object> doParse(Path path) {
         return [:]
     }
 

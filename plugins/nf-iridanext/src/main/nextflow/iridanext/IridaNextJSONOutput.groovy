@@ -28,6 +28,7 @@ import net.jimblackler.jsonschemafriend.Schema
 import net.jimblackler.jsonschemafriend.SchemaStore
 import net.jimblackler.jsonschemafriend.Validator
 import net.jimblackler.jsonschemafriend.ValidationException
+import nextflow.iridanext.MetadataPostProcessor
 
 import groovy.transform.CompileStatic
 import groovy.json.JsonOutput
@@ -41,19 +42,26 @@ class IridaNextJSONOutput {
     private Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
     private Path relativizePath
     private Boolean shouldRelativize
-    private Boolean flatten
     private Schema jsonSchema
     private Boolean validate
+    private MetadataPostProcessor metadataPostProcessor
 
     public static final Schema defaultSchema = loadDefaultOutputSchema()
 
-    public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false,
+    public IridaNextJSONOutput(Path relativizePath = null,
         Schema jsonSchema = null, Boolean validate = false) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
-        this.flatten = flatten
         this.jsonSchema = jsonSchema
         this.validate = validate
+    }
+
+    public void setMetadataPostProcessor(MetadataPostProcessor processor) {
+        this.metadataPostProcessor = processor
+    }
+
+    public MetadataPostProcessor getMetadataPostProcessor() {
+        return metadataPostProcessor
     }
 
     public static Schema loadDefaultOutputSchema() {
@@ -75,10 +83,6 @@ class IridaNextJSONOutput {
 
     public Path getRelativizePath() {
         return relativizePath
-    }
-
-    public Boolean shouldFlatten() {
-        return flatten
     }
 
     public void appendMetadata(String scope, Map data) {
@@ -141,27 +145,6 @@ class IridaNextJSONOutput {
         addFile(scope, null, path)
     }
 
-    private static Map flattenR(def item, String flatName="") {
-        if (item instanceof Map) {
-            Map flatMap = item.collectEntries { k, v ->
-                flattenR(v, "${flatName}.${k}")
-            }
-            return flatMap
-        } else if (item instanceof List) {
-            Map flatListAsMap = item.indexed().collectEntries { i, v ->
-                flattenR(v, "${flatName}.${i + 1}")
-            }
-            return flatListAsMap
-        } else {
-            String nameMinusInitialDot = flatName.substring(1)
-            return [(nameMinusInitialDot): item]
-        }
-    }
-
-    public static Map flattenMap(Map data) {
-        return flattenR(data)
-    }
-
     /**
     Validates the passed JSON string. Throws an exception if JSON is invalid.
     **/
@@ -175,16 +158,10 @@ class IridaNextJSONOutput {
     }
 
     public String toJson() {
-        Map outputMetadata = metadata
-        if (flatten) {
-            // Flattens only data underneath a sample entry in the samples map
-            Map outputMetadataSamples = (outputMetadata["samples"] as Map).collectEntries { k, v ->
-                [(k): flattenMap(v as Map)]
-            }
-            outputMetadata = ["samples": outputMetadataSamples]
-        }
-
-        return JsonOutput.toJson(["files": files, "metadata": outputMetadata])
+        Map<String, Object> samplesMetadata = metadata["samples"]
+        samplesMetadata = metadataPostProcessor.process(samplesMetadata)
+        Map newMetadata = ["samples": samplesMetadata]
+        return JsonOutput.toJson(["files": files, "metadata": newMetadata])
     }
 
     public void write(Path path) {
