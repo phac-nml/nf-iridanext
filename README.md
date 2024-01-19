@@ -1,5 +1,5 @@
-# nf-iridanext plugin 
- 
+# nf-iridanext plugin
+
 This project contains a plugin for integrating Nextflow pipelines with [IRIDA Next][irida-next]. In particular, it will enable a pipeline to produce output consistent with the IRIDA Next [pipeline standards][].
 
 # Getting started
@@ -17,6 +17,7 @@ Once this is set, the following are example Nextflow configurations that can be 
 The following is the minimal configuration needed for this plugin.
 
 **nextflow.config**
+
 ```conf
 plugins {
     id 'nf-iridanext'
@@ -32,18 +33,19 @@ iridanext {
 
 When run with a pipeline (e.g., the [IRIDA Next Example pipeline][iridanextexample]), the configuration will produce the following JSON output in a file `${params.outdir}/iridanext.output.json.gz`.
 
-*Note: `${params.outdir}` is optional and is used in the case where the file should be written to the output directory specified by `--outdir`.*
+_Note: `${params.outdir}` is optional and is used in the case where the file should be written to the output directory specified by `--outdir`._
 
 **iridanext.output.json.gz**
+
 ```json
 {
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-        "samples": {}
-    }
+  "files": {
+    "global": [],
+    "samples": {}
+  },
+  "metadata": {
+    "samples": {}
+  }
 }
 ```
 
@@ -54,6 +56,7 @@ This file conforms to the standards as defined in the [IRIDA Next Pipeline Stand
 To include files to be saved within IRIDA Next, you can define path match expressions under the `iridanext.output.files` section. The **global** section is used for global output files for the pipeline while the **samples** is used for output files associated with particular samples (matching to sample identifiers is automatically performed).
 
 **nextflow.config**
+
 ```conf
 plugins {
     id 'nf-iridanext'
@@ -75,18 +78,20 @@ iridanext {
 This configuration will produce the following example JSON output:
 
 **iridanext.output.json.gz**
+
 ```json
 {
-    "files": {
-        "global": [{"path": "summary/summary.txt.gz"}],
-        "samples": {
-            "SAMPLE1": [{"path": "assembly/SAMPLE1.assembly.fa.gz"}],
-            "SAMPLE3": [{"path": "assembly/SAMPLE3.assembly.fa.gz"}],
-            "SAMPLE2": [{"path": "assembly/SAMPLE2.assembly.fa.gz"}]}
-    },
-    "metadata": {
-        "samples": {}
+  "files": {
+    "global": [{ "path": "summary/summary.txt.gz" }],
+    "samples": {
+      "SAMPLE1": [{ "path": "assembly/SAMPLE1.assembly.fa.gz" }],
+      "SAMPLE3": [{ "path": "assembly/SAMPLE3.assembly.fa.gz" }],
+      "SAMPLE2": [{ "path": "assembly/SAMPLE2.assembly.fa.gz" }]
     }
+  },
+  "metadata": {
+    "samples": {}
+  }
 }
 ```
 
@@ -101,6 +106,7 @@ iridanext.output.files.idkey = "newkey"
 Metadata associated with samples can be included by filling in the the `iridanext.output.metadata.samples` section, like below:
 
 **nextflow.config**
+
 ```conf
 plugins {
     id 'nf-iridanext'
@@ -137,19 +143,20 @@ If there exists an example CSV file like the following:
 Then running the pipeline will produce an output like the following:
 
 **iridanext.output.json.gz**
+
 ```json
 {
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-       "samples": {
-            "SAMPLE1": {"b": "2","c": "3"},
-            "SAMPLE2": {"b": "4","c": "5"},
-            "SAMPLE3": {"b": "6","c": "7"}
-        }
+  "files": {
+    "global": [],
+    "samples": {}
+  },
+  "metadata": {
+    "samples": {
+      "SAMPLE1": { "b": "2", "c": "3" },
+      "SAMPLE2": { "b": "4", "c": "5" },
+      "SAMPLE3": { "b": "6", "c": "7" }
     }
+  }
 }
 ```
 
@@ -168,47 +175,105 @@ json {
 For example, a JSON file like the following:
 
 **output.json**
+
 ```json
 {
-    "SAMPLE1": {
-        "key1": "value1",
-        "key2": ["a", "b"]
-    },
-    "SAMPLE2": {
-        "key1": "value2"
-    }
+  "SAMPLE1": {
+    "key1": "value1",
+    "key2": ["a", "b"]
+  },
+  "SAMPLE2": {
+    "key1": "value2"
+  }
 }
 ```
 
 Would result in the following output:
 
 **iridanext.output.json.gz**
+
 ```json
 {
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-       "samples": {
-            "SAMPLE1": {"key1": "value1"},
-            "SAMPLE2": {"key2": ["a", "b"]}
-        }
+  "files": {
+    "global": [],
+    "samples": {}
+  },
+  "metadata": {
+    "samples": {
+      "SAMPLE1": { "key1": "value1" },
+      "SAMPLE2": { "key2": ["a", "b"] }
     }
+  }
+}
+```
+
+### Flatten metadata
+
+Setting the configuration value `iridanext.output.metadata.samples.flatten = true` will flatten the metadata JSON to a single level of key/value pairs (using dot `.` notation for keys).
+
+The two scenarios show the difference between `flatten = false` (default) and `flatten = true`.
+
+#### flatten = false
+
+```json
+{
+  "files": {
+    "global": [],
+    "samples": {}
+  },
+  "metadata": {
+    "samples": {
+      "SAMPLE1": {
+        "key1": {
+          "subkey1": "value1",
+          "subkey2": "value2"
+        }
+      },
+      "SAMPLE2": {
+        "key2": ["a", "b"]
+      }
+    }
+  }
+}
+```
+
+#### flatten = true
+
+```json
+{
+  "files": {
+    "global": [],
+    "samples": {}
+  },
+  "metadata": {
+    "samples": {
+      "SAMPLE1": {
+        "key1.subkey1": "value1",
+        "key1.subkey2": "value2"
+      },
+      "SAMPLE2": {
+        "key2.1": "a",
+        "key2.2": "b"
+      }
+    }
+  }
 }
 ```
 
 ### Adjust saved metadata
 
-The `iridanext.output.metadata.samples.{ignore,keep,rename}` configuration options can be used to adjust what is stored within the metadata JSON structure. For example:
+The `iridanext.output.metadata.samples.{ignore,keep,rename}` configuration options can be used to adjust what is stored within the metadata JSON structure.
+
+_Note: If `flatten=true` is enabled, then the metadata key names here refer to the flattened names._
 
 #### ignore
 
-Setting `iridanext.output.metadata.samples.ignore = ["b"]` in the config (like below) will cause the metadata in the column *b* to be ignored in the final IRIDA Next output JSON file.
+Setting `iridanext.output.metadata.samples.ignore = ["b"]` in the config (like below) will cause the metadata with the key _b_ to be ignored in the final IRIDA Next output JSON file.
 
 For example, in the config below:
 
 **nextflow.config**
+
 ```config
 plugins {
     id 'nf-iridanext'
@@ -241,22 +306,23 @@ If this used to load the below CSV file.
 | SAMPLE2 | 4 | 5 |
 | SAMPLE3 | 6 | 7 |
 
-Then an output like below is produced (that is, the *b* column is ignored).
+Then an output like below is produced (that is, the _b_ column is ignored).
 
 **iridanext.output.json.gz**
+
 ```json
 {
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-       "samples": {
-            "SAMPLE1": {"c": "3"},
-            "SAMPLE2": {"c": "5"},
-            "SAMPLE3": {"c": "7"}
-        }
+  "files": {
+    "global": [],
+    "samples": {}
+  },
+  "metadata": {
+    "samples": {
+      "SAMPLE1": { "c": "3" },
+      "SAMPLE2": { "c": "5" },
+      "SAMPLE3": { "c": "7" }
     }
+  }
 }
 ```
 
@@ -265,19 +331,20 @@ Then an output like below is produced (that is, the *b* column is ignored).
 Setting `iridanext.output.metadata.samples.keep = ["b"]` is similar to the ignore case, except the listed columns will be kept.
 
 **iridanext.output.json.gz**
+
 ```json
 {
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-       "samples": {
-            "SAMPLE1": {"b": "2"},
-            "SAMPLE2": {"b": "4"},
-            "SAMPLE3": {"b": "6"}
-        }
+  "files": {
+    "global": [],
+    "samples": {}
+  },
+  "metadata": {
+    "samples": {
+      "SAMPLE1": { "b": "2" },
+      "SAMPLE2": { "b": "4" },
+      "SAMPLE3": { "b": "6" }
     }
+  }
 }
 ```
 
@@ -286,6 +353,7 @@ Setting `iridanext.output.metadata.samples.keep = ["b"]` is similar to the ignor
 Setting `iridanext.output.metadata.samples.rename` will rename the listed keys to new key names (specified as a Map). For example:
 
 **nextflow.config**
+
 ```config
 plugins {
     id 'nf-iridanext'
@@ -310,72 +378,20 @@ iridanext {
 ```
 
 **iridanext.output.json.gz**
-```json
-{
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-       "samples": {
-            "SAMPLE1": {"b_col": "2","c": "3"},
-            "SAMPLE2": {"b_col": "4","c": "5"},
-            "SAMPLE3": {"b_col": "6","c": "7"}
-        }
-    }
-}
-```
-
-### Flatten metadata
-
-Setting the configuration value `iridanext.output.metadata.flatten = true` will flatten the metadata JSON to a single level of key/value pairs (using dot `.` notation for keys).
-
-The two scenarios show the difference between `flatten = false` (default) and `flatten = true`.
-
-#### flatten = false
 
 ```json
 {
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-       "samples": {
-            "SAMPLE1": {
-                "key1": {
-                    "subkey1": "value1",
-                    "subkey2": "value2"
-                }
-            },
-            "SAMPLE2": {
-                "key2": ["a", "b"]
-            }
-        }
+  "files": {
+    "global": [],
+    "samples": {}
+  },
+  "metadata": {
+    "samples": {
+      "SAMPLE1": { "b_col": "2", "c": "3" },
+      "SAMPLE2": { "b_col": "4", "c": "5" },
+      "SAMPLE3": { "b_col": "6", "c": "7" }
     }
-}
-```
-
-#### flatten = true
-
-```json
-{
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-       "samples": {
-            "SAMPLE1": {
-                "key1.subkey1": "value1",
-                "key1.subkey2": "value2"
-            },
-            "SAMPLE2": {
-                "key2.1": "a",
-                "key2.2": "b"
-            }
-        }
-    }
+  }
 }
 ```
 

@@ -98,11 +98,11 @@ class IridaNextObserverTest extends Specification {
                 enabled: true,
                 output: [
                     metadata: [
-                        flatten: true,
-                        ignore: ["col2"],
-                        keep: ["col2", "col3"],
-                        rename: ["col2": "column_2"],
                         samples: [
+                            flatten: true,
+                            ignore: ["col2"],
+                            keep: ["col2", "col3"],
+                            rename: ["col2": "column_2"],
                             csv: [
                                 path: "**/output.csv",
                                 idcol: "col1"
@@ -138,11 +138,11 @@ class IridaNextObserverTest extends Specification {
                 enabled: true,
                 output: [
                     metadata: [
-                        flatten: false,
-                        ignore: ["k2"],
-                        keep: ["k2", "k3"],
-                        rename: ["k2": "key_2"],
                         samples: [
+                            flatten: false,
+                            ignore: ["k2"],
+                            keep: ["k2", "k3"],
+                            rename: ["k2": "key_2"],
                             json: [
                                 path: "**/output.json"
                             ]
