@@ -1,94 +1,92 @@
 {
-    "files": {
-        "global": [
-            
-        ],
-        "samples": {
-            "DRR028935": [
-                {
-                    "path": "fastq/DRX026011_DRR028935_2.fastq.gz"
-                },
-                {
-                    "path": "fastq/DRX026011_DRR028935_1.fastq.gz"
-                }
-            ],
-            "DRR026872": [
-                {
-                    "path": "fastq/DRX024467_DRR026872.fastq.gz"
-                }
-            ],
-            "SRR13191702": [
-                {
-                    "path": "fastq/SRX9626017_SRR13191702_2.fastq.gz"
-                },
-                {
-                    "path": "fastq/SRX9626017_SRR13191702_1.fastq.gz"
-                }
-            ],
-            "ERR1160846": [
-                {
-                    "path": "fastq/ERX1234253_ERR1160846.fastq.gz"
-                }
-            ],
-            "SRR9984183": [
-                {
-                    "path": "fastq/SRX6725035_SRR9984183.fastq.gz"
-                }
-            ],
-            "ERR1109373": [
-                {
-                    "path": "fastq/ERX1188904_ERR1109373_2.fastq.gz"
-                },
-                {
-                    "path": "fastq/ERX1188904_ERR1109373_1.fastq.gz"
-                }
-            ]
+  "files": {
+    "global": [],
+    "samples": {
+      "DRR028935": [
+        {
+          "path": "fastq/DRX026011_DRR028935_2.fastq.gz"
+        },
+        {
+          "path": "fastq/DRX026011_DRR028935_1.fastq.gz"
         }
-    },
-    "metadata": {
-        "samples": {
-            "DRR026872": {
-                "pipeline_sample": "DRX024467",
-                "library_layout": "SINGLE",
-                "library_name": "IpeRAD1_3",
-                "instrument_platform": "ILLUMINA",
-                "scientific_name": "Ipomoea nil"
-            },
-            "DRR028935": {
-                "pipeline_sample": "DRX026011",
-                "library_layout": "PAIRED",
-                "library_name": "day0_BbSQE-I",
-                "instrument_platform": "ILLUMINA",
-                "scientific_name": "Botryococcus braunii Showa"
-            },
-            "ERR1109373": {
-                "pipeline_sample": "ERX1188904",
-                "library_layout": "PAIRED",
-                "library_name": "unspecified",
-                "instrument_platform": "ILLUMINA",
-                "scientific_name": "Leptopilina boulardi"
-            },
-            "ERR1160846": {
-                "pipeline_sample": "ERX1234253",
-                "library_layout": "SINGLE",
-                "library_name": "10317.BLANK.93.3E.r22",
-                "instrument_platform": "ILLUMINA",
-                "scientific_name": "metagenome"
-            },
-            "SRR9984183": {
-                "pipeline_sample": "SRX6725035",
-                "library_layout": "SINGLE",
-                "library_name": "Emb289P1_bin131",
-                "instrument_platform": "ILLUMINA",
-                "scientific_name": "Defluviitaleaceae bacterium"
-            },
-            "SRR13191702": {
-                "pipeline_sample": "SRX9626017",
-                "library_layout": "PAIRED",
-                "library_name": "S.170804.00784",
-                "instrument_platform": "ILLUMINA",
-                "scientific_name": "human gut metagenome"
-            }
+      ],
+      "DRR026872": [
+        {
+          "path": "fastq/DRX024467_DRR026872.fastq.gz"
         }
+      ],
+      "SRR13191702": [
+        {
+          "path": "fastq/SRX9626017_SRR13191702_2.fastq.gz"
+        },
+        {
+          "path": "fastq/SRX9626017_SRR13191702_1.fastq.gz"
+        }
+      ],
+      "ERR1160846": [
+        {
+          "path": "fastq/ERX1234253_ERR1160846.fastq.gz"
+        }
+      ],
+      "SRR9984183": [
+        {
+          "path": "fastq/SRX6725035_SRR9984183.fastq.gz"
+        }
+      ],
+      "ERR1109373": [
+        {
+          "path": "fastq/ERX1188904_ERR1109373_2.fastq.gz"
+        },
+        {
+          "path": "fastq/ERX1188904_ERR1109373_1.fastq.gz"
+        }
+      ]
     }
+  },
+  "metadata": {
+    "samples": {
+      "DRR026872": {
+        "pipeline_sample": "DRX024467",
+        "library_layout": "SINGLE",
+        "library_name": "IpeRAD1_3",
+        "instrument_platform": "ILLUMINA",
+        "scientific_name": "Ipomoea nil"
+      },
+      "DRR028935": {
+        "pipeline_sample": "DRX026011",
+        "library_layout": "PAIRED",
+        "library_name": "day0_BbSQE-I",
+        "instrument_platform": "ILLUMINA",
+        "scientific_name": "Botryococcus braunii Showa"
+      },
+      "ERR1109373": {
+        "pipeline_sample": "ERX1188904",
+        "library_layout": "PAIRED",
+        "library_name": "unspecified",
+        "instrument_platform": "ILLUMINA",
+        "scientific_name": "Leptopilina boulardi"
+      },
+      "ERR1160846": {
+        "pipeline_sample": "ERX1234253",
+        "library_layout": "SINGLE",
+        "library_name": "10317.BLANK.93.3E.r22",
+        "instrument_platform": "ILLUMINA",
+        "scientific_name": "metagenome"
+      },
+      "SRR9984183": {
+        "pipeline_sample": "SRX6725035",
+        "library_layout": "SINGLE",
+        "library_name": "Emb289P1_bin131",
+        "instrument_platform": "ILLUMINA",
+        "scientific_name": "Defluviitaleaceae bacterium"
+      },
+      "SRR13191702": {
+        "pipeline_sample": "SRX9626017",
+        "library_layout": "PAIRED",
+        "library_name": "S.170804.00784",
+        "instrument_platform": "ILLUMINA",
+        "scientific_name": "human gut metagenome"
+      }
+    }
+  }
 }

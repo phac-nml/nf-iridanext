@@ -2,12 +2,12 @@ name: nf-iridanext CI
 on:
   push:
     branches:
-      - '*'
+      - "*"
     tags-ignore:
-      - '*'
+      - "*"
   pull_request:
     branches:
-      - '*'
+      - "*"
 jobs:
   build:
     name: Build nf-iridanext
@@ -34,7 +34,7 @@ jobs:
         with:
           java-version: ${{matrix.java_version}}
           architecture: x64
-          distribution: 'temurin'
+          distribution: "temurin"
 
       - name: Compile
         run: ./gradlew assemble
@@ -42,5 +42,4 @@ jobs:
       - name: Tests
         run: ./gradlew check
         env:
-          GRADLE_OPTS: '-Dorg.gradle.daemon=false'
-
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
