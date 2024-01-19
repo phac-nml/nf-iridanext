@@ -9,6 +9,7 @@ class MetadataPostProcessor {
     private Map<String, String> renameKeys = [:]
     private Boolean hierarchicalExpression = false
     private String hierarchicalSeparator = '.'
+    private Boolean flatten = false
 
     public MetadataPostProcessor() {
     }
@@ -57,6 +58,35 @@ class MetadataPostProcessor {
         return this.renameKeys
     }
 
+    public Boolean getFlatten() {
+        return flatten
+    }
+
+    public void setFlatten(Boolean flatten) {
+        this.flatten = flatten
+    }
+
+    private static Map flattenR(def item, String flatName="") {
+        if (item instanceof Map) {
+            Map flatMap = item.collectEntries { k, v ->
+                flattenR(v, "${flatName}.${k}")
+            }
+            return flatMap
+        } else if (item instanceof List) {
+            Map flatListAsMap = item.indexed().collectEntries { i, v ->
+                flattenR(v, "${flatName}.${i + 1}")
+            }
+            return flatListAsMap
+        } else {
+            String nameMinusInitialDot = flatName.substring(1)
+            return [(nameMinusInitialDot): item]
+        }
+    }
+
+    public static Map flattenMap(Map data) {
+        return flattenR(data)
+    }
+
     private Map filterMetadataR(Map data, String keyPrefix="") {
         Map filteredData = data.collectEntries { n ->
             String expandedKey = keyPrefix == "" ? n.key : "${keyPrefix}${hierarchicalSeparator}${n.key}"
@@ -77,6 +107,13 @@ class MetadataPostProcessor {
     }
 
     public Map<String, Object> process(Map<String, Object> metadata) {
+        if (flatten) {
+            // Flattens only data underneath a sample entry in the samples map
+            metadata = metadata.collectEntries { k, v ->
+                [(k): flattenMap(v as Map)]
+            }
+        }
+
         metadata = metadata.collectEntries { m ->
             if (m.value instanceof Map) {
                 return [(m.key): this.filterMetadataR(m.value as Map)]

@@ -38,6 +38,23 @@ class MetadataPostProcessorTest extends Specification {
         ],
     ]
 
+    private static final complexMetadata2 = [
+        "1": [
+            "coords": [
+                "x": 2,
+                "y": 8
+            ],
+            "colour": ["red", "blue"]
+        ],
+        "2": [
+            "coords": [
+                "x": 0,
+                "y": 1
+            ],
+            "colour": ["red", "green"]
+        ],
+    ]
+
     def 'Test simple post process' () {
         when:
         MetadataPostProcessor processor = new MetadataPostProcessor()
@@ -273,6 +290,61 @@ class MetadataPostProcessorTest extends Specification {
                 "rename_coords_y": 1,
                 "coords.x": 4
             ],
+        ]
+    }
+
+    def 'Test flatten map already flat' () {
+        when:
+        Map flatMap = MetadataPostProcessor.flattenMap([
+            "key1": "value1",
+            "key2": "value2"
+        ])
+
+        then:
+        flatMap == [
+            "key1": "value1",
+            "key2": "value2"
+        ]
+    }
+
+    def 'Test flatten map' () {
+        when:
+        Map flatMap = MetadataPostProcessor.flattenMap([
+            "key1": "value1",
+            "key2": ["a": "value2", "b": "value3"],
+            "key3": ["value4", "value5"]
+        ])
+
+        then:
+        flatMap == [
+            "key1": "value1",
+            "key2.a": "value2",
+            "key2.b": "value3",
+            "key3.1": "value4",
+            "key3.2": "value5"
+        ]
+    }
+
+    def 'Test flatten metadata' () {
+        when:
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        processor.setFlatten(true)
+        def outputData = processor.process(complexMetadata2)
+
+        then:
+        outputData == [
+            "1": [
+                "coords.x": 2,
+                "coords.y": 8,
+                "colour.1": "red",
+                "colour.2": "blue"
+            ],
+            "2": [
+                "coords.x": 0,
+                "coords.y": 1,
+                "colour.1": "red",
+                "colour.2": "green"
+            ]
         ]
     }
 }
