@@ -7,7 +7,7 @@
 * Added support for validation by custom JSON schema before writing final JSON output file (defaults to no validation). 
     * Enable with `iridanext.output.validate=true` and set schema with `iridanext.output.schema=PATH`.
     * If `iridanext.output.schema` is unset, validates against default JSON schema for IRIDA Next output data.
-* Added support for `iridanext.output.metadata.samples.{ignore,keep,rename}` to ignore, keep, or rename metadata keys.
+* Added support for `iridanext.output.metadata.{ignore,keep,rename}` to ignore, keep, or rename metadata keys.
 * Expanded test suite.
 
 # 0.1.0 - 2023/12/14
