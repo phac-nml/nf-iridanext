@@ -347,4 +347,68 @@ class MetadataPostProcessorTest extends Specification {
             ]
         ]
     }
+
+    def 'Test flatten and ignore metadata' () {
+        when:
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        processor.setFlatten(true)
+        processor.setIgnoreKeys(["coords.x", "colour.2"])
+        def outputData = processor.process(complexMetadata2)
+
+        then:
+        outputData == [
+            "1": [
+                "coords.y": 8,
+                "colour.1": "red"
+            ],
+            "2": [
+                "coords.y": 1,
+                "colour.1": "red"
+            ]
+        ]
+    }
+
+    def 'Test flatten and keep metadata' () {
+        when:
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        processor.setFlatten(true)
+        processor.setKeepKeys(["coords.x", "colour.2"])
+        def outputData = processor.process(complexMetadata2)
+
+        then:
+        outputData == [
+            "1": [
+                "coords.x": 2,
+                "colour.2": "blue"
+            ],
+            "2": [
+                "coords.x": 0,
+                "colour.2": "green"
+            ]
+        ]
+    }
+
+    def 'Test flatten and rename metadata' () {
+        when:
+        MetadataPostProcessor processor = new MetadataPostProcessor()
+        processor.setFlatten(true)
+        processor.setRenameKeys(["coords.y": "y", "colour.1": "c"])
+        def outputData = processor.process(complexMetadata2)
+
+        then:
+        outputData == [
+            "1": [
+                "coords.x": 2,
+                "y": 8,
+                "c": "red",
+                "colour.2": "blue"
+            ],
+            "2": [
+                "coords.x": 0,
+                "y": 1,
+                "c": "red",
+                "colour.2": "green"
+            ]
+        ]
+    }
 }
