@@ -214,6 +214,7 @@ class MetadataPostProcessorTest extends Specification {
         ]
     }
 
+    // test for feature left for later release
     @Ignore
     def 'Test complex keep complex keys' () {
         when:
@@ -266,6 +267,7 @@ class MetadataPostProcessorTest extends Specification {
         ]
     }
 
+    // test for feature left for later release
     @Ignore
     def 'Test complex rename hierarchical keys' () {
         when:
