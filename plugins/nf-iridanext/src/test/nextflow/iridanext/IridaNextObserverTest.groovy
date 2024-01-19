@@ -120,7 +120,7 @@ class IridaNextObserverTest extends Specification {
         
         then:
         IridaNextJSONOutput jsonOutput = iridaNextObserver.getIridaNextJSONOutput()
-        jsonOutput.shouldFlatten()
+        jsonOutput.getMetadataPostProcessor().getFlatten()
         jsonOutput.getMetadataPostProcessor().getIgnoreKeys() == ["col2"].toSet()
         jsonOutput.getMetadataPostProcessor().getKeepKeys() == ["col2", "col3"].toSet()
         jsonOutput.getMetadataPostProcessor().getRenameKeys() == ["col2": "column_2"]
@@ -159,7 +159,7 @@ class IridaNextObserverTest extends Specification {
         
         then:
         IridaNextJSONOutput jsonOutput = iridaNextObserver.getIridaNextJSONOutput()
-        !jsonOutput.shouldFlatten()
+        !jsonOutput.getMetadataPostProcessor().getFlatten()
         jsonOutput.getMetadataPostProcessor().getIgnoreKeys() == ["k2"].toSet()
         jsonOutput.getMetadataPostProcessor().getKeepKeys() == ["k2", "k3"].toSet()
         jsonOutput.getMetadataPostProcessor().getRenameKeys() == ["k2": "key_2"]

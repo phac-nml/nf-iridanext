@@ -169,6 +169,7 @@ class IridaNextObserver implements TraceObserver {
         metadataPostProcessor.setIgnoreKeys(ignoreKeys)
         metadataPostProcessor.setKeepKeys(keepKeys)
         metadataPostProcessor.setRenameKeys(renameKeys)
+        metadataPostProcessor.setFlatten(flattenMetadata)
 
         def iridaNextMetadata = session.config.navigate('iridanext.output.metadata')
         if (iridaNextMetadata != null) {
@@ -203,7 +204,7 @@ class IridaNextObserver implements TraceObserver {
             this.samplesMetadataParsers = this.samplesMetadataParsers.findAll()
         }
 
-        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, flattenMetadata, jsonSchema, validate)
+        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, jsonSchema, validate)
         iridaNextJSONOutput.setMetadataPostProcessor(metadataPostProcessor)
     }
 

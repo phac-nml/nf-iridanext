@@ -42,18 +42,16 @@ class IridaNextJSONOutput {
     private Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
     private Path relativizePath
     private Boolean shouldRelativize
-    private Boolean flatten
     private Schema jsonSchema
     private Boolean validate
     private MetadataPostProcessor metadataPostProcessor
 
     public static final Schema defaultSchema = loadDefaultOutputSchema()
 
-    public IridaNextJSONOutput(Path relativizePath = null, Boolean flatten = false,
+    public IridaNextJSONOutput(Path relativizePath = null,
         Schema jsonSchema = null, Boolean validate = false) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
-        this.flatten = flatten
         this.jsonSchema = jsonSchema
         this.validate = validate
     }
@@ -85,10 +83,6 @@ class IridaNextJSONOutput {
 
     public Path getRelativizePath() {
         return relativizePath
-    }
-
-    public Boolean shouldFlatten() {
-        return flatten
     }
 
     public void appendMetadata(String scope, Map data) {
@@ -164,7 +158,10 @@ class IridaNextJSONOutput {
     }
 
     public String toJson() {
-        return JsonOutput.toJson(["files": files, "metadata": metadata])
+        Map<String, Object> samplesMetadata = metadata["samples"]
+        samplesMetadata = metadataPostProcessor.process(samplesMetadata)
+        Map newMetadata = ["samples": samplesMetadata]
+        return JsonOutput.toJson(["files": files, "metadata": newMetadata])
     }
 
     public void write(Path path) {
