@@ -64,7 +64,7 @@ class IridaNextObserver implements TraceObserver {
     private Boolean outputFileOverwrite
     private Session session
 
-    private static final Set<String> validMetadataSampleControls = ["ignore", "keep", "rename"].toSet()
+    private static final Set<String> validMetadataSampleControls = ["ignore", "keep", "rename", "flatten"].toSet()
     private static final Set<String> validMetadataSampleParsers = ["csv", "json"].toSet()
 
     public IridaNextObserver() {
@@ -161,10 +161,10 @@ class IridaNextObserver implements TraceObserver {
             }
         }
 
-        Boolean flattenMetadata = session.config.navigate('iridanext.output.metadata.flatten', false)
-        List<String> ignoreKeys = session.config.navigate("iridanext.output.metadata.ignore", []) as List<String>
-        List<String> keepKeys = session.config.navigate("iridanext.output.metadata.keep", null as List<String>) as List<String>
-        Map<String, String> renameKeys = session.config.navigate("iridanext.output.metadata.rename", [:]) as Map<String, String>
+        Boolean flattenMetadata = session.config.navigate('iridanext.output.metadata.samples.flatten', false)
+        List<String> ignoreKeys = session.config.navigate("iridanext.output.metadata.samples.ignore", []) as List<String>
+        List<String> keepKeys = session.config.navigate("iridanext.output.metadata.samples.keep", null as List<String>) as List<String>
+        Map<String, String> renameKeys = session.config.navigate("iridanext.output.metadata.samples.rename", [:]) as Map<String, String>
         MetadataPostProcessor metadataPostProcessor = new MetadataPostProcessor()
         metadataPostProcessor.setIgnoreKeys(ignoreKeys)
         metadataPostProcessor.setKeepKeys(keepKeys)
