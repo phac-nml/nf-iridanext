@@ -198,13 +198,68 @@ Would result in the following output:
 }
 ```
 
+### Flatten metadata
+
+Setting the configuration value `iridanext.output.metadata.samples.flatten = true` will flatten the metadata JSON to a single level of key/value pairs (using dot `.` notation for keys).
+
+The two scenarios show the difference between `flatten = false` (default) and `flatten = true`.
+
+#### flatten = false
+
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {
+                "key1": {
+                    "subkey1": "value1",
+                    "subkey2": "value2"
+                }
+            },
+            "SAMPLE2": {
+                "key2": ["a", "b"]
+            }
+        }
+    }
+}
+```
+
+#### flatten = true
+
+```json
+{
+    "files": {
+        "global": [],
+        "samples": {}
+    },
+    "metadata": {
+       "samples": {
+            "SAMPLE1": {
+                "key1.subkey1": "value1",
+                "key1.subkey2": "value2"
+            },
+            "SAMPLE2": {
+                "key2.1": "a",
+                "key2.2": "b"
+            }
+        }
+    }
+}
+```
+
 ### Adjust saved metadata
 
-The `iridanext.output.metadata.samples.{ignore,keep,rename}` configuration options can be used to adjust what is stored within the metadata JSON structure. For example:
+The `iridanext.output.metadata.samples.{ignore,keep,rename}` configuration options can be used to adjust what is stored within the metadata JSON structure.
+
+*Note: If `flatten=true` is enabled, then the metadata key names here refer to the flattened names.*
 
 #### ignore
 
-Setting `iridanext.output.metadata.samples.ignore = ["b"]` in the config (like below) will cause the metadata in the column *b* to be ignored in the final IRIDA Next output JSON file.
+Setting `iridanext.output.metadata.samples.ignore = ["b"]` in the config (like below) will cause the metadata with the key *b* to be ignored in the final IRIDA Next output JSON file.
 
 For example, in the config below:
 
@@ -321,59 +376,6 @@ iridanext {
             "SAMPLE1": {"b_col": "2","c": "3"},
             "SAMPLE2": {"b_col": "4","c": "5"},
             "SAMPLE3": {"b_col": "6","c": "7"}
-        }
-    }
-}
-```
-
-### Flatten metadata
-
-Setting the configuration value `iridanext.output.metadata.flatten = true` will flatten the metadata JSON to a single level of key/value pairs (using dot `.` notation for keys).
-
-The two scenarios show the difference between `flatten = false` (default) and `flatten = true`.
-
-#### flatten = false
-
-```json
-{
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-       "samples": {
-            "SAMPLE1": {
-                "key1": {
-                    "subkey1": "value1",
-                    "subkey2": "value2"
-                }
-            },
-            "SAMPLE2": {
-                "key2": ["a", "b"]
-            }
-        }
-    }
-}
-```
-
-#### flatten = true
-
-```json
-{
-    "files": {
-        "global": [],
-        "samples": {}
-    },
-    "metadata": {
-       "samples": {
-            "SAMPLE1": {
-                "key1.subkey1": "value1",
-                "key1.subkey2": "value2"
-            },
-            "SAMPLE2": {
-                "key2.1": "a",
-                "key2.2": "b"
-            }
         }
     }
 }
