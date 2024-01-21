@@ -139,6 +139,8 @@ class IridaNextObserver implements TraceObserver {
             SchemaStore schemaStore = new SchemaStore()
             Path jsonSchemaPathAsPath = Nextflow.file(jsonSchemaPath) as Path
             jsonSchema = schemaStore.loadSchema(jsonSchemaPathAsPath.toFile().toURI())
+            log.debug "Loaded custom schema ${jsonSchema.getUri()} for validating IRIDA Next output " +
+                      "from iridanext.output.schema=${jsonSchemaPath}"
         }
 
         // Used for overriding the "meta.id" key used to define identifiers for a scope
