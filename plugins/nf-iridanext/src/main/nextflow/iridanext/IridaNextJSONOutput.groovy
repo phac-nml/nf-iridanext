@@ -170,6 +170,7 @@ class IridaNextJSONOutput {
         try {
             // validate all JSON against passed schema prior to writing
             if (validate && jsonSchema != null) {
+                log.debug "Validating IRIDA Next output against schema ${jsonSchema.getUri()} prior to writing to ${path}"
                 validateJson(jsonString)
                 log.debug "Validation successfull against schema ${jsonSchema.getUri()} for JSON prior to writing to ${path}"
             } else {
