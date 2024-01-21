@@ -24,6 +24,7 @@ import java.nio.file.PathMatcher
 import java.net.URI
 
 import groovy.transform.CompileStatic
+import groovy.transform.Synchronized
 import groovy.util.logging.Slf4j
 import groovy.json.JsonOutput
 import nextflow.Session
@@ -51,6 +52,7 @@ import nextflow.iridanext.MetadataParserJSON
 @Slf4j
 @CompileStatic
 class IridaNextObserver implements TraceObserver {
+    private static final tasksLock = new Object[0]
 
     private Map<Path,Path> publishedFiles = [:]
     private List<TaskRun> tasks = []
@@ -98,6 +100,7 @@ class IridaNextObserver implements TraceObserver {
     }
 
     @Override
+    @Synchronized("tasksLock")
     void onProcessComplete(TaskHandler handler, TraceRecord trace) {
         log.trace "onProcessComplete: ${handler.task}"
         tasks << handler.task
@@ -105,6 +108,7 @@ class IridaNextObserver implements TraceObserver {
     }
 
     @Override
+    @Synchronized("tasksLock")
     void onProcessCached(TaskHandler handler, TraceRecord trace) {
         log.trace "onProcessCached: ${handler.task}"
         tasks << handler.task
@@ -217,6 +221,7 @@ class IridaNextObserver implements TraceObserver {
     }
 
     @Override
+    @Synchronized
     void onFilePublish(Path destination, Path source) {
         if (publishedFiles.containsKey(source)) {
             throw new Exception("Error: file with source=${source} was already published")
