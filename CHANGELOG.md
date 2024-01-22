@@ -1,4 +1,4 @@
-# Unreleased
+# 0.2.0 - 2024/01/22
 
 - Added support for writing JSON output file when using `-resume` in a pipeline.
 - Re-structured Nextflow config syntax for loading metadata from CSV file using `csv {}` section in config.
