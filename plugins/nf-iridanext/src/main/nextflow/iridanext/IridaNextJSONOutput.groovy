@@ -189,7 +189,8 @@ class IridaNextJSONOutput {
                 outputStream.close()
             }
         } catch (ValidationException e) {
-            log.error "Failed to write IRIDA Next JSON output to ${path}. JSON did not match schema ${jsonSchema}"
+            log.error "Failed to write IRIDA Next JSON output to ${path}. JSON did not match schema ${jsonSchema.getUri()}. " +
+                      "Message: ${e.getMessage()}"
             throw e
         }
     }
