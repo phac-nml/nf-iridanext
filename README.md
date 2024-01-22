@@ -7,7 +7,7 @@ This project contains a plugin for integrating Nextflow pipelines with [IRIDA Ne
 Until this plugin is stable and fully released to test out you will have to set the following environment variable:
 
 ```bash
-export NXF_PLUGINS_TEST_REPOSITORY="https://github.com/phac-nml/nf-iridanext/releases/download/0.1.0/nf-iridanext-0.1.0-meta.json"
+export NXF_PLUGINS_TEST_REPOSITORY="https://github.com/phac-nml/nf-iridanext/releases/download/0.2.0/nf-iridanext-0.2.0-meta.json"
 ```
 
 Once this is set, the following are example Nextflow configurations that can be used.
@@ -435,7 +435,7 @@ One use case of this plugin is to structure reads and metadata downloaded from N
 
 ```bash
 # Tell Nextflow where to get plugin since it's not part of Nextflow plugins index yet
-export NXF_PLUGINS_TEST_REPOSITORY="https://github.com/phac-nml/nf-iridanext/releases/download/0.1.0/nf-iridanext-0.1.0-meta.json"
+export NXF_PLUGINS_TEST_REPOSITORY="https://github.com/phac-nml/nf-iridanext/releases/download/0.2.0/nf-iridanext-0.2.0-meta.json"
 
 # Download config and SRA accessions
 wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/examples/fetchngs/fetchngs.conf
