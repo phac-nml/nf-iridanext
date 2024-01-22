@@ -4,14 +4,6 @@ This project contains a plugin for integrating Nextflow pipelines with [IRIDA Ne
 
 # Getting started
 
-Until this plugin is stable and fully released to test out you will have to set the following environment variable:
-
-```bash
-export NXF_PLUGINS_TEST_REPOSITORY="https://github.com/phac-nml/nf-iridanext/releases/download/0.2.0/nf-iridanext-0.2.0-meta.json"
-```
-
-Once this is set, the following are example Nextflow configurations that can be used.
-
 ## Scenario 1: Minimal configuration
 
 The following is the minimal configuration needed for this plugin.
@@ -434,9 +426,6 @@ plugins {
 One use case of this plugin is to structure reads and metadata downloaded from NCBI/ENA for storage in IRIDA Next by making use of the [nf-core/fetchngs][nf-core/fetchngs] pipeline. The example configuration [fetchngs.conf][] can be used for this purpose. To test, please run the following (using [ids.csv][fetchngs-ids.csv] as example data accessions):
 
 ```bash
-# Tell Nextflow where to get plugin since it's not part of Nextflow plugins index yet
-export NXF_PLUGINS_TEST_REPOSITORY="https://github.com/phac-nml/nf-iridanext/releases/download/0.2.0/nf-iridanext-0.2.0-meta.json"
-
 # Download config and SRA accessions
 wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/examples/fetchngs/fetchngs.conf
 wget https://raw.githubusercontent.com/phac-nml/nf-iridanext/main/docs/examples/fetchngs/ids.csv
