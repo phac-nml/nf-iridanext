@@ -399,7 +399,7 @@ The following are the expectations for writing missing values in the final IRIDA
 
 #### Encoding missing metadata values using JSON
 
-If the metadata key `key` for **SAMPLE1** is encoded as an empty string `""` or `null` in the JSON file like the below example:
+If the metadata key `b` for **SAMPLE1** is encoded as an empty string `""` or `null` in the JSON file like the below example:
 
 **output.json**
 ```json
@@ -496,7 +496,7 @@ plugins {
 
 ## Run unit/integration tests
 
-In order to run the test cases, please glone this repository and run the following command:
+In order to run the test cases, please clone this repository and run the following command:
 
 ```bash
 ./gradlew check
