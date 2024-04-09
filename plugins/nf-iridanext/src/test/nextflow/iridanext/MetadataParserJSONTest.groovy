@@ -46,4 +46,22 @@ class MetadataParserJSONTest extends Specification {
             "2": ["coords": ["x": 0, "y": 1], "coords.x": 4]
         ]
     }
+
+    def 'Test parse JSON file missing values' () {
+        when:
+        def jsonContent = '''{
+                            "1": {"b": "", "c": "3"},
+                            "2": {"b": "3", "c": null}
+                        }'''.stripMargin()
+
+        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
+        def parser = new MetadataParserJSON()
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["b": "", "c": "3"],
+            "2": ["b": "3", "c": null]
+        ]
+    }
 }

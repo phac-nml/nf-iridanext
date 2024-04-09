@@ -1,3 +1,9 @@
+# Unreleased
+
+- Added documentation for running test cases.
+- Added test cases to verify that missing values in CSV will be encoded as empty strings in IRIDA Next JSON file in the sample metadata section.
+- Added test cases for passing missing values in a JSON file.
+
 # 0.2.0 - 2024/01/22
 
 - Added support for writing JSON output file when using `-resume` in a pipeline.

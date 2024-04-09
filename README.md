@@ -387,7 +387,80 @@ iridanext {
 }
 ```
 
+### Missing values in metadata
+
+There are two different scenarios where metadata key/value pairs could be missing for a sample, which result in different behaviours in IRIDA Next.
+
+1. **Ignore key**: If the `key` is left out of the samples metadata in the IRIDA Next JSON, then nothing is written for that `key` for the sample. Any existing metadata under that `key` will remain in IRIDA Next.
+
+2. **Delete key**: If a metadata value is an empty string (`"key": ""`) or null (`"key": null`), then IRIDA Next will remove that particular metadata key/value pair from the sample metadata if it exists. This is the expected scenario if pipeline results contain missing (or N/A) values (deleting older metadata keys prevents mixing up old and new pipeline analysis results in the metadata table).
+
+The following are the expectations for writing missing values in the final IRIDA Next JSON file (in order to delete the key/value pairs in IRIDA Next).
+
+#### Encoding missing metadata values using JSON
+
+If the metadata key `b` for **SAMPLE1** is encoded as an empty string `""` or `null` in the JSON file like the below example:
+
+**output.json**
+```json
+{
+  "SAMPLE1": {
+    "a": "value1",
+    "b": ""
+  }
+}
+```
+
+Then the final IRIDA Next JSON file will preserve the empty string/null value in the samples metadata section:
+
+**iridanext.output.json.gz**
+```json
+"metadata": {
+  "samples": {
+    "SAMPLE1": { "a": "value1", "b": "" }
+  }
+}
+```
+
+#### Encoding missing metadata values using CSV
+
+If the metadata key `b` for **SAMPLE1** is left empty in the CSV file like the below two examples:
+
+**output.csv** as table
+| column1 | b | c |
+|--|--|--|
+| SAMPLE1 |  | 3 |
+| SAMPLE2 | 4 | 5 |
+| SAMPLE3 | 6 | 7 |
+
+**output.csv** as CSV
+```
+column1,b,c
+SAMPLE1,,3
+SAMPLE2,4,5
+Sample3,6,7
+```
+
+Then the value for `b` for **SAMPLE1** will be written as an empty string in the IRIDA Next JSON file:
+
+**iridanext.output.json.gz**
+```json
+"metadata": {
+  "samples": {
+    "SAMPLE1": { "b": "", "c": "3" },
+    "SAMPLE2": { "b": "4", "c": "5" },
+    "SAMPLE3": { "b": "6", "c": "7" }
+  }
+}
+```
+
 # Development
+
+In order to build this plugin you will need a Java Development Kit (such as [OpenJDK](https://openjdk.org/)) and [Groovy](https://groovy-lang.org/index.html). For Ubuntu, this can be installed with:
+
+```bash
+sudo apt install default-jdk groovy
+```
 
 ## Build and install from source
 
@@ -419,6 +492,20 @@ In order to use the built plugin, you have to specify the exact version in the N
 plugins {
     id 'nf-iridanext@0.2.0'
 }
+```
+
+## Run unit/integration tests
+
+In order to run the test cases, please clone this repository and run the following command:
+
+```bash
+./gradlew check
+```
+
+To get more information for any failed tests, please run:
+
+```bash
+./gradlew check --info
 ```
 
 # Example: nf-core/fetchngs
