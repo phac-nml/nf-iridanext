@@ -417,7 +417,7 @@ Then the final IRIDA Next JSON file will preserve the empty string/null value in
 ```json
 "metadata": {
   "samples": {
-    "SAMPLE1": { "a": "", "b": "" }
+    "SAMPLE1": { "a": "value1", "b": "" }
   }
 }
 ```
