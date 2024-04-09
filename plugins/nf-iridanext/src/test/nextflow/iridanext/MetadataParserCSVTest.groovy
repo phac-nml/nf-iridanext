@@ -5,6 +5,7 @@ import java.nio.file.FileSystems
 import nextflow.iridanext.MetadataParser
 import nextflow.iridanext.MetadataParserCSV
 import spock.lang.Specification
+import spock.lang.Ignore
 
 import nextflow.iridanext.TestHelper
 
@@ -69,5 +70,38 @@ class MetadataParserCSVTest extends Specification {
             "4": ["b": "5", "c": "6"]
         ]
         csvMapUnmatch == [:]
+    }
+
+    def 'Test parse CSV file with missing values' () {
+        when:
+        def csvContent = """a,b,c
+                           |1,2,
+                           |4,,""".stripMargin()
+        def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+        def parser = new MetadataParserCSV("a", ",")
+        def csvMapColA = parser.parseMetadata(csvFile)
+
+        then:
+        csvMapColA == [
+            "1": ["b": "2", "c": ""],
+            "4": ["b": "", "c": ""]
+        ]
+    }
+
+    @Ignore
+    def 'Test parse CSV file with missing ids' () {
+        when:
+        def csvContent = """a,b,c
+                           |1,2,
+                           |4,,6""".stripMargin()
+        def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+
+        parser = new MetadataParserCSV("b", ",")
+        def csvMapColB = parser.parseMetadata(csvFile)
+
+        then:
+        csvMapColB == [
+            "2": ["a": "1", "c": ""]
+        ]
     }
 }
