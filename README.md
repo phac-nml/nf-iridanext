@@ -389,6 +389,12 @@ iridanext {
 
 # Development
 
+In order to build this plugin you will need a Java Development Kit (such as [OpenJDK](https://openjdk.org/)) and [Groovy](https://groovy-lang.org/index.html). For Ubuntu, this can be installed with:
+
+```bash
+sudo apt install default-jdk groovy
+```
+
 ## Build and install from source
 
 In order to build and install the plugin from source, please do the following:
