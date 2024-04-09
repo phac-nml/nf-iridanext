@@ -5,7 +5,7 @@ import java.nio.file.FileSystems
 import nextflow.iridanext.MetadataParser
 import nextflow.iridanext.MetadataParserCSV
 import spock.lang.Specification
-import spock.lang.Ignore
+import groovy.lang.MissingPropertyException
 
 import nextflow.iridanext.TestHelper
 
@@ -88,11 +88,10 @@ class MetadataParserCSVTest extends Specification {
         ]
     }
 
-    @Ignore
     def 'Test parse CSV file with missing ids' () {
         when:
         def csvContent = """a,b,c
-                           |1,2,
+                           |1,2,3
                            |4,,6""".stripMargin()
         def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
 
@@ -100,8 +99,8 @@ class MetadataParserCSVTest extends Specification {
         def csvMapColB = parser.parseMetadata(csvFile)
 
         then:
-        csvMapColB == [
-            "2": ["a": "1", "c": ""]
-        ]
+        // the column of identifiers is column "b", which has a missing value
+        // and so should trigger an exception
+        thrown(MissingPropertyException)
     }
 }
