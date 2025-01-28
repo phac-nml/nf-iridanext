@@ -39,7 +39,7 @@ import groovy.util.logging.Slf4j
 class IridaNextJSONOutput {
     private Map files = ["global": [], "samples": [:]]
     private Map metadata = ["samples": [:]]
-    private Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
+    private static Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
     private Path relativizePath
     private Boolean shouldRelativize
     private Schema jsonSchema
@@ -99,7 +99,7 @@ class IridaNextJSONOutput {
         }
     }
 
-    public void addId(String scope, String id) {
+    public static void addId(String scope, String id) {
         log.trace "Adding scope=${scope} id=${id}"
         scopeIds[scope].add(id)
     }
