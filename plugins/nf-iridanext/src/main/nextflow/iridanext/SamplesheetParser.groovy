@@ -11,17 +11,24 @@ import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.iridanext.IridaNextJSONOutput
 
 
-class IDParser extends PluginExtensionPoint {
+class SamplesheetParser extends PluginExtensionPoint {
+    private String id_key
 
     @Override
-    void init(Session session) {}
+    void init(Session session) {
+        this.id_key = session.config.navigate('iridanext.output.files.idkey', "id")
+    }
 
     @Operator
     DataflowWriteChannel parseSamplesheet( DataflowReadChannel source ) {
         final target = CH.createBy(source)
+        final String scope = IridaNextJSONOutput.SAMPLES
 
         final next = { it ->
-            IridaNextJSONOutput.addId("samples", it[0].id)
+            def meta = it[0]
+            def id = meta[this.id_key]
+
+            IridaNextJSONOutput.addId(scope, id)
             target.bind(it)
         }
 

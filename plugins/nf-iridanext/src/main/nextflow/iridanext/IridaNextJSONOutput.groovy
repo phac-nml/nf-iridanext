@@ -37,16 +37,18 @@ import groovy.util.logging.Slf4j
 @Slf4j
 @CompileStatic
 class IridaNextJSONOutput {
-    private Map files = ["global": [], "samples": [:]]
-    private Map metadata = ["samples": [:]]
-    private static Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
+    public static final Schema defaultSchema = loadDefaultOutputSchema()
+    public static final String SAMPLES = "samples"
+
+    private Map files = ["global": [], (SAMPLES): [:]]
+    private Map metadata = [(SAMPLES): [:]]
+    private static Map<String,Set<String>> scopeIds = [(SAMPLES): [] as Set<String>]
     private Path relativizePath
     private Boolean shouldRelativize
     private Schema jsonSchema
     private Boolean validate
     private MetadataPostProcessor metadataPostProcessor
 
-    public static final Schema defaultSchema = loadDefaultOutputSchema()
 
     public IridaNextJSONOutput(Path relativizePath = null,
         Schema jsonSchema = null, Boolean validate = false) {
@@ -123,9 +125,9 @@ class IridaNextJSONOutput {
         }
 
         def files_scope = files[scope]
-        if (scope == "samples" && subscope == null) {
+        if (scope == this.SAMPLES && subscope == null) {
             throw new Exception("scope=${scope} but subscope is null")
-        } else if (scope == "samples" && subscope != null) {
+        } else if (scope == this.SAMPLES && subscope != null) {
             assert isValidId(scope, subscope)
 
             def files_scope_map = (Map)files_scope
@@ -158,9 +160,9 @@ class IridaNextJSONOutput {
     }
 
     public String toJson() {
-        Map<String, Object> samplesMetadata = metadata["samples"]
+        Map<String, Object> samplesMetadata = metadata[this.SAMPLES]
         samplesMetadata = metadataPostProcessor.process(samplesMetadata)
-        Map newMetadata = ["samples": samplesMetadata]
+        Map newMetadata = [(this.SAMPLES): samplesMetadata]
         return JsonOutput.toJson(["files": files, "metadata": newMetadata])
     }
 

@@ -1,2 +1,2 @@
 nextflow.iridanext.IridaNextObserverFactory
-nextflow.iridanext.IDParser
+nextflow.iridanext.SamplesheetParser
