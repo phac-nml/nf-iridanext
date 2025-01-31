@@ -211,7 +211,11 @@ class IridaNextObserver implements TraceObserver {
             this.samplesMetadataParsers = this.samplesMetadataParsers.findAll()
         }
 
-        iridaNextJSONOutput = new IridaNextJSONOutput(relativizePath, jsonSchema, validate)
+        iridaNextJSONOutput = IridaNextJSONOutput.getInstance()
+        iridaNextJSONOutput.setRelativizePath(relativizePath)
+        iridaNextJSONOutput.setOutputSchema(jsonSchema)
+        iridaNextJSONOutput.setValidate(validate)
+
         iridaNextJSONOutput.setMetadataPostProcessor(metadataPostProcessor)
     }
 

@@ -20,15 +20,17 @@ class SamplesheetParser extends PluginExtensionPoint {
     }
 
     @Operator
-    DataflowWriteChannel parseSamplesheet( DataflowReadChannel source ) {
+    DataflowWriteChannel loadIridaSampleIds( DataflowReadChannel source ) {
         final target = CH.createBy(source)
         final String scope = IridaNextJSONOutput.SAMPLES
+        final IridaNextJSONOutput iridaNextJSONOutput = IridaNextJSONOutput.getInstance()
 
         final next = { it ->
-            def meta = it[0]
+            // Check that it's a map and the id_key exists, ignore and warn otherwise / trace
+            def meta = it[0] // TODO: Check with workflow that's not just metadata
             def id = meta[this.id_key]
 
-            IridaNextJSONOutput.addId(scope, id)
+            iridaNextJSONOutput.addId(scope, id)
             target.bind(it)
         }
 

@@ -31,6 +31,7 @@ import net.jimblackler.jsonschemafriend.ValidationException
 import nextflow.iridanext.MetadataPostProcessor
 
 import groovy.transform.CompileStatic
+import groovy.transform.Synchronized
 import groovy.json.JsonOutput
 import groovy.util.logging.Slf4j
 
@@ -40,9 +41,11 @@ class IridaNextJSONOutput {
     public static final Schema defaultSchema = loadDefaultOutputSchema()
     public static final String SAMPLES = "samples"
 
+    private static IridaNextJSONOutput instance;
+
     private Map files = ["global": [], (SAMPLES): [:]]
     private Map metadata = [(SAMPLES): [:]]
-    private static Map<String,Set<String>> scopeIds = [(SAMPLES): [] as Set<String>]
+    private Map<String,Set<String>> scopeIds = [(SAMPLES): [] as Set<String>]
     private Path relativizePath
     private Boolean shouldRelativize
     private Schema jsonSchema
@@ -50,12 +53,21 @@ class IridaNextJSONOutput {
     private MetadataPostProcessor metadataPostProcessor
 
 
-    public IridaNextJSONOutput(Path relativizePath = null,
+    private IridaNextJSONOutput(Path relativizePath = null,
         Schema jsonSchema = null, Boolean validate = false) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
         this.jsonSchema = jsonSchema
         this.validate = validate
+    }
+
+    @Synchronized
+    public static IridaNextJSONOutput getInstance() {
+        if(this.instance == null) {
+            this.instance = new IridaNextJSONOutput()
+        }
+
+        return this.instance
     }
 
     public void setMetadataPostProcessor(MetadataPostProcessor processor) {
@@ -75,8 +87,16 @@ class IridaNextJSONOutput {
         return validate
     }
 
+    public void setValidate(Boolean validate) {
+        this.validate = validate
+    }
+
     public Schema getOutputSchema() {
         return jsonSchema
+    }
+
+    public void setOutputSchema(Schema jsonSchema) {
+        this.jsonSchema = jsonSchema
     }
 
     public Boolean getShouldRelativize() {
@@ -85,6 +105,10 @@ class IridaNextJSONOutput {
 
     public Path getRelativizePath() {
         return relativizePath
+    }
+
+    public void setRelativizePath(Path relativizePath) {
+        this.relativizePath = relativizePath
     }
 
     public void appendMetadata(String scope, Map data) {
@@ -101,7 +125,8 @@ class IridaNextJSONOutput {
         }
     }
 
-    public static void addId(String scope, String id) {
+    @Synchronized
+    public void addId(String scope, String id) {
         log.trace "Adding scope=${scope} id=${id}"
         scopeIds[scope].add(id)
     }
