@@ -26,11 +26,24 @@ class SamplesheetParser extends PluginExtensionPoint {
         final IridaNextJSONOutput iridaNextJSONOutput = IridaNextJSONOutput.getInstance()
 
         final next = { it ->
-            // Check that it's a map and the id_key exists, ignore and warn otherwise / trace
-            def meta = it[0] // TODO: Check with workflow that's not just metadata
+            def meta = it[0]
             def id = meta[this.id_key]
 
-            iridaNextJSONOutput.addId(scope, id)
+            if(meta instanceof Map<String,Object>)
+            {
+                if(meta.containsKey(this.id_key))
+                {
+                    iridaNextJSONOutput.addId(scope, id)
+                }
+                else {
+                    throw new Exception("The expected key (${this.id_key}) was not found in the meta map.")
+                }
+
+            }
+            else {
+                throw new Exception("Expected a Map object in channel, but found ${meta}.")
+            }
+
             target.bind(it)
         }
 
