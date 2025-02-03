@@ -109,6 +109,7 @@ class IridaNextJSONOutput {
 
     public void setRelativizePath(Path relativizePath) {
         this.relativizePath = relativizePath
+        this.shouldRelativize = (this.relativizePath != null)
     }
 
     public void appendMetadata(String scope, Map data) {
