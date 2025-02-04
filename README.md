@@ -454,6 +454,73 @@ Then the value for `b` for **SAMPLE1** will be written as an empty string in the
 }
 ```
 
+### Manually loading metadata
+
+The default behaviour of the plugin is to automatically observe completed tasks and identify the sample ID of the `meta` object associated with it. This sample ID is recorded and used when producing the metadata section in the `iridanext.output.json.gz` output.
+
+This process will fail to load any sample IDs that were not submitted to a task individually. For example, if a sample is submitted to an assembly task in the following way, then it will be included as a valid sample ID for the whole workflow:
+
+Workflow:
+```
+// input: tuple(meta, [ file(fastq_1), file(fastq_2) ])
+ASSEMBLY (input)
+```
+
+Process:
+```
+process ASSEMBLY {
+    input:
+    tuple val(meta), path(reads)
+    (...)
+}
+```
+
+However, if samples are only ever submitted to a process in a way similar to as follows, then these sample IDs will not be automatically detected:
+
+Workflow:
+```
+// input: tuple(meta, [ file(fastq_1), file(fastq_2) ])
+
+metadata = input.map {
+    meta, reads ->
+    tuple(meta.id, meta.metadata_1, meta.metadata_2)}
+
+REPORT(metadata.toList())
+```
+
+Process:
+```
+process REPORT {
+    input:
+    val metadata
+    (...)
+}
+```
+
+In this situation, the solution is to use the provided `loadIridaSampleIds()` method in the workflow as follows:
+
+```
+// input: tuple(meta, [ file(fastq_1), file(fastq_2) ])
+loaded_input = input.loadIridaSampleIds()
+```
+
+Or when using the `nf-validation` plugin, in a manner similar to the following:
+
+```
+input = Channel.fromSamplesheet("input")
+               .loadIridaSampleIds()
+```
+
+However, be careful not to use the function in a way that would create a race condition, as the sample IDs may not be loaded correctly:
+
+```
+input = Channel.fromSamplesheet("input")
+input = input.map { ... } // some input transformation
+input.loadIridaSampleIds()
+```
+
+Since Nextflow tries to parallelize as much as possible, this will cause `input = input.map { ... }` and `input.loadIridaSampleIds()` to be run simultaneously, which will create a race condition and possibly undesirable behaviour.
+
 # Development
 
 In order to build this plugin you will need a Java Development Kit (such as [OpenJDK](https://openjdk.org/)) and [Groovy](https://groovy-lang.org/index.html). For Ubuntu, this can be installed with:
