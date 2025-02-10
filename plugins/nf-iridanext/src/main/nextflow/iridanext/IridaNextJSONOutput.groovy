@@ -70,6 +70,13 @@ class IridaNextJSONOutput {
         return this.instance
     }
 
+    @Synchronized
+    public void reset() {
+        this.files = ["global": [], (SAMPLES): [:]]
+        this.metadata = [(SAMPLES): [:]]
+        this.scopeIds = [(SAMPLES): [] as Set<String>]
+    }
+
     public void setMetadataPostProcessor(MetadataPostProcessor processor) {
         this.metadataPostProcessor = processor
     }

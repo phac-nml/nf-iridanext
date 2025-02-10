@@ -9,8 +9,9 @@ import nextflow.Session
 import nextflow.plugin.extension.Operator
 import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.iridanext.IridaNextJSONOutput
+import groovy.util.logging.Slf4j
 
-
+@Slf4j
 class SamplesheetParser extends PluginExtensionPoint {
     private String id_key
 
@@ -27,21 +28,21 @@ class SamplesheetParser extends PluginExtensionPoint {
 
         final next = { it ->
             def meta = it[0]
-            def id = meta[this.id_key]
 
             if(meta instanceof Map<String,Object>)
             {
                 if(meta.containsKey(this.id_key))
                 {
+                    def id = meta[this.id_key]
                     iridaNextJSONOutput.addId(scope, id)
                 }
                 else {
-                    throw new Exception("The expected key (${this.id_key}) was not found in the meta map.")
+                    log.warn("The expected key (${this.id_key}) was not found in the meta map (${meta}).")
                 }
 
             }
             else {
-                throw new Exception("Expected a Map object in channel, but found ${meta}.")
+                log.warn("Expected a Map object in channel, but found ${meta}.")
             }
 
             target.bind(it)

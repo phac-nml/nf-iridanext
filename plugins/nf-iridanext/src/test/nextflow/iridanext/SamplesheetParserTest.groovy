@@ -84,8 +84,9 @@ class SamplesheetParserTest extends Dsl2Spec {
                 .of([["id":"sample1"]], [["id":"sample2"]], [["id":"sample3"]])
                 .loadIridaSampleIds()
             '''
-        
+
         final IridaNextJSONOutput iridaNextJSONOutput = IridaNextJSONOutput.getInstance()
+        iridaNextJSONOutput.reset() // Otherwise singleton class attributes persist across tests.
 
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -118,6 +119,7 @@ class SamplesheetParserTest extends Dsl2Spec {
             '''
         
         final IridaNextJSONOutput iridaNextJSONOutput = IridaNextJSONOutput.getInstance()
+        iridaNextJSONOutput.reset() // Otherwise singleton class attributes persist across tests.
 
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -126,6 +128,37 @@ class SamplesheetParserTest extends Dsl2Spec {
         iridaNextJSONOutput.isValidId(iridaNextJSONOutput.SAMPLES, "sample1")
         iridaNextJSONOutput.isValidId(iridaNextJSONOutput.SAMPLES, "sample2")
         iridaNextJSONOutput.isValidId(iridaNextJSONOutput.SAMPLES, "sample3")
+        iridaNextJSONOutput.isValidId(iridaNextJSONOutput.SAMPLES, "sample4") == false
+    }
+
+    def 'Test no loadIridaSampleIds' () {
+        when:
+        def config = [
+            iridanext: [
+                enabled: true,
+                output: [
+                    path: "/tmp/output/output.json.gz"
+                ]
+            ]
+        ]
+        def session = Spy(Session) {
+            getConfig() >> config
+        }
+        def SCRIPT = '''
+            include { loadIridaSampleIds } from 'plugin/nf-iridanext'
+            channel.of([["id":"sample1"], "data1"], [["id":"sample2"], "data2"], [["id":"sample3"], "data3"])
+            '''
+        
+        final IridaNextJSONOutput iridaNextJSONOutput = IridaNextJSONOutput.getInstance()
+        iridaNextJSONOutput.reset() // Otherwise singleton class attributes persist across tests.
+
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+
+        then:
+        iridaNextJSONOutput.isValidId(iridaNextJSONOutput.SAMPLES, "sample1") == false
+        iridaNextJSONOutput.isValidId(iridaNextJSONOutput.SAMPLES, "sample2") == false
+        iridaNextJSONOutput.isValidId(iridaNextJSONOutput.SAMPLES, "sample3") == false
         iridaNextJSONOutput.isValidId(iridaNextJSONOutput.SAMPLES, "sample4") == false
     }
 }
