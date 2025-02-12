@@ -454,7 +454,7 @@ Then the value for `b` for **SAMPLE1** will be written as an empty string in the
 }
 ```
 
-### Manually loading metadata
+### Manually loading sample IDs
 
 The default behaviour of the plugin is to automatically observe completed tasks and identify the sample ID of the `meta` object associated with it. This sample ID is recorded and used when producing the metadata section in the `iridanext.output.json.gz` output.
 
