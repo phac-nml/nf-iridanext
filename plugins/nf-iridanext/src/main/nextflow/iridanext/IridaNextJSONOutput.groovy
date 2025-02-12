@@ -31,29 +31,50 @@ import net.jimblackler.jsonschemafriend.ValidationException
 import nextflow.iridanext.MetadataPostProcessor
 
 import groovy.transform.CompileStatic
+import groovy.transform.Synchronized
 import groovy.json.JsonOutput
 import groovy.util.logging.Slf4j
 
 @Slf4j
 @CompileStatic
 class IridaNextJSONOutput {
-    private Map files = ["global": [], "samples": [:]]
-    private Map metadata = ["samples": [:]]
-    private Map<String,Set<String>> scopeIds = ["samples": [] as Set<String>]
+    public static final Schema defaultSchema = loadDefaultOutputSchema()
+    public static final String SAMPLES = "samples"
+
+    private static IridaNextJSONOutput instance;
+
+    private Map files = ["global": [], (SAMPLES): [:]]
+    private Map metadata = [(SAMPLES): [:]]
+    private Map<String,Set<String>> scopeIds = [(SAMPLES): [] as Set<String>]
     private Path relativizePath
     private Boolean shouldRelativize
     private Schema jsonSchema
     private Boolean validate
     private MetadataPostProcessor metadataPostProcessor
 
-    public static final Schema defaultSchema = loadDefaultOutputSchema()
 
-    public IridaNextJSONOutput(Path relativizePath = null,
+    private IridaNextJSONOutput(Path relativizePath = null,
         Schema jsonSchema = null, Boolean validate = false) {
         this.relativizePath = relativizePath
         this.shouldRelativize = (this.relativizePath != null)
         this.jsonSchema = jsonSchema
         this.validate = validate
+    }
+
+    @Synchronized
+    public static IridaNextJSONOutput getInstance() {
+        if(this.instance == null) {
+            this.instance = new IridaNextJSONOutput()
+        }
+
+        return this.instance
+    }
+
+    @Synchronized
+    public void reset() {
+        this.files = ["global": [], (SAMPLES): [:]]
+        this.metadata = [(SAMPLES): [:]]
+        this.scopeIds = [(SAMPLES): [] as Set<String>]
     }
 
     public void setMetadataPostProcessor(MetadataPostProcessor processor) {
@@ -73,8 +94,16 @@ class IridaNextJSONOutput {
         return validate
     }
 
+    public void setValidate(Boolean validate) {
+        this.validate = validate
+    }
+
     public Schema getOutputSchema() {
         return jsonSchema
+    }
+
+    public void setOutputSchema(Schema jsonSchema) {
+        this.jsonSchema = jsonSchema
     }
 
     public Boolean getShouldRelativize() {
@@ -83,6 +112,11 @@ class IridaNextJSONOutput {
 
     public Path getRelativizePath() {
         return relativizePath
+    }
+
+    public void setRelativizePath(Path relativizePath) {
+        this.relativizePath = relativizePath
+        this.shouldRelativize = (this.relativizePath != null)
     }
 
     public void appendMetadata(String scope, Map data) {
@@ -99,6 +133,7 @@ class IridaNextJSONOutput {
         }
     }
 
+    @Synchronized
     public void addId(String scope, String id) {
         log.trace "Adding scope=${scope} id=${id}"
         scopeIds[scope].add(id)
@@ -123,9 +158,9 @@ class IridaNextJSONOutput {
         }
 
         def files_scope = files[scope]
-        if (scope == "samples" && subscope == null) {
+        if (scope == this.SAMPLES && subscope == null) {
             throw new Exception("scope=${scope} but subscope is null")
-        } else if (scope == "samples" && subscope != null) {
+        } else if (scope == this.SAMPLES && subscope != null) {
             assert isValidId(scope, subscope)
 
             def files_scope_map = (Map)files_scope
@@ -158,9 +193,9 @@ class IridaNextJSONOutput {
     }
 
     public String toJson() {
-        Map<String, Object> samplesMetadata = metadata["samples"]
+        Map<String, Object> samplesMetadata = metadata[this.SAMPLES]
         samplesMetadata = metadataPostProcessor.process(samplesMetadata)
-        Map newMetadata = ["samples": samplesMetadata]
+        Map newMetadata = [(this.SAMPLES): samplesMetadata]
         return JsonOutput.toJson(["files": files, "metadata": newMetadata])
     }
 
