@@ -546,10 +546,10 @@ Please see the [Nextflow plugins documentation][nextflow-develop-plugins] and th
 ### 2. Install
 
 ```bash
-cp -r build/plugins/nf-iridanext-0.2.0 ~/.nextflow/plugins
+cp -r build/plugins/nf-iridanext-0.3.0 ~/.nextflow/plugins
 ```
 
-This copies the compiled plugin files into the Nextflow plugin cache (default `~/.nextflow/plugins`). Please change the version `0.2.0` to the version of the plugin built from source.
+This copies the compiled plugin files into the Nextflow plugin cache (default `~/.nextflow/plugins`). Please change the version `0.3.0` to the version of the plugin built from source.
 
 ### 3. Use
 
@@ -557,7 +557,7 @@ In order to use the built plugin, you have to specify the exact version in the N
 
 ```conf
 plugins {
-    id 'nf-iridanext@0.2.0'
+    id 'nf-iridanext@0.3.0'
 }
 ```
 
