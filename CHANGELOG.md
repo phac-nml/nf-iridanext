@@ -3,6 +3,9 @@
 - Added documentation for running test cases.
 - Added test cases to verify that missing values in CSV will be encoded as empty strings in IRIDA Next JSON file in the sample metadata section.
 - Added test cases for passing missing values in a JSON file.
+- Added channel operator `.loadIridaSampleIds()` that will load Irida Next sample IDs from a nf-validation-loaded (or similar) sample sheet (i.e. having a meta object).
+- Added test cases for manually loading Irida IDs from a sample sheet.
+- Added documentation for manually loading Irida IDs.
 
 # 0.2.0 - 2024/01/22
 
