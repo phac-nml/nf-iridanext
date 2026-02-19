@@ -2,6 +2,15 @@ plugins {
     id 'io.nextflow.nextflow-plugin' version '1.0.0-beta.10'
 }
 
+repositories {
+    mavenCentral()
+    maven { url = 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'net.jimblackler.jsonschemafriend:core:0.12.3'
+}
+
 version = '0.4.0'
 
 nextflowPlugin {
