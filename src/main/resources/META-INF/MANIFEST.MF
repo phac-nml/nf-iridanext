@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Plugin-Id: nf-iridanext
+Plugin-Version: 0.4.0
+Plugin-Class: phacnml.plugin.iridanext.IridaNextPlugin
+Plugin-Provider: phac-nml
+Plugin-Requires: >=22.10.0
