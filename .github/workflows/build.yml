@@ -1,23 +1,24 @@
-name: nf-iridanext CI
+name: nf-plugin-template CI
 on:
   push:
     branches:
-      - "*"
+      - '*'
     tags-ignore:
-      - "*"
+      - '*'
   pull_request:
     branches:
-      - "*"
+      - '*'
 jobs:
   build:
-    name: Build nf-iridanext
+    name: Build nf-plugin-template
     if: "!contains(github.event.head_commit.message, '[ci skip]')"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        java_version: [8, 11]
+        java_version: [17, 21]
+        nextflow_version: ['24.10', '25.04']
 
     steps:
       - name: Environment
@@ -34,12 +35,20 @@ jobs:
         with:
           java-version: ${{matrix.java_version}}
           architecture: x64
-          distribution: "temurin"
-
-      - name: Compile
-        run: ./gradlew assemble
+          distribution: 'temurin'
 
       - name: Tests
-        run: ./gradlew check
+        run: make test
         env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+
+      - name: Setup Nextflow ${{ matrix.nextflow_version }}
+        uses: nf-core/setup-nextflow@b9f764e8ba5c76b712ace14ecbfcef0e40ae2dd8 # v1
+        with:
+          version: "${{ matrix.nextflow_version }}"
+
+      - name: Install
+        run: make install
+
+      - name: Test
+        run: nextflow run validation/ -plugins nf-plugin-template@0.1.0
