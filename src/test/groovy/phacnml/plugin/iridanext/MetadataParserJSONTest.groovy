@@ -23,7 +23,7 @@ class MetadataParserJSONTest extends Specification {
 
     def 'Test parse JSON file' () {
         when:
-        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
+        def jsonFile = TestHelper.createTempFile("temp.json", jsonContent)
         def parser = new MetadataParserJSON()
         def outputData = parser.parseMetadata(jsonFile)
 
@@ -36,7 +36,7 @@ class MetadataParserJSONTest extends Specification {
 
     def 'Test parse JSON file complex' () {
         when:
-        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContentComplex)
+        def jsonFile = TestHelper.createTempFile("temp.json", jsonContentComplex)
         def parser = new MetadataParserJSON()
         def outputData = parser.parseMetadata(jsonFile)
 
@@ -54,7 +54,7 @@ class MetadataParserJSONTest extends Specification {
                             "2": {"b": "3", "c": null}
                         }'''.stripMargin()
 
-        def jsonFile = TestHelper.createInMemTempFile("temp.json", jsonContent)
+        def jsonFile = TestHelper.createTempFile("temp.json", jsonContent)
         def parser = new MetadataParserJSON()
         def outputData = parser.parseMetadata(jsonFile)
 

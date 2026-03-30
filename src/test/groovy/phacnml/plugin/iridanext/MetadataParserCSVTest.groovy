@@ -16,7 +16,7 @@ class MetadataParserCSVTest extends Specification {
         def csvContent = """a,b,c
                            |1,2,3
                            |4,5,6""".stripMargin()
-        def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+        def csvFile = TestHelper.createTempFile("temp.csv", csvContent)
         def parser = new MetadataParserCSV("a", ",")
         def csvMapColA = parser.parseMetadata(csvFile)
 
@@ -39,7 +39,7 @@ class MetadataParserCSVTest extends Specification {
         def csvContent = """a;b;c
                            |1;2;3
                            |4;5;6""".stripMargin()
-        def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+        def csvFile = TestHelper.createTempFile("temp.csv", csvContent)
         def parser = new MetadataParserCSV("a", ";")
         def csvMap = parser.parseMetadata(csvFile)
 
@@ -55,7 +55,7 @@ class MetadataParserCSVTest extends Specification {
         def csvContent = """a,b,c
                            |1,2,3
                            |4,5,6""".stripMargin()
-        def csvFile = TestHelper.createInMemTempFile("tempMatchAndParse.csv", csvContent)
+        def csvFile = TestHelper.createTempFile("tempMatchAndParse.csv", csvContent)
         def pathMatcherMatch = FileSystems.getDefault().getPathMatcher("glob:**/tempMatchAndParse.csv")
         def parserMatch = new MetadataParserCSV("a", ",", pathMatcherMatch)
         def csvMapMatch = parserMatch.matchAndParseMetadata([csvFile])
@@ -77,7 +77,7 @@ class MetadataParserCSVTest extends Specification {
         def csvContent = """a,b,c
                            |1,2,
                            |4,,""".stripMargin()
-        def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+        def csvFile = TestHelper.createTempFile("temp.csv", csvContent)
         def parser = new MetadataParserCSV("a", ",")
         def csvMapColA = parser.parseMetadata(csvFile)
 
@@ -93,7 +93,7 @@ class MetadataParserCSVTest extends Specification {
         def csvContent = """a,b,c
                            |1,2,3
                            |4,,6""".stripMargin()
-        def csvFile = TestHelper.createInMemTempFile("temp.csv", csvContent)
+        def csvFile = TestHelper.createTempFile("temp.csv", csvContent)
 
         parser = new MetadataParserCSV("b", ",")
         def csvMapColB = parser.parseMetadata(csvFile)

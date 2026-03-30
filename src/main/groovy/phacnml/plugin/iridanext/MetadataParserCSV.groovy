@@ -36,11 +36,11 @@ class MetadataParserCSV extends MetadataParser {
 
     private Map<String, Object> csvToJsonById(Path path, String idColumn) {
         path = Nextflow.file(path) as Path
-        List rowsList = path.splitCsv(header:true, strip:true, sep:sep, quote:'\"')
+        List<Map> rowsList = path.splitCsv(header:true, strip:true, sep:sep, quote:'\"')
 
         Map<String, Object> rowsMap = rowsList.collectEntries { row ->
-            if (idColumn !in row) {
-                throw new Exception("Error: column with idColumn=${idColumn} not in CSV ${path}")
+            if (!row.containsKey(idColumn)) {
+                throw new Exception("Error: column with idColumn=${idColumn} not in CSV ${path}: row=${row}")
             } else {
                 return [(row[idColumn] as String): (row as Map).findAll { it.key != idColumn }]
             }

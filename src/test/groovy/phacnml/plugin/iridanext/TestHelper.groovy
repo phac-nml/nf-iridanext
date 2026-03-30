@@ -32,15 +32,11 @@ import java.util.zip.GZIPInputStream
  */
 class TestHelper {
 
-    static private fs = Jimfs.newFileSystem(Configuration.unix());
-
-    static Path createInMemTempFile(String name='temp.file', String content=null) {
-        Path tmp = fs.getPath("/tmp");
-        tmp.mkdir()
-        def result = Files.createTempDirectory(tmp, 'test').resolve(name)
+    static Path createTempFile(String name='temp.file', String content=null) {
+        def result = Files.createTempDirectory('nf-iridanext').resolve(name)
         if( content )
             result.text = content
         return result
     }
-
+    
 }

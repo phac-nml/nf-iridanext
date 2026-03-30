@@ -182,7 +182,7 @@ class IridaNextObserverTest extends Specification {
             }
         }
         '''
-        def schemaFile = TestHelper.createInMemTempFile("test_schema.json", schemaString)
+        def schemaFile = TestHelper.createTempFile("test_schema.json", schemaString)
         def config = [
             iridanext: [
                 enabled: true,
@@ -218,7 +218,7 @@ class IridaNextObserverTest extends Specification {
             }
         }
         '''
-        def schemaFile = TestHelper.createInMemTempFile("test_schema.json", schemaString)
+        def schemaFile = TestHelper.createTempFile("test_schema.json", schemaString)
         def config = [
             iridanext: [
                 enabled: true,
@@ -253,7 +253,7 @@ class IridaNextObserverTest extends Specification {
             }
         }
         '''
-        def schemaFile = TestHelper.createInMemTempFile("test_schema.json", schemaString)
+        def schemaFile = TestHelper.createTempFile("test_schema.json", schemaString)
         def config = [
             iridanext: [
                 enabled: true,
