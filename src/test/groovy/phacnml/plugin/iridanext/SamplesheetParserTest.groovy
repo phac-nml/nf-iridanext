@@ -2,6 +2,7 @@ package phacnml.plugin.iridanext
 
 import java.nio.file.Paths
 import java.nio.file.FileSystems
+import java.util.jar.Manifest
 import phacnml.plugin.iridanext.SamplesheetParser
 
 import nextflow.Session
@@ -50,8 +51,11 @@ class SamplesheetParserTest extends Dsl2Spec {
             protected PluginDescriptorFinder createPluginDescriptorFinder() {
                 return new TestPluginDescriptorFinder(){
                     @Override
-                    protected Path getManifestPath(Path pluginPath) {
-                        return pluginPath.resolve('build/resources/main/META-INF/MANIFEST.MF')
+                    protected Manifest readManifestFromDirectory(Path pluginPath) {
+                        final manifestPath = pluginPath.resolve('build/tmp/jar/MANIFEST.MF')
+                        final input = Files.newInputStream(manifestPath)
+
+                        return new Manifest(input)
                     }
                 }
             }
