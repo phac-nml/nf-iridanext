@@ -1,5 +1,5 @@
-include { sayHello } from 'plugin/nf-plugin-template'
+include { loadIridaSampleIds } from 'plugin/nf-iridanext'
 
 workflow {
-    channel.of('Monde', 'Mondo', 'World', 'Mundo').map { target -> sayHello(target) }
+    channel.of([["id":"sample1"]], [["id":"sample2"]], [["id":"sample3"]]).loadIridaSampleIds()
 }
