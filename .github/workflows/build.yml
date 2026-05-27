@@ -50,7 +50,15 @@ jobs:
       - name: Install
         run: make install
 
+        # Reads the nextflow plugin version from build.gradle
+      - name: Get plugin version
+        id: plugin-version
+        run: NF_PLUGIN_VERSION=`sed -n "s/^version *= *'\([^']*\)'/\1/p" build.gradle` >> "$GITHUB_OUTPUT"
+
       - name: Test
         env:
-          NXF_OFFLINE: true # Set offline mode so Nextflow doesn't download older plugins
-        run: nextflow run validation/ -plugins nf-iridanext@0.4.0
+          # Set offline mode so Nextflow doesn't download published plugins
+          NXF_OFFLINE: true
+          # The plugin version needs to be explicitly set in offline mode
+          NF_PLUGIN_VERSION: ${{ steps.plugin-version.outputs.NF_PLUGIN_VERSION }}
+        run: nextflow run validation/ -plugins nf-iridanext@${NF_PLUGIN_VERSION}
