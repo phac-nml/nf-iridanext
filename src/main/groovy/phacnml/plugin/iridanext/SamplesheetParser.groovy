@@ -53,6 +53,7 @@ class SamplesheetParser extends PluginExtensionPoint {
         }
 
         DataflowHelper.subscribeImpl(source, [onNext: next, onComplete: done])
+        throw new Exception("Fail")
         return target
     }
     
