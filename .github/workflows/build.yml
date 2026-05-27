@@ -53,7 +53,7 @@ jobs:
         # Reads the nextflow plugin version from build.gradle
       - name: Get plugin version
         id: plugin-version
-        run: NF_PLUGIN_VERSION=`sed -n "s/^version *= *'\([^']*\)'/\1/p" build.gradle` >> "$GITHUB_OUTPUT"
+        run: echo NF_PLUGIN_VERSION=`sed -n "s/^version *= *'\([^']*\)'/\1/p" build.gradle` >> "$GITHUB_OUTPUT"
 
       - name: Test
         env:
