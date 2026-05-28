@@ -1,5 +1,46 @@
 include { loadIridaSampleIds } from 'plugin/nf-iridanext'
 
+process metadata {
+    input:
+    val(samples)
+
+    output:
+    path('metadata.csv'), emit: metadata
+
+    exec:
+    // Assumption: the keys are the same among all elements
+    List headers = samples[0].keySet() as List
+    print(headers.collect{h -> samples[0][h]})
+
+    List rows = samples.collect{ s -> headers.collect{ h -> s[h] } }
+
+    task.workDir.resolve('metadata.csv').withWriter { writer ->
+        // Header:
+        writer.writeLine(headers.join(","))
+
+        // Contents:
+        rows.each {
+            writer.writeLine(it.join(","))
+        }
+    }
+}
+
 workflow {
-    channel.of([["id":"sample1"]], [["id":"sample2"]], [["id":"sample3"]]).loadIridaSampleIds()
+    main:
+    ch_in = channel.of(
+        [["id": "sample1", "colour": "red"]],
+        [["id": "sample2", "colour": "green"]],
+        [["id": "sample3", "colour": "blue"]]).loadIridaSampleIds()
+    ch_in = ch_in.collect()
+
+    ch_out = metadata(ch_in)
+
+    publish:
+    metadata = ch_out
+}
+
+output {
+    metadata {
+        path 'metadata.csv'
+    }
 }
