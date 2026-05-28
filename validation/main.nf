@@ -10,7 +10,6 @@ process metadata {
     exec:
     // Assumption: the keys are the same among all elements
     List headers = samples[0].keySet() as List
-    print(headers.collect{h -> samples[0][h]})
 
     List rows = samples.collect{ s -> headers.collect{ h -> s[h] } }
 
@@ -39,8 +38,9 @@ workflow {
     metadata = ch_out
 }
 
+// This is the newer syntax for publishing output files
 output {
     metadata {
-        path 'metadata.csv'
+        path 'metadata'
     }
 }
