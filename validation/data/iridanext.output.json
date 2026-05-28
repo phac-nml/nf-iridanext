@@ -1,0 +1,17 @@
+{
+    "files": {
+        "global": [
+            {
+                "path": "metadata/metadata.csv"
+            }
+        ],
+        "samples": {
+            
+        }
+    },
+    "metadata": {
+        "samples": {
+            
+        }
+    }
+}

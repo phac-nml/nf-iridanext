@@ -26,4 +26,5 @@ release:
 # Validate the plugin with an example Nextflow pipeline under validation/
 # Set NXF_OFFLINE to true so Nextflow does not try to download published versions of the plugin
 validate: install
-	NXF_OFFLINE=true nextflow run ./validation/ -plugins nf-iridanext@${plugin_version}
+	NXF_OFFLINE=true nextflow run ./validation/ -plugins nf-iridanext@${plugin_version} && \
+	diff ./validation/data/iridanext.output.json ./results/iridanext.output.json
