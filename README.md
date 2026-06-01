@@ -542,7 +542,7 @@ cd nf-iridanext
 make test
 ```
 
-Please see the [Nextflow plugins documentation][nextflow-develop-plugins] and the [nf-hello][] example plugin for more details.
+Please see the [Nextflow plugins documentation][nextflow-develop-plugins] and the [nf-plugin-template][] example plugin for more details.
 
 ### 2. Install
 
@@ -586,7 +586,7 @@ This will produce the following output: [iridanext.output.json][fetchngs-out].
 
 # Credits
 
-This plugin was developed based on the `nf-hello` Nextflow plugin template <https://github.com/nextflow-io/nf-hello>. Other sources of information for development include the [nf-prov][] and [nf-validation][] Nextflow plugins, as well as the [Nextflow documentation][nextflow-docs].
+This plugin was developed based on the `nf-hello` Nextflow plugin template <https://github.com/nextflow-io/nf-hello> and the `nf-plugin-template` <https://github.com/nextflow-io/nf-plugin-template/>. Other sources of information for development include the [nf-prov][] and [nf-validation][] Nextflow plugins, as well as the [Nextflow documentation][nextflow-docs].
 
 # Legal
 
@@ -618,4 +618,4 @@ specific language governing permissions and limitations under the License.
 [fetchngs-ids.csv]: docs/examples/fetchngs/ids.csv
 [fetchngs-out]: docs/examples/fetchngs/iridanext.output.json
 [nextflow-develop-plugins]: https://www.nextflow.io/docs/latest/developer/plugins.html
-[nf-hello]: https://github.com/nextflow-io/nf-hello
+[nf-plugin-template]: https://github.com/nextflow-io/nf-plugin-template/
