@@ -527,7 +527,7 @@ In order to build this plugin you will need a Java Development Kit (such as [Ope
 
 ```bash
 # Currently building the plugin requires openjdk 21
-conda create --name nextflow openjdk=21 nextflow
+conda create --name nf-iridanext 'openjdk=21' nextflow
 ```
 
 ## Build and install from source
