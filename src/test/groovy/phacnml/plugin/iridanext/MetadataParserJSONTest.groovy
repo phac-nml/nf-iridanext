@@ -1,0 +1,67 @@
+package phacnml.plugin.iridanext
+
+import java.nio.file.FileSystems
+
+import phacnml.plugin.iridanext.MetadataParser
+import phacnml.plugin.iridanext.MetadataParserJSON
+import spock.lang.Specification
+import spock.lang.Ignore
+
+import phacnml.plugin.iridanext.TestHelper
+
+class MetadataParserJSONTest extends Specification {
+
+    private static final jsonContent = '''{
+                                    "1": {"b": "2", "c": "3"},
+                                    "2": {"b": "3", "c": "4"}
+                                }'''.stripMargin()
+
+    private static final jsonContentComplex = '''{
+                                    "1": {"coords": {"x": 2, "y": 8}, "coords.x": 3},
+                                    "2": {"coords": {"x": 0, "y": 1}, "coords.x": 4}
+                                }'''.stripMargin()
+
+    def 'Test parse JSON file' () {
+        when:
+        def jsonFile = TestHelper.createTempFile("temp.json", jsonContent)
+        def parser = new MetadataParserJSON()
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["b": "2", "c": "3"],
+            "2": ["b": "3", "c": "4"]
+        ]
+    }
+
+    def 'Test parse JSON file complex' () {
+        when:
+        def jsonFile = TestHelper.createTempFile("temp.json", jsonContentComplex)
+        def parser = new MetadataParserJSON()
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["coords": ["x": 2, "y": 8], "coords.x": 3],
+            "2": ["coords": ["x": 0, "y": 1], "coords.x": 4]
+        ]
+    }
+
+    def 'Test parse JSON file missing values' () {
+        when:
+        def jsonContent = '''{
+                            "1": {"b": "", "c": "3"},
+                            "2": {"b": "3", "c": null}
+                        }'''.stripMargin()
+
+        def jsonFile = TestHelper.createTempFile("temp.json", jsonContent)
+        def parser = new MetadataParserJSON()
+        def outputData = parser.parseMetadata(jsonFile)
+
+        then:
+        outputData == [
+            "1": ["b": "", "c": "3"],
+            "2": ["b": "3", "c": null]
+        ]
+    }
+}

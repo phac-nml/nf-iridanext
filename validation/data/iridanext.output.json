@@ -1,0 +1,25 @@
+{
+    "files": {
+        "global": [
+            {
+                "path": "metadata/metadata.csv"
+            }
+        ],
+        "samples": {
+            
+        }
+    },
+    "metadata": {
+        "samples": {
+            "sample1": {
+                "colour": "red"
+            },
+            "sample2": {
+                "colour": "green"
+            },
+            "sample3": {
+                "colour": "blue"
+            }
+        }
+    }
+}

@@ -1,65 +1,30 @@
+plugin_version := $(shell sed -n "s/^version *= *'\([^']*\)'/\1/p" ./build.gradle)
 
-config ?= compileClasspath
-
-ifdef module 
-mm = :${module}:
-else 
-mm = 
-endif 
+# Build the plugin
+assemble:
+	./gradlew assemble
 
 clean:
+	rm -rf .nextflow*
+	rm -rf work
+	rm -rf build
+	rm -rf results
 	./gradlew clean
 
-compile:
-	./gradlew :nextflow:exportClasspath compileGroovy
-	@echo "DONE `date`"
-
-
-check:
-	./gradlew check
-
-
-#
-# Show dependencies try `make deps config=runtime`, `make deps config=google`
-#
-deps:
-	./gradlew -q ${mm}dependencies --configuration ${config}
-
-deps-all:
-	./gradlew -q dependencyInsight --configuration ${config} --dependency ${module}
-
-#
-# Refresh SNAPSHOTs dependencies
-#
-refresh:
-	./gradlew --refresh-dependencies 
-
-#
-# Run all tests or selected ones
-#
+# Run plugin unit tests
 test:
-ifndef class
-	./gradlew ${mm}test
-else
-	./gradlew ${mm}test --tests ${class}
-endif
+	./gradlew test
 
-#
-# generate build zips under build/plugins
-# you can install the plugin copying manually these files to $HOME/.nextflow/plugins
-#
-buildPlugins:
-	./gradlew copyPluginZip
+# Install the plugin into local nextflow plugins dir
+install:
+	./gradlew install
 
-#
-# Upload JAR artifacts to Maven Central
-#
-upload:
-	./gradlew upload
+# Publish the plugin
+release:
+	./gradlew releasePlugin
 
-
-upload-plugins:
-	./gradlew plugins:upload
-
-publish-index:
-	./gradlew plugins:publishIndex
+# Validate the plugin with an example Nextflow pipeline under validation/
+# Set NXF_OFFLINE to true so Nextflow does not try to download published versions of the plugin
+validate: install
+	NXF_OFFLINE=true nextflow run ./validation/ -plugins nf-iridanext@${plugin_version} && \
+	diff ./validation/data/iridanext.output.json ./results/iridanext.output.json

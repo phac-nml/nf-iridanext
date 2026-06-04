@@ -523,56 +523,51 @@ Since Nextflow tries to parallelize as much as possible, this will cause `input 
 
 # Development
 
-In order to build this plugin you will need a Java Development Kit (such as [OpenJDK](https://openjdk.org/)) and [Groovy](https://groovy-lang.org/index.html). For Ubuntu, this can be installed with:
+In order to build this plugin you will need a Java Development Kit (such as [OpenJDK](https://openjdk.org/)), and Nextflow. If you are using conda, you can create a development environment with:
 
 ```bash
-sudo apt install default-jdk groovy
+# Currently building the plugin requires openjdk 21
+conda create --name nf-iridanext 'openjdk=21' nextflow
 ```
 
 ## Build and install from source
 
 In order to build and install the plugin from source, please do the following:
 
-### 1. Build
+### 1. Build and test
 
 ```bash
 git clone https://github.com/phac-nml/nf-iridanext.git
 cd nf-iridanext
-make buildPlugins
+make test
 ```
 
-Please see the [Nextflow plugins documentation][nextflow-develop-plugins] and the [nf-hello][] example plugin for more details.
+Please see the [Nextflow plugins documentation][nextflow-develop-plugins] and the [nf-plugin-template][] example plugin for more details.
 
 ### 2. Install
 
 ```bash
-cp -r build/plugins/nf-iridanext-0.3.0 ~/.nextflow/plugins
+make install
 ```
 
-This copies the compiled plugin files into the Nextflow plugin cache (default `~/.nextflow/plugins`). Please change the version `0.3.0` to the version of the plugin built from source.
+This copies the compiled plugin files into the Nextflow plugin cache (default `~/.nextflow/plugins`).
 
-### 3. Use
+### 3. Validate with Nextflow
+
+You can run end-to-end tests of this plugin build with Nextflow using:
+
+```bash
+make validate
+```
+
+### 4. Use
 
 In order to use the built plugin, you have to specify the exact version in the Nextflow configuration so that Nextflow does not try to update the plugin. That is, in the configuration use:
 
 ```conf
 plugins {
-    id 'nf-iridanext@0.3.0'
+    id 'nf-iridanext@0.4.0'
 }
-```
-
-## Run unit/integration tests
-
-In order to run the test cases, please clone this repository and run the following command:
-
-```bash
-./gradlew check
-```
-
-To get more information for any failed tests, please run:
-
-```bash
-./gradlew check --info
 ```
 
 # Example: nf-core/fetchngs
@@ -591,7 +586,7 @@ This will produce the following output: [iridanext.output.json][fetchngs-out].
 
 # Credits
 
-This plugin was developed based on the `nf-hello` Nextflow plugin template <https://github.com/nextflow-io/nf-hello>. Other sources of information for development include the [nf-prov][] and [nf-validation][] Nextflow plugins, as well as the [Nextflow documentation][nextflow-docs].
+This plugin was developed based on the `nf-hello` Nextflow plugin template <https://github.com/nextflow-io/nf-hello> and the `nf-plugin-template` <https://github.com/nextflow-io/nf-plugin-template/>. Other sources of information for development include the [nf-prov][] and [nf-validation][] Nextflow plugins, as well as the [Nextflow documentation][nextflow-docs].
 
 # Legal
 
@@ -623,4 +618,4 @@ specific language governing permissions and limitations under the License.
 [fetchngs-ids.csv]: docs/examples/fetchngs/ids.csv
 [fetchngs-out]: docs/examples/fetchngs/iridanext.output.json
 [nextflow-develop-plugins]: https://www.nextflow.io/docs/latest/developer/plugins.html
-[nf-hello]: https://github.com/nextflow-io/nf-hello
+[nf-plugin-template]: https://github.com/nextflow-io/nf-plugin-template/

@@ -1,3 +1,11 @@
+# 0.4.0 - In development
+
+- Updated `nf-iridanext` plugin build process to match structure described in Nextflow docs <https://docs.seqera.io/nextflow/plugins/developing-plugins>. [PR 25](https://github.com/phac-nml/nf-iridanext/pull/25)
+    - Plugin now follows structure in [nf-plugin-template](https://github.com/nextflow-io/nf-plugin-template/).
+    - Plugin now makes use of the [nwxtflow-plugin-gradle](https://github.com/nextflow-io/nextflow-plugin-gradle) for building.
+    - Updated package name from `nextflow.iridanext` to `phacnml.plugin.iridanext`.
+- Added an end-to-end integration test of plugin with Nextflow, which can be run with `make validate`. [PR 25](https://github.com/phac-nml/nf-iridanext/pull/25)
+
 # 0.3.0 - 2025/02/13
 
 - Added documentation for running test cases.

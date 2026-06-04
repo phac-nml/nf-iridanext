@@ -9,3 +9,5 @@ work
 out
 
 gradle.properties
+
+/results/
